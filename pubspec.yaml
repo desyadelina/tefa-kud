@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.3.2
+  smooth_page_indicator: ^1.2.0+3
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +19,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/logo/
+
+  fonts:
+    - family: RedRose
+      fonts:
+        - asset: fonts/RedRose-Bold.ttf
+        - weight: 700
+        - asset: fonts/RedRose-Regular.ttf
+        - weight: 400
+        - asset: fonts/RedRose-Light.ttf
+        - weight: 300  
