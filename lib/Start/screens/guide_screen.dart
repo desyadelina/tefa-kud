@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/Start/screens/loginForm.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/guide_layout.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -13,10 +14,26 @@ class GuideMain extends StatefulWidget {
 class _GuideScreenState extends State<GuideMain> {
   final PageController _startPageController = PageController();
   final PageController _guidePageController = PageController();
+  String nextButtonText = "Selanjutnya"; // Default text for the Next button
+
+  @override
+  void initState() {
+    super.initState();
+    _guidePageController.addListener(_updateNextButtonText);
+  }
+
+  void _updateNextButtonText() {
+    setState(() {
+
+      nextButtonText =
+          (_guidePageController.page?.round() == 2) ? "Masuk!" : "Selanjutnya";
+    });
+  }
 
   @override
   void dispose() {
     _startPageController.dispose();
+    _guidePageController.removeListener(_updateNextButtonText);
     _guidePageController.dispose();
     super.dispose();
   }
@@ -63,39 +80,54 @@ class _GuideScreenState extends State<GuideMain> {
                   );
                 },
               ),
-              GuideScreens(_startPageController),
+              GuideScreens(
+                  _startPageController, _guidePageController, nextButtonText),
             ],
           ),
         ],
       ),
     );
   }
+}
 
-  Stack GuideScreens(PageController startPageController) {
+class GuideScreens extends StatelessWidget {
+  final PageController startPageController;
+  final PageController guidePageController;
+  final String nextButtonText;
+
+  const GuideScreens(
+    this.startPageController,
+    this.guidePageController,
+    this.nextButtonText, {
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Menambahkan PageView di sini dengan warna latar belakang transparan
         PageView(
-          controller: _guidePageController,
+          controller: guidePageController,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            // Setiap halaman dari GuideLayout
             GuideLayout(
-              controller: _guidePageController,
+              transformScale: 1.1,
+              controller: guidePageController,
               title: "Nikmati Akses dan Layanan",
               subtitle:
                   "Selalu hadir untuk Anda, Bersama membangun Kesejahteraan.",
               imagePath: 'assets/images/Mobile Transaction.png',
             ),
             GuideLayout(
-              controller: _guidePageController,
-              title: "Fleksibilitas untuk Semua Kebutuhan Anda",
+              transformScale: 1.35,
+              controller: guidePageController,
+              title: "Bersama untuk Keuntungan Bersama",
               subtitle:
-                  "Kami menyediakan solusi yang tepat untuk kebutuhan Anda sehari-hari.",
+                  "Bukan hanya soal transaksi, tapi juga berbagi manfaat untuk masa depan yang lebih cerah.",
               imagePath: 'assets/images/Money Management.png',
             ),
             GuideLayout(
-              controller: _guidePageController,
+              controller: guidePageController,
               title: "Keamanan Terjamin, Perlindungan Maksimal",
               subtitle:
                   "Dapatkan perlindungan menyeluruh dengan keamanan bersertifikat dari Koperasi Indonesia.",
@@ -111,25 +143,37 @@ class _GuideScreenState extends State<GuideMain> {
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 32),
             child: Center(
               child: PageIndicatorWithButtons(
-                controller: _guidePageController,
+                controller: guidePageController,
                 pageCount: 3,
+                textNextButton: nextButtonText,
                 onBackPressed: () {
-                  if (_guidePageController.page!.round() == 0) {
+                  if (guidePageController.page!.round() == 0) {
                     startPageController.previousPage(
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.ease,
                     );
                   } else {
-                    _guidePageController.previousPage(
+                    guidePageController.previousPage(
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.ease,
                     );
                   }
                 },
-                onNextPressed: () => _guidePageController.nextPage(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.ease,
-                ),
+                onNextPressed: () {
+                  if (guidePageController.page!.round() == 2) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginMain(),
+                      ),
+                    );
+                  } else {
+                    guidePageController.nextPage(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.ease,
+                    );
+                  }
+                },
               ),
             ),
           ),
@@ -142,6 +186,7 @@ class _GuideScreenState extends State<GuideMain> {
 class PageIndicatorWithButtons extends StatelessWidget {
   final PageController controller;
   final int pageCount;
+  final String textNextButton;
   final VoidCallback onBackPressed;
   final VoidCallback onNextPressed;
 
@@ -149,6 +194,7 @@ class PageIndicatorWithButtons extends StatelessWidget {
     super.key,
     required this.controller,
     this.pageCount = 3,
+    this.textNextButton = "Selanjutnya",
     required this.onBackPressed,
     required this.onNextPressed,
   });
@@ -165,13 +211,13 @@ class PageIndicatorWithButtons extends StatelessWidget {
             activeDotDecoration: DotDecoration(
               width: 32,
               height: 10,
-              color: const Color(0xFF43964F), // Warna indikator aktif
+              color: const Color(0xFF43964F),
               borderRadius: BorderRadius.circular(6),
             ),
             dotDecoration: DotDecoration(
               width: 10,
               height: 10,
-              color: const Color(0xFFD9D9D9), // Warna indikator tidak aktif
+              color: const Color(0xFFD9D9D9),
               borderRadius: BorderRadius.circular(5),
             ),
           ),
@@ -200,7 +246,7 @@ class PageIndicatorWithButtons extends StatelessWidget {
               child: button(
                 onPressed: onNextPressed,
                 backgroundColor: const Color(0xFF43964F),
-                text: "Selanjutnya",
+                text: textNextButton,
               ),
             ),
           ],
