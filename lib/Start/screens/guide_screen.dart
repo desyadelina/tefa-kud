@@ -3,6 +3,7 @@ import 'package:tefa_kud/Start/screens/loginForm.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/guide_layout.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:tefa_kud/widget/layout/start_guide_layout.dart';
 
 class GuideMain extends StatefulWidget {
   const GuideMain({super.key});
@@ -11,20 +12,48 @@ class GuideMain extends StatefulWidget {
   State<GuideMain> createState() => _GuideScreenState();
 }
 
-class _GuideScreenState extends State<GuideMain> {
+class _GuideScreenState extends State<GuideMain>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacityAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
+
   final PageController _startPageController = PageController();
   final PageController _guidePageController = PageController();
-  String nextButtonText = "Selanjutnya"; // Default text for the Next button
+  String nextButtonText = "Selanjutnya";
 
   @override
   void initState() {
     super.initState();
-    _guidePageController.addListener(_updateNextButtonText);
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds:2250),
+      vsync: this,
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInCubic),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInCirc),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -0.1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.ease),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _controller.forward();
+      });
+    });
   }
 
   void _updateNextButtonText() {
     setState(() {
-
       nextButtonText =
           (_guidePageController.page?.round() == 2) ? "Masuk!" : "Selanjutnya";
     });
@@ -35,6 +64,7 @@ class _GuideScreenState extends State<GuideMain> {
     _startPageController.dispose();
     _guidePageController.removeListener(_updateNextButtonText);
     _guidePageController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -52,15 +82,23 @@ class _GuideScreenState extends State<GuideMain> {
               height: 50,
             ),
           ),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.18,
-            left: 0,
-            right: 0,
-            child: Transform.scale(
-              scale: 1.3,
-              child: Image.asset(
-                'assets/images/Background Light.png',
-                fit: BoxFit.cover,
+          FadeTransition(
+            opacity: _opacityAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.18),
+                  child: Transform.scale(
+                    scale: 1.3,
+                    child: Image.asset(
+                      'assets/images/Background Light.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -163,8 +201,13 @@ class GuideScreens extends StatelessWidget {
                   if (guidePageController.page!.round() == 2) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginMain(),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const LoginMain(),
+                        transitionDuration:
+                            Duration.zero, // Disable transition duration
+                        reverseTransitionDuration:
+                            Duration.zero, // Disable reverse transition as well
                       ),
                     );
                   } else {

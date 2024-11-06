@@ -12,6 +12,7 @@ dependencies:
   shared_preferences: ^2.3.2
   smooth_page_indicator: ^1.2.0+3
   flutter_staggered_animations: ^1.1.1
+  flutter_floating_bottom_bar: ^1.2.1+1
 
 dev_dependencies:
   flutter_test:

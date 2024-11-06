@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:tefa_kud/Settings/screens/profile_screen.dart';
 import 'package:tefa_kud/widget/button.dart';
 
 class LoginMain extends StatefulWidget {
@@ -117,14 +118,8 @@ class _LoginFormState extends State<LoginMain> {
                                           },
                                           items: <String>[
                                             '+62',
-                                            '+1',
-                                            '+44',
-                                            '+91',
-                                            '+77',
-                                            '+48',
-                                          ] // TOLONG TAMBAHI NOMOR LAGI YAHHHH
-                                              .map<DropdownMenuItem<String>>(
-                                                  (String value) {
+                                          ].map<DropdownMenuItem<String>>(
+                                              (String value) {
                                             return DropdownMenuItem<String>(
                                               value: value,
                                               child: Text(
@@ -253,6 +248,19 @@ class _LoginFormState extends State<LoginMain> {
                                 const SizedBox(height: 24.0),
                                 button(
                                   onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation,
+                                                secondaryAnimation) =>
+                                            const ProfileScreen(),
+                                        transitionDuration: Duration
+                                            .zero,
+                                        reverseTransitionDuration: Duration
+                                            .zero, 
+                                      ),
+                                      (route) => false,
+                                    );
                                     String countryCode =
                                         _countryCodeController.text;
                                     String username = _usernameController.text;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/guide_screen.dart';
 import 'package:tefa_kud/Start/screens/splash_screen.dart';
 
 void main() {

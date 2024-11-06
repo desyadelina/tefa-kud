@@ -12,18 +12,22 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isMoved = false;
   bool _isShow = false;
 
+  static const Duration showDuration = Duration(milliseconds: 500);
+  static const Duration moveDuration = Duration(milliseconds: 2000);
+  static const Duration navigateDelay = Duration(milliseconds: 500);
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 450), () {
+    Future.delayed(showDuration, () {
       setState(() {
         _isShow = true;
       });
     });
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    Future.delayed(moveDuration, () {
       setState(() {
         _isMoved = true;
-        Future.delayed(const Duration(milliseconds: 515), () {
+        Future.delayed(navigateDelay, () {
           setState(() {
             Navigator.pushReplacement(
               context,
@@ -39,16 +43,22 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: AnimatedContainer(
-        color: const Color(0xFF43964F),
-        duration: const Duration(milliseconds: 490),
-        curve: Curves.easeInExpo,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutExpo,
         alignment:
-            _isMoved ? const Alignment(-0.955, -0.905) : Alignment.center,
-        child: AnimatedScale(
-          scale: _isMoved ? 0.5 : 1.0,
-          duration: const Duration(milliseconds: 490),
-          child: Image.asset('assets/logo/koperasi-indonesia-seeklogo.png',
-              width: 100, height: 100),
+            _isMoved ? const Alignment(-0.957, -0.905) : Alignment.center,
+        child: AnimatedOpacity(
+          opacity: _isShow ? 1 : 0,
+          duration: const Duration(milliseconds: 500),
+          child: AnimatedScale(
+            scale: _isMoved ? 0.5 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: Image.asset(
+              'assets/logo/koperasi-indonesia-seeklogo.png',
+              width: 100,
+              height: 100,
+            ),
+          ),
         ),
       ),
     );
