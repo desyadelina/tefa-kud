@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:tefa_kud/Settings/screens/profile_screen.dart';
+import 'package:tefa_kud/Start/screens/home_page.dart';
 import 'package:tefa_kud/widget/button.dart';
+import 'package:tefa_kud/widget/layout/main_layout.dart';
 
 class LoginMain extends StatefulWidget {
   const LoginMain({super.key});
@@ -253,7 +255,7 @@ class _LoginFormState extends State<LoginMain> {
                                       PageRouteBuilder(
                                         pageBuilder: (context, animation,
                                                 secondaryAnimation) =>
-                                            const ProfileScreen(),
+                                            const MainLayout(),
                                         transitionDuration: Duration
                                             .zero,
                                         reverseTransitionDuration: Duration

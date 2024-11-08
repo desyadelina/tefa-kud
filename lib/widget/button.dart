@@ -29,7 +29,8 @@ class button extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
                 side: BorderSide(color: outlineColor, width: 1.4),
-              )),
+              )
+            ),
           child: Text(
             text,
             style: TextStyle(color: textColor, fontSize: 16),

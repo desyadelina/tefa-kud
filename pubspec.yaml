@@ -9,10 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.2.3
   smooth_page_indicator: ^1.2.0+3
   flutter_staggered_animations: ^1.1.1
   flutter_floating_bottom_bar: ^1.2.1+1
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +25,7 @@ flutter:
   assets:
     - assets/images/
     - assets/logo/
+    - assets/images/banner/
 
   fonts:
     - family: RedRose

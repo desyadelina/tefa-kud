@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/widget/button.dart';
 
 class GuideLayout extends StatelessWidget {
   final PageController controller;

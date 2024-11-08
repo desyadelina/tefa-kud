@@ -1,16 +1,15 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileState();
+  State<ProfilePage> createState() => _ProfileState();
 }
 
-class _ProfileState extends State<ProfileScreen>
+class _ProfileState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   final List<Color> colors = [Colors.blue, Colors.red, Colors.green];
@@ -55,86 +54,31 @@ class _ProfileState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
-            '',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontFamily: 'RedRose',
-            ),
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(255, 67, 150, 79),
-        toolbarHeight: 98,
-      ),
-      body: BottomBar(
-        fit: StackFit.expand,
-        icon: (width, height) => Center(
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: null,
-            icon: Icon(
-              Icons.arrow_upward_rounded,
-              color: const Color(0xFFFFFFFF),
-              size: width,
-            ),
-          ),
-        ),
-        borderRadius: BorderRadius.circular(500),
-        duration: const Duration(seconds: 1),
-        curve: Curves.decelerate,
-        showIcon: false,
-        width: MediaQuery.of(context).size.width * 0.8,
-        barColor: const Color(0xFF171717),
-        start: 2,
-        end: 0,
-        offset: 10,
-        barAlignment: Alignment.bottomCenter,
-        iconHeight: 35,
-        iconWidth: 35,
-        reverse: false,
-        hideOnScroll: true,
-        scrollOpposite: false,
-        onBottomBarHidden: () {},
-        onBottomBarShown: () {},
-        body: (context, controller) => TabBarView(
-          controller: tabController,
-          physics: const BouncingScrollPhysics(),
-          children: [
-            ProfilePage(context),
-            ProfilePage(context),
-            ProfilePage(context),
-          ],
-        ),
-        child: TabBar(
-          controller: tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey,
-          indicator: const BoxDecoration(),
-          tabs: const [
-            Tab(icon: Icon(Icons.home)),
-            Tab(icon: Icon(Icons.collections_bookmark_sharp)),
-            Tab(icon: Icon(Icons.person)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Container ProfilePage(BuildContext context) {
     return Container(
       // ignore: prefer_const_constructors
       padding: EdgeInsets.symmetric(vertical: 24, horizontal: 36),
       child: Column(
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {},
+              child: const Text(
+                "Simpan",
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8D8D8D),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  )),
+            ),
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
               const CircleAvatar(
-                radius: 50,
+                radius: 70,
                 backgroundImage:
                     AssetImage('assets/logo/koperasi-indonesia-seeklogo.png'),
               ),
@@ -161,6 +105,16 @@ class _ProfileState extends State<ProfileScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Selai apel",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
               Text(
                 "Nomor Telepon",
                 style: TextStyle(
@@ -365,7 +319,7 @@ class NewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Page'),
+        title: const Text('Pin berhasil diganti'),
       ),
       body: const Center(
         child: Text(
