@@ -1,19 +1,17 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:tefa_kud/Settings/screens/profile_screen.dart';
-import 'package:tefa_kud/Start/screens/home_page.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
-class LoginMain extends StatefulWidget {
-  const LoginMain({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginMain> createState() => _LoginFormState();
+  State<LoginScreen> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginMain> {
+class _LoginFormState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _countryCodeController =
@@ -44,247 +42,266 @@ class _LoginFormState extends State<LoginMain> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: 64,
-            left: 32,
-            child: Image.asset(
-              'assets/logo/koperasi-indonesia-seeklogo.png',
-              width: 50,
-              height: 50,
-            ),
+    return Stack(
+      children: [
+        Positioned(
+          top: 64,
+          left: 32,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/logo/koperasi-indonesia-seeklogo.png',
+                width: 40,
+                height: 40,
+              ),
+              const SizedBox(
+                width: 14,
+              ),
+              const Text(
+                "Koperasi Unit Desa",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              )
+            ],
           ),
-          Container(
-            padding: const EdgeInsets.only(top: 160),
-            child: AnimationLimiter(
-              child: ListView.builder(
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 775),
-                    child: SlideAnimation(
-                      verticalOffset: 90.0,
-                      child: FadeInAnimation(
-                        duration: const Duration(milliseconds: 300),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 36),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'MASUK',
-                                  style: TextStyle(
-                                      fontFamily: 'RedRose',
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w500),
-                                  textAlign: TextAlign.left,
-                                ),
-                                const Text(
-                                  'Masuk dan nikmati layanan koperasi yang ramah dan bersahabat.',
-                                  style: TextStyle(
+        ),
+        Container(
+          padding: const EdgeInsets.only(top: 160),
+          child: AnimationLimiter(
+            child: ListView.builder(
+              itemCount: 1,
+              itemBuilder: (BuildContext context, int index) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 775),
+                  child: SlideAnimation(
+                    verticalOffset: 90.0,
+                    child: FadeInAnimation(
+                      duration: const Duration(milliseconds: 300),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 36),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'MASUK',
+                                style: TextStyle(
                                     fontFamily: 'RedRose',
-                                    color: Color.fromARGB(255, 102, 102, 102),
-                                    fontSize: 16,
-                                  ),
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w500),
+                                textAlign: TextAlign.left,
+                              ),
+                              const Text(
+                                'Masuk dan nikmati layanan koperasi yang ramah dan bersahabat.',
+                                style: TextStyle(
+                                  fontFamily: 'RedRose',
+                                  color: Color.fromARGB(255, 102, 102, 102),
+                                  fontSize: 16,
                                 ),
-                                const SizedBox(height: 30),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 90,
-                                      height: 58,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
+                              ),
+                              const SizedBox(height: 30),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 90,
+                                    height: 58,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: _usernameFocusNode.hasFocus
+                                            ? Colors.green
+                                            : const Color.fromARGB(
+                                                255, 128, 127, 127),
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: DropdownButton<String>(
+                                        value: _selectedCountryCode,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            _selectedCountryCode = newValue!;
+                                          });
+                                        },
+                                        items: <String>[
+                                          '+62',
+                                        ].map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: const TextStyle(
+                                                fontFamily: 'RedRose',
+                                                color: Colors.grey,
+                                                fontSize: 20,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          );
+                                        }).toList(),
+                                        underline:
+                                            Container(), // Remove underline
+                                        icon: const Icon(Icons
+                                            .arrow_drop_down), // Dropdown icon
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _usernameController,
+                                      focusNode: _usernameFocusNode,
+                                      style: const TextStyle(
+                                        fontFamily: 'RedRose',
+                                        color: Colors.grey,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: "Nomor Telepon",
+                                        hintText: "Contoh: xxx xxxx xxxx",
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey[400],
+                                        ),
+                                        labelStyle: TextStyle(
                                           color: _usernameFocusNode.hasFocus
                                               ? Colors.green
-                                              : const Color.fromARGB(
-                                                  255, 128, 127, 127),
-                                          width: 1,
+                                              : Colors.grey,
                                         ),
-                                        borderRadius: BorderRadius.circular(10),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                              color: Colors.green),
+                                        ),
                                       ),
-                                      child: Center(
-                                        child: DropdownButton<String>(
-                                          value: _selectedCountryCode,
-                                          onChanged: (String? newValue) {
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16.0),
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: _isObscured,
+                                focusNode: _passwordFocusNode,
+                                style: const TextStyle(
+                                  fontFamily: 'RedRose',
+                                  color: Colors.grey,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: "Password",
+                                  hintText: "Contoh: ABcd123@!",
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey[400],
+                                  ),
+                                  labelStyle: TextStyle(
+                                    fontFamily: 'RedRose',
+                                    color: _passwordFocusNode.hasFocus
+                                        ? Colors.green
+                                        : Colors.grey,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide:
+                                        const BorderSide(color: Colors.grey),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide:
+                                        const BorderSide(color: Colors.green),
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 0),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        child: Checkbox(
+                                          side: const BorderSide(
+                                            color: Color(0xFF8D8D8D),
+                                            width: 1.4,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          value: !_isObscured,
+                                          activeColor: Colors.green,
+                                          onChanged: (bool? value) {
                                             setState(() {
-                                              _selectedCountryCode = newValue!;
+                                              _isObscured = !value!;
                                             });
                                           },
-                                          items: <String>[
-                                            '+62',
-                                          ].map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(
-                                                value,
-                                                style: const TextStyle(
-                                                  fontFamily: 'RedRose',
-                                                  color: Colors.grey,
-                                                  fontSize: 20,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            );
-                                          }).toList(),
-                                          underline:
-                                              Container(), // Remove underline
-                                          icon: const Icon(Icons
-                                              .arrow_drop_down), // Dropdown icon
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _usernameController,
-                                        focusNode: _usernameFocusNode,
-                                        style: const TextStyle(
+                                      const SizedBox(
+                                        width: 8,
+                                      ),
+                                      const Text(
+                                        "Tampilkan kata sandi",
+                                        style: TextStyle(
                                           fontFamily: 'RedRose',
                                           color: Colors.grey,
-                                        ),
-                                        decoration: InputDecoration(
-                                          labelText: "Nomor Telepon",
-                                          labelStyle: TextStyle(
-                                            fontFamily: 'RedRose',
-                                            color: _usernameFocusNode.hasFocus
-                                                ? Colors.green
-                                                : Colors.grey,
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: const BorderSide(
-                                                color: Colors.grey),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: const BorderSide(
-                                                color: Colors.green),
-                                          ),
+                                          fontSize: 14,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16.0),
-                                TextField(
-                                  controller: _passwordController,
-                                  obscureText: _isObscured,
-                                  focusNode: _passwordFocusNode,
-                                  style: const TextStyle(
-                                    fontFamily: 'RedRose',
-                                    color: Colors.grey,
-                                  ),
-                                  decoration: InputDecoration(
-                                    labelText: "Password",
-                                    labelStyle: TextStyle(
-                                      fontFamily: 'RedRose',
-                                      color: _passwordFocusNode.hasFocus
-                                          ? Colors.green
-                                          : Colors.grey,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide:
-                                          const BorderSide(color: Colors.grey),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide:
-                                          const BorderSide(color: Colors.green),
-                                    ),
+                                    ],
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 0),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          child: Checkbox(
-                                            side: const BorderSide(
-                                              color: Color(0xFF8D8D8D),
-                                              width: 1.4,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            value: !_isObscured,
-                                            activeColor: Colors.green,
-                                            onChanged: (bool? value) {
-                                              setState(() {
-                                                _isObscured = !value!;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        const Text(
-                                          "Tampilkan kata sandi",
-                                          style: TextStyle(
-                                            fontFamily: 'RedRose',
-                                            color: Colors.grey,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
+                              ),
+                              const SizedBox(height: 24.0),
+                              button(
+                                onPressed: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          const MainLayout(),
+                                      transitionDuration: Duration.zero,
+                                      reverseTransitionDuration: Duration.zero,
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 24.0),
-                                button(
-                                  onPressed: () {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      PageRouteBuilder(
-                                        pageBuilder: (context, animation,
-                                                secondaryAnimation) =>
-                                            const MainLayout(),
-                                        transitionDuration: Duration
-                                            .zero,
-                                        reverseTransitionDuration: Duration
-                                            .zero, 
-                                      ),
-                                      (route) => false,
-                                    );
-                                    String countryCode =
-                                        _countryCodeController.text;
-                                    String username = _usernameController.text;
-                                    String password = _passwordController.text;
-                                    print(
-                                        "Country Code: $countryCode, Username: $username, Password: $password");
-                                  },
-                                  text: "Masuk",
-                                ),
-                              ],
-                            ),
+                                    (route) => false,
+                                  );
+                                  String countryCode =
+                                      _countryCodeController.text;
+                                  String username = _usernameController.text;
+                                  String password = _passwordController.text;
+                                  print(
+                                      "Country Code: $countryCode, Username: $username, Password: $password");
+                                },
+                                text: "Masuk",
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

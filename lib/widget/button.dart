@@ -6,6 +6,7 @@ class button extends StatelessWidget {
   final Color outlineColor;
   final String text;
   final Color textColor;
+  final Widget? icon;
 
   const button({
     super.key,
@@ -14,6 +15,7 @@ class button extends StatelessWidget {
     required this.text,
     this.textColor = Colors.white,
     this.outlineColor = const Color(0xFF43964F),
+    this.icon,
   });
 
   @override
@@ -29,11 +31,19 @@ class button extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
                 side: BorderSide(color: outlineColor, width: 1.4),
-              )
-            ),
-          child: Text(
-            text,
-            style: TextStyle(color: textColor, fontSize: 16),
+              )),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                icon!,
+                const SizedBox(width: 12),
+              ],
+              Text(
+                text,
+                style: TextStyle(color: textColor, fontSize: 16),
+              ),
+            ],
           )),
     );
   }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class GuideLayout extends StatelessWidget {
@@ -61,10 +60,8 @@ class GuideLayout extends StatelessWidget {
                         decoration: TextDecoration.none,
                       ),
                       maxLines: 2, // Limit text to 2 lines
-                      overflow:
-                          TextOverflow.ellipsis, 
-                      textAlign:
-                          TextAlign.left,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -87,5 +84,3 @@ class GuideLayout extends StatelessWidget {
     );
   }
 }
-
-

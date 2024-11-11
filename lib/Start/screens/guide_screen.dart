@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/login_page.dart';
 import 'package:tefa_kud/widget/button.dart';
+import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/guide_layout.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tefa_kud/widget/layout/start_guide_layout.dart';
@@ -13,8 +14,9 @@ class GuideMain extends StatefulWidget {
 }
 
 class _GuideScreenState extends State<GuideMain>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _appbarController;
   late Animation<double> _opacityAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
@@ -28,7 +30,12 @@ class _GuideScreenState extends State<GuideMain>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds:2250),
+      duration: const Duration(milliseconds: 2250),
+      vsync: this,
+    );
+
+    _appbarController = AnimationController(
+      duration: const Duration(milliseconds: 450),
       vsync: this,
     );
 
@@ -41,13 +48,14 @@ class _GuideScreenState extends State<GuideMain>
     );
 
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, -0.1), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.ease),
+        Tween<Offset>(begin: const Offset(0, -5), end: Offset.zero).animate(
+      CurvedAnimation(parent: _appbarController, curve: Curves.easeInOutCirc),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 100), () {
         _controller.forward();
+        _appbarController.forward();
       });
     });
   }
@@ -65,6 +73,7 @@ class _GuideScreenState extends State<GuideMain>
     _guidePageController.removeListener(_updateNextButtonText);
     _guidePageController.dispose();
     _controller.dispose();
+    _appbarController.dispose();
     super.dispose();
   }
 
@@ -76,10 +85,29 @@ class _GuideScreenState extends State<GuideMain>
           Positioned(
             top: 64,
             left: 32,
-            child: Image.asset(
-              'assets/logo/koperasi-indonesia-seeklogo.png',
-              width: 50,
-              height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/logo/koperasi-indonesia-seeklogo.png',
+                  width: 40,
+                  height: 40,
+                ),
+                const SizedBox(
+                  width: 14,
+                ),
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: const Text(
+                    "Koperasi Unit Desa",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
           FadeTransition(
@@ -203,7 +231,7 @@ class GuideScreens extends StatelessWidget {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            const LoginMain(),
+                            const AuthLayout(content: LoginScreen(),),
                         transitionDuration:
                             Duration.zero, // Disable transition duration
                         reverseTransitionDuration:

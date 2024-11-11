@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Settings/screens/profile_screen.dart';
+import 'package:flutter/scheduler.dart';
 
 class DetailedPage extends StatefulWidget {
   final String titleBar;
   final Color backgroundBar;
+  final Color background;
+  final Widget content;
 
   const DetailedPage({
-    required this.titleBar,
+    required this.content,
+    this.titleBar = "Detail",
     this.backgroundBar = const Color(0xFF43964F),
+    this.background = Colors.white,
     super.key,
   });
 
@@ -16,25 +20,30 @@ class DetailedPage extends StatefulWidget {
 }
 
 class _DetailedPagedState extends State<DetailedPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   double _appBarOpacity = 1.0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: widget.background,
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
           if (scrollInfo.metrics.axis == Axis.vertical) {
             double offset = scrollInfo.metrics.pixels;
-            setState(() {
-              _appBarOpacity =
-                  offset <= 0 ? 1.0 : (1 - (offset / 100)).clamp(0.0, 1.0);
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                setState(() {
+                  _appBarOpacity =
+                      offset <= 0 ? 1.0 : (1 - (offset / 100)).clamp(0.0, 1.0);
+                });
+              }
             });
           }
           return true;
         },
         child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
           slivers: [
             SliverAppBar(
               backgroundColor: widget.backgroundBar,
@@ -49,7 +58,7 @@ class _DetailedPagedState extends State<DetailedPage>
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 26),
+                      padding: const EdgeInsets.only(bottom: 32),
                       child: Text(
                         widget.titleBar,
                         style: const TextStyle(
@@ -66,7 +75,22 @@ class _DetailedPagedState extends State<DetailedPage>
             SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  const ProfilePage(),
+                  Stack(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.height,
+                        height: 200,
+                        color: Theme.of(context).appBarTheme.backgroundColor,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: widget.content,
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 50,
+                  )
                 ],
               ),
             ),
