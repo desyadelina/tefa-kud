@@ -2,6 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tefa_kud/Start/screens/isi_saldo/isi_saldo.dart';
+import 'package:tefa_kud/Start/screens/pinjaman/pinjaman.dart';
+import 'package:tefa_kud/Start/screens/tarik_tunai/tarik_tunai.dart';
+import 'package:tefa_kud/Start/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
@@ -180,14 +184,50 @@ class _HomePageState extends State<HomePage>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      iconMenuButton('Transfer',
-                                          'assets/images/Transfer.png'),
-                                      iconMenuButton('Isi saldo',
-                                          'assets/images/Isi Saldo.png'),
-                                      iconMenuButton('Tarik tunai',
-                                          'assets/images/Tarik Tunai.png'),
-                                      iconMenuButton('Pinjaman',
-                                          'assets/images/Pinjaman.png'),
+                                      iconMenuButton(
+                                        'Transfer',
+                                        'assets/images/Transfer.png',
+                                        () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ListTransfer()));
+                                        },
+                                      ),
+                                      iconMenuButton(
+                                        'Isi saldo',
+                                        'assets/images/Isi Saldo.png',
+                                        () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      IsiSaldoPage()));
+                                        },
+                                      ),
+                                      iconMenuButton(
+                                        'Tarik tunai',
+                                        'assets/images/Tarik Tunai.png',
+                                        () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      TarikTunaiPage()));
+                                        },
+                                      ),
+                                      iconMenuButton(
+                                        'Pinjaman',
+                                        'assets/images/Pinjaman.png',
+                                        () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PinjamanPage()));
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),

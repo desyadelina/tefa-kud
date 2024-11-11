@@ -11,16 +11,17 @@ class NavigatorManager {
 
   static Future<void> navigateWithoutAnimation(String routeName) {
     return navigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: routeName),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return getRouteWidget(routeName); // Fungsi untuk mengambil widget berdasarkan routeName
-      },
-      transitionDuration: Duration.zero,
-      reverseTransitionDuration: Duration.zero,
-    )) ?? Future.value();
+          settings: RouteSettings(name: routeName),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return getRouteWidget(
+                routeName); // Fungsi untuk mengambil widget berdasarkan routeName
+          },
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        )) ??
+        Future.value();
   }
 
-  // Fungsi untuk mengambil widget sesuai route
   static Widget getRouteWidget(String routeName) {
     switch (routeName) {
       case '/profileEdit':
@@ -30,12 +31,12 @@ class NavigatorManager {
     }
   }
 }
+
 void main() {
   runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-
   MainApp({super.key});
 
   @override
@@ -45,10 +46,13 @@ class MainApp extends StatelessWidget {
       initialRoute: '/',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
-        '/': (context) => const MainLayout(), 
-        '/splashscreen': (context) => const SplashScreen(), 
+        '/': (context) => const MainLayout(),
+        '/splashscreen': (context) => const SplashScreen(),
         '/profile': (context) => const ProfilePage(),
-        '/profileEdit': (context) => const DetailedPage(content: ProfileEditScreen(), background: Color(0xFFF2F2F2),),
+        '/profileEdit': (context) => const DetailedPage(
+              content: ProfileEditScreen(),
+              background: Color(0xFFF2F2F2),
+            ),
       },
       theme: ThemeData(
         fontFamily: 'RedRose',
