@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'introduction.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +28,15 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
         _isMoved = true;
+      });
+
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => IntroductionScreen(),
+            transitionDuration: Duration.zero, 
+          ),
+        );
       });
     });
   }
