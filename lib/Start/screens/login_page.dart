@@ -64,7 +64,7 @@ class _LoginFormState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Login failed. Please check your credentials.')),
+            content: Text('Gagal masuk. Silahkan masukkan data anda dengan benar.')),
       );
     }
   }
