@@ -3,4 +3,8 @@ analyzer:
   errors:
     unused_import: ignore
     prefer_const_constructors: ignore
-    prefer_const_literals_to_create_immutables: ignore ignore
+    prefer_const_constructors_in_immutables: ignore
+    avoid_print: ignore
+    prefer_final_fields: ignore
+    deprecated_member_use: ignore
+    prefer_const_literals_to_create_immutables: ignore

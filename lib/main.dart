@@ -27,7 +27,9 @@ class NavigatorManager {
       case '/profileEdit':
         return ProfileEditScreen();
       default:
-        return MainLayout();
+        return MainLayout(
+          title: '',
+        );
     }
   }
 }
@@ -46,7 +48,9 @@ class MainApp extends StatelessWidget {
       initialRoute: '/',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
-        '/': (context) => const MainLayout(),
+        '/': (context) => const MainLayout(
+              title: '',
+            ),
         '/splashscreen': (context) => const SplashScreen(),
         '/profile': (context) => const ProfilePage(),
         '/profileEdit': (context) => const DetailedPage(

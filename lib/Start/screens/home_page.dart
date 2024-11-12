@@ -1,4 +1,5 @@
-// TODO Implement this library.// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors, prefer_const_literals_to_create_immutables
+
+// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -189,10 +190,17 @@ class _HomePageState extends State<HomePage>
                                         'assets/images/Transfer.png',
                                         () {
                                           Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ListTransfer()));
+                                            context,
+                                            PageRouteBuilder(
+                                              pageBuilder: (context, animation,
+                                                      secondaryAnimation) =>
+                                                  ListTransfer(),
+                                              transitionDuration: Duration
+                                                  .zero, // Disable transition animation
+                                              reverseTransitionDuration: Duration
+                                                  .zero, // Disable reverse animation
+                                            ),
+                                          );
                                         },
                                       ),
                                       iconMenuButton(
@@ -200,10 +208,12 @@ class _HomePageState extends State<HomePage>
                                         'assets/images/Isi Saldo.png',
                                         () {
                                           Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      IsiSaldoPage()));
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  IsiSaldoPage(title: '',),
+                                            ),
+                                          );
                                         },
                                       ),
                                       iconMenuButton(
@@ -214,7 +224,7 @@ class _HomePageState extends State<HomePage>
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      TarikTunaiPage()));
+                                                      TarikTunaiPage(title: '',)));
                                         },
                                       ),
                                       iconMenuButton(
