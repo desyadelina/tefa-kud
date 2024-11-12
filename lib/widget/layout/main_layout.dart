@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/Settings/screens/profile_screen.dart';
 import 'package:tefa_kud/Start/screens/home_page.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
+import 'package:tefa_kud/main/transfer_screen.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 
 class MainLayout extends StatefulWidget {
@@ -23,7 +24,7 @@ class _MainLayoutState extends State<MainLayout>
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const DetailedPage(content: ProfilePage(),),
+     TransferScreen(),
     const DetailedPage(
       content: ProfilePage(),
     ),
@@ -36,8 +37,7 @@ class _MainLayoutState extends State<MainLayout>
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-    });
+    setState(() {});
     _tabController.animateTo(index);
   }
 

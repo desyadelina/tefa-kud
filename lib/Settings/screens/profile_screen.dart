@@ -68,30 +68,45 @@ class _ProfileState extends State<ProfilePage>
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Stack(
-            alignment: Alignment.center,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const CircleAvatar(
                 radius: 50,
                 backgroundImage:
                     AssetImage('assets/logo/koperasi-indonesia-seeklogo.png'),
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 67, 150, 79),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white),
-                    onPressed: _editProfile,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    iconSize: 22,
-                  ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Selai Apel"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image(
+                          image: AssetImage('assets/images/Location-gray.png'),
+                          height: 22,
+                        ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          "Banjarbaru, Indonesia",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF8D8D8D),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(onPressed: () {}, child: Text("Edit Akun"))
+                  ],
                 ),
               ),
             ],
@@ -100,16 +115,6 @@ class _ProfileState extends State<ProfilePage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              button(
-                onPressed: () {
-                  NavigatorManager.navigatorKey.currentState
-                      ?.pushNamed('/splashscreen');
-                },
-                text: "Splashscreen",
-                backgroundColor: const Color(0xFF171717),
-                textColor: Colors.white,
-                outlineColor: const Color(0xFF171717),
-              ),
               const SizedBox(height: 16.0),
               button(
                 onPressed: () {

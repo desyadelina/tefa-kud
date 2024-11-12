@@ -47,7 +47,7 @@ class _DetailedPagedState extends State<DetailedPage>
           slivers: [
             SliverAppBar(
               backgroundColor: widget.backgroundBar,
-              expandedHeight: 78.0,
+              expandedHeight: 50.0,
               toolbarHeight: 0,
               pinned: false,
               flexibleSpace: FlexibleSpaceBar(
@@ -58,7 +58,7 @@ class _DetailedPagedState extends State<DetailedPage>
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 32),
+                      padding: const EdgeInsets.only(bottom: 24),
                       child: Text(
                         widget.titleBar,
                         style: const TextStyle(
