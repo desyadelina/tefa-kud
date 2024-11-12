@@ -59,7 +59,7 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "909090",
+                  "909090999",
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

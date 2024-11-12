@@ -22,11 +22,11 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("dummy appbar"), // Dynamic title from the widget
-        backgroundColor: Colors.green, // Color change to fit the theme
+        title: Text("dummy appbar"), 
+        backgroundColor: Colors.green, 
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // Padding to avoid screen edges
+        padding: const EdgeInsets.all(16.0), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
