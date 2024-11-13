@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:tefa_kud/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,12 +15,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginFormState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _countryCodeController =
-      TextEditingController(text: "+62");
   final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   bool _isObscured = true;
   String _selectedCountryCode = "+62";
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -37,7 +37,36 @@ class _LoginFormState extends State<LoginScreen> {
   void dispose() {
     _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    String noTelepon =
+        _selectedCountryCode.replaceFirst('+', '') + _usernameController.text;
+    String password = _passwordController.text;
+
+    var response = await _authService.login(noTelepon, password);
+
+    print("Response: $response");
+    if (response != null && response['token'] != null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const MainLayout(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Gagal masuk. Silahkan masukkan data anda dengan benar.')),
+      );
+    }
   }
 
   @override
@@ -269,25 +298,7 @@ class _LoginFormState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 24.0),
                               button(
-                                onPressed: () {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation,
-                                              secondaryAnimation) =>
-                                          const MainLayout(),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                    (route) => false,
-                                  );
-                                  String countryCode =
-                                      _countryCodeController.text;
-                                  String username = _usernameController.text;
-                                  String password = _passwordController.text;
-                                  print(
-                                      "Country Code: $countryCode, Username: $username, Password: $password");
-                                },
+                                onPressed: _login,
                                 text: "Masuk",
                               ),
                             ],
