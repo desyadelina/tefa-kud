@@ -42,7 +42,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splashscreen',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         '/': (context) => const MainLayout(), 
