@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tefa_kud/Settings/screens/profile_screen.dart';
-import 'package:tefa_kud/Start/screens/home_page.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
-import 'package:tefa_kud/main/transfer_screen.dart';
+import 'package:tefa_kud/screens/home_page.dart';
+import 'package:tefa_kud/screens/profile/profile_screen.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  const MainLayout({super.key, required String title});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -24,7 +23,9 @@ class _MainLayoutState extends State<MainLayout>
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-     TransferScreen(),
+    const DetailedPage(
+      content: ProfilePage(),
+    ),
     const DetailedPage(
       content: ProfilePage(),
     ),

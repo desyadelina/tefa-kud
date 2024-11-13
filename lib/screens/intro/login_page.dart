@@ -1,4 +1,6 @@
 // ignore: file_names
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:tefa_kud/widget/button.dart';
@@ -55,7 +57,7 @@ class _LoginFormState extends State<LoginScreen> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainLayout(),
+              const MainLayout(title: '',),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),

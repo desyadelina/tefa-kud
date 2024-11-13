@@ -1,6 +1,7 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -105,7 +106,16 @@ class _ProfileState extends State<ProfilePage>
                       ],
                     ),
                     SizedBox(height: 16.0),
-                    ElevatedButton(onPressed: () {}, child: Text("Edit Akun"))
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TarikTunaiPage(
+                                        title: '',
+                                      )));
+                        },
+                        child: Text("Edit Akun"))
                   ],
                 ),
               ),
