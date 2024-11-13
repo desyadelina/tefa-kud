@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/button.dart';
