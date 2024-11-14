@@ -15,9 +15,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   bool _isObscured = true;
   String _selectedCountryCode = "+62";
@@ -27,46 +27,60 @@ class _LoginFormState extends State<LoginScreen> {
   void initState() {
     super.initState();
 
-    _usernameFocusNode.addListener(() {
+    _phoneFocusNode.addListener(() {
       setState(() {});
     });
     _passwordFocusNode.addListener(() {
       setState(() {});
     });
+    _phoneController.text = '83141976277';
+    _passwordController.text = 'admin123';
   }
 
   @override
   void dispose() {
-    _usernameFocusNode.dispose();
+    _phoneFocusNode.dispose();
     _passwordFocusNode.dispose();
-    _usernameController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
     String noTelepon =
-        _selectedCountryCode.replaceFirst('+', '') + _usernameController.text;
+        _selectedCountryCode.replaceFirst('+', '') + _phoneController.text;
     String password = _passwordController.text;
 
     var response = await _authService.login(noTelepon, password);
 
     print("Response: $response");
     if (response != null && response['token'] != null) {
-      Navigator.pushAndRemoveUntil(
+      Navigator.push(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainLayout(title: '',),
+              const MainLayout(
+            title: '',
+          ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
-        (route) => false,
       );
+      // Navigator.pushAndRemoveUntil(
+      //   context,
+      //   PageRouteBuilder(
+      //     pageBuilder: (context, animation, secondaryAnimation) =>
+      //         const MainLayout(title: '',),
+      //     transitionDuration: Duration.zero,
+      //     reverseTransitionDuration: Duration.zero,
+      //   ),
+      //   (route) => false,
+      // );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Gagal masuk. Silahkan masukkan data anda dengan benar.')),
+            content:
+                Text('Gagal masuk. Silahkan masukkan data anda dengan benar.')),
       );
     }
   }
@@ -146,7 +160,7 @@ class _LoginFormState extends State<LoginScreen> {
                                     height: 58,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: _usernameFocusNode.hasFocus
+                                        color: _phoneFocusNode.hasFocus
                                             ? Colors.green
                                             : const Color.fromARGB(
                                                 255, 128, 127, 127),
@@ -189,8 +203,8 @@ class _LoginFormState extends State<LoginScreen> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: TextField(
-                                      controller: _usernameController,
-                                      focusNode: _usernameFocusNode,
+                                      controller: _phoneController,
+                                      focusNode: _phoneFocusNode,
                                       style: const TextStyle(
                                         fontFamily: 'RedRose',
                                         color: Colors.grey,
@@ -202,7 +216,7 @@ class _LoginFormState extends State<LoginScreen> {
                                           color: Colors.grey[400],
                                         ),
                                         labelStyle: TextStyle(
-                                          color: _usernameFocusNode.hasFocus
+                                          color: _phoneFocusNode.hasFocus
                                               ? Colors.green
                                               : Colors.grey,
                                         ),

@@ -60,11 +60,11 @@ class MainApp extends StatelessWidget {
       initialRoute: '/',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
-        '/': (context) => const MainLayout(
+        '/': (context) => MainLayout(
               title: '',
             ),
         '/splashscreen': (context) => const SplashScreen(),
-        '/profile': (context) => const ProfilePage(),
+        '/profile': (context) => ProfilePage(),
         '/transfer': (context) => const ListTransfer(),
         '/isiSaldo': (context) => const IsiSaldoPage(title: 'Isi Saldo',),
         '/tarikTunai': (context) => const TarikTunaiPage(title: 'Tarik Tunai'),

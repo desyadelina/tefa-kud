@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
 import 'package:tefa_kud/screens/home_page.dart';
 import 'package:tefa_kud/screens/profile/profile_screen.dart';
+import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 
 class MainLayout extends StatefulWidget {
@@ -14,6 +15,8 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout>
     with SingleTickerProviderStateMixin {
+
+
   late TabController _tabController;
   final Map<int, GlobalKey<NavigatorState>> navigatorKeys = {
     0: GlobalKey<NavigatorState>(),
@@ -23,10 +26,11 @@ class _MainLayoutState extends State<MainLayout>
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const DetailedPage(
+    DetailedPage(
       content: ProfilePage(),
     ),
-    const DetailedPage(
+    DetailedPage(
+      titleBar: "Akun Saya",
       content: ProfilePage(),
     ),
   ];

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/transfer/confirm_page.dart';
+import 'package:tefa_kud/widget/rekening_card.dart';
 
 class InputNominalTransfer extends StatefulWidget {
   const InputNominalTransfer({super.key, required String title});
@@ -16,7 +17,7 @@ class InputNominalTransfer extends StatefulWidget {
 
 class _InputNominalTransferState extends State<InputNominalTransfer> {
   double saldo = 10000000000;
-  final String nomorRekening = '1283 1234 1234';
+  final String nomorRekening = '1283 1231 1234';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
@@ -71,92 +72,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Saldo Sekarang',
-                    style: TextStyle(color: Color(0xFF8D8D8D)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isSaldoVisible
-                                ? formattedCurrency
-                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isSaldoVisible = !isSaldoVisible;
-                              });
-                            },
-                            child: Icon(
-                              isSaldoVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Color(0xFF8D8D8D),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: const Color(0xFF43964F),
-                        ),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(nomorRekening),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: nomorRekening));
-                          _showFloatingPopup(context, "Nomor Rekening Disalin");
-                        },
-                        child: Icon(
-                          Icons.copy,
-                          color: const Color(0xFF8D8D8D),
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
             const SizedBox(height: 20),
             // Input Nominal Transfer
             Container(

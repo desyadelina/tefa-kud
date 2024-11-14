@@ -53,22 +53,40 @@ class _DetailedPagedState extends State<DetailedPage>
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 1,
                 titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
-                title: Opacity(
-                  opacity: _appBarOpacity,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Text(
-                        widget.titleBar,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                title: Stack(
+                  children: [
+                    // Tambahkan tombol kembali di sudut kiri atas
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 32, 0, 0),
+                        child: IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Aksi untuk kembali
+                          },
                         ),
                       ),
                     ),
-                  ),
+                    Opacity(
+                      opacity: _appBarOpacity,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: Text(
+                            widget.titleBar,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -1,13 +1,15 @@
 // ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
+import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfileState();
@@ -15,6 +17,10 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfileState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
+  final authService = AuthService();
+
+  late Future<Map<String, String>> _userDataFuture;
+
   late TabController tabController;
   final List<Color> colors = [Colors.blue, Colors.red, Colors.green];
   int currentPage = 0;
@@ -40,6 +46,22 @@ class _ProfileState extends State<ProfilePage>
         currentPage = tabController.index;
       });
     });
+
+    _userDataFuture = _getUserData();
+  }
+
+  Future<Map<String, String>> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Ambil data yang disimpan di SharedPreferences
+    String namaPengguna =
+        prefs.getString('nama_pengguna') ?? 'Nama tidak ditemukan';
+    String alamat = prefs.getString('alamat') ?? 'Alamat tidak ditemukan';
+
+    return {
+      'nama_pengguna': namaPengguna,
+      'alamat': alamat,
+    };
   }
 
   @override
@@ -82,43 +104,98 @@ class _ProfileState extends State<ProfilePage>
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Selai Apel"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Image(
-                          image: AssetImage('assets/images/Location-gray.png'),
-                          height: 22,
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          "Banjarbaru, Indonesia",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF8D8D8D),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.0),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TarikTunaiPage(
-                                        title: '',
-                                      )));
-                        },
-                        child: Text("Edit Akun"))
-                  ],
-                ),
-              ),
+                child: FutureBuilder<Map<String, String>>(
+                    future: _userDataFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData) {
+                        // Ambil data dari snapshot
+                        final userData = snapshot.data!;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${userData['nama_pengguna']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image(
+                                  image: AssetImage(
+                                      'assets/images/Location-gray.png'),
+                                  height: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  '${userData['alamat']}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.0),
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => TarikTunaiPage(
+                                                title: '',
+                                              )));
+                                },
+                                child: Text("Edit Akun"))
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Nama Pengguna: Tidak ada data',
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image(
+                                  image: AssetImage(
+                                      'assets/images/Location-gray.png'),
+                                  height: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  'Alamat: Tidak ada data',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.0),
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => TarikTunaiPage(
+                                                title: '',
+                                              )));
+                                },
+                                child: Text("Edit Akun"))
+                          ],
+                        );
+                      }
+                    }),
+              )
             ],
           ),
           const SizedBox(height: 30),
