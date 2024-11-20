@@ -4,16 +4,47 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.2.3
+  smooth_page_indicator: ^1.2.0+3
+  flutter_staggered_animations: ^1.1.1
+  flutter_floating_bottom_bar: ^1.2.1+1
+  font_awesome_flutter: ^10.8.0
+  flutter_svg: ^2.0.14
+  intl_utils: ^2.8.7
+  http: ^1.2.2
+  google_fonts: ^6.2.1
+  getwidget: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/icon-app.png"
+
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/logo/
+    - assets/images/banner/
+    - assets/icon/
+
+  fonts:
+    - family: RedRose
+      fonts:
+        - asset: fonts/RedRose-Bold.ttf
+        - weight: 700
+        - asset: fonts/RedRose-Regular.ttf
+        - weight: 400
+        - asset: fonts/RedRose-Light.ttf
+        - weight: 300  
