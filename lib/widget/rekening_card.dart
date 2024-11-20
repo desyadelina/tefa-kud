@@ -1,21 +1,27 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http; // Pastikan ini diimpor
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:tefa_kud/services/rekening_service.dart';
+import 'package:tefa_kud/widget/rekeningSelectionModal.dart';
 
 class RekeningCard extends StatefulWidget {
   final int saldo;
   final String nomorRekening;
   final bool initialSaldoVisible;
+  final List<Map<String, dynamic>> rekeningList; // List data semua rekening
 
   const RekeningCard({
     super.key,
     this.saldo = 0,
     required this.nomorRekening,
     required this.initialSaldoVisible,
+    required this.rekeningList,
   });
 
   @override
@@ -24,11 +30,18 @@ class RekeningCard extends StatefulWidget {
 
 class _RekeningCardState extends State<RekeningCard> {
   late bool isSaldoVisible;
+  final rekeningService = RekeningService();
+  late Future<Map<String, dynamic>?> _rekeningFuture;
 
   @override
   void initState() {
     super.initState();
     isSaldoVisible = widget.initialSaldoVisible;
+  }
+
+  Future<void> saveSelectedRekening(String noRek) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('no_rek', noRek);
   }
 
   @override
@@ -65,9 +78,9 @@ class _RekeningCardState extends State<RekeningCard> {
               Row(
                 children: [
                   Text(
-                                            isSaldoVisible
-                                                ? formattedCurrency
-                                                : 'Rp ${'*' * formattedCurrency.replaceAll(RegExp(r'[^0-9]'), '').length}',
+                    isSaldoVisible
+                        ? formattedCurrency
+                        : 'Rp ${'*' * formattedCurrency.replaceAll(RegExp(r'[^0-9]'), '').length}',
                     style: const TextStyle(
                       fontSize: 24,
                       color: Colors.black,
@@ -89,7 +102,14 @@ class _RekeningCardState extends State<RekeningCard> {
                   ),
                 ],
               ),
+              GestureDetector(
+                onTap: () {
+                  _showRekeningSelectionModal(context);
+                },
+                child: Icon(Icons.keyboard_arrow_down),
+              ),
               Container(
+                //ini dijadikan tombol dropdown atau popup untuk melihat list rekening yang ada pada slug tersebut
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6),
@@ -155,5 +175,24 @@ class _RekeningCardState extends State<RekeningCard> {
     Future.delayed(const Duration(milliseconds: 2000), () {
       overlayEntry.remove();
     });
+  }
+
+  void _showRekeningSelectionModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return RekeningSelectionModal(
+          rekeningList: widget.rekeningList,
+          onRekeningSelected: (selectedRekening) async {
+            await saveSelectedRekening(selectedRekening);
+
+            // Perbarui UI secara lokal tanpa panggilan API
+            setState(() {
+              isSaldoVisible = true; // Contoh update UI lokal
+            });
+          },
+        );
+      },
+    );
   }
 }

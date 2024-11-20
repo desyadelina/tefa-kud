@@ -11,7 +11,6 @@ import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/services/rekening_service.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/rekening_card.dart';
 
@@ -26,15 +25,30 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   final RekeningService rekeningService = RekeningService();
   late Future<Map<String, dynamic>?> _rekeningFuture;
+
   double saldo = 17500000;
   final String nomorRekening = '1283 1234 1234';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   double _appBarOpacity = 1.0;
 
-  void _loadRekeningData() {
-    // Simpan Future ke variabel lokal agar bisa dipanggil lagi nanti jika diperlukan
-    _rekeningFuture = rekeningService.getAllRekeningPengguna();
+  void loadRekening() async {
+    try {
+      final rekening = await rekeningService.getSelectedOrFirstRekening();
+      if (rekening != null) {
+        print("Rekening yang dipilih: ${rekening['no_rek']}");
+        setState(() {
+          _rekeningFuture = Future.value(rekening);
+        });
+      } else {
+        print("Tidak ada rekening yang tersedia.");
+      }
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        _rekeningFuture = Future.error("Gagal memuat data rekening");
+      });
+    }
   }
 
   @override
@@ -47,260 +61,249 @@ class _HomePageState extends State<HomePage>
       decimalDigits: 0,
     ).format(saldo);
 
-    _loadRekeningData();
+    _rekeningFuture = rekeningService.getSelectedOrFirstRekening();
+
+    loadRekening();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification scrollInfo) {
-          if (scrollInfo.metrics.axis == Axis.vertical) {
-            double offset = scrollInfo.metrics.pixels;
-            setState(() {
-              _appBarOpacity =
-                  offset <= 1 ? 1.0 : (1 - (offset / 100)).clamp(1.0, 1.0);
-            });
-          }
-          return true;
-        },
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: const Color(0xFF43964F),
-              expandedHeight: 78.0,
-              toolbarHeight: 55,
-              floating: true,
-              pinned: true,
-              snap: false,
-              flexibleSpace: FlexibleSpaceBar(
-                expandedTitleScale: 1,
-                titlePadding:
-                    const EdgeInsetsDirectional.only(start: 16, top: 24),
-                title: Opacity(
-                  opacity: _appBarOpacity,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundImage: AssetImage(
-                              'assets/logo/koperasi-indonesia-seeklogo.png'),
-                        ),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Koperasi Unit Desa",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: const Color(0xFF43964F),
+            expandedHeight: 78.0,
+            toolbarHeight: 55,
+            floating: true,
+            pinned: true,
+            snap: false,
+            flexibleSpace: FlexibleSpaceBar(
+              expandedTitleScale: 1,
+              titlePadding:
+                  const EdgeInsetsDirectional.only(start: 16, top: 24),
+              title: Opacity(
+                opacity: _appBarOpacity,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundImage: AssetImage(
+                            'assets/logo/koperasi-indonesia-seeklogo.png'),
+                      ),
+                      SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Koperasi Unit Desa",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Image(
+                                image: AssetImage('assets/images/Location.png'),
+                                height: 16,
                               ),
-                            ),
-                            Row(
-                              children: [
-                                Image(
-                                  image:
-                                      AssetImage('assets/images/Location.png'),
-                                  height: 16,
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                "Banjarbaru",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
                                 ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  "Banjarbaru",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                background: Container(
-                  color: const Color(0xFF43964F),
-                ),
+              ),
+              background: Container(
+                color: const Color(0xFF43964F),
               ),
             ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Stack(
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            height: 100,
-                            color: const Color(0xFF43964F),
-                          ),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal:
-                                    MediaQuery.of(context).size.width * 0.05,
-                                vertical: 0),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 120,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      iconMenuButton(
-                                        'Transfer',
-                                        'assets/images/Transfer.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/transfer');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Isi saldo',
-                                        'assets/images/Isi Saldo.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/isiSaldo');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Tarik tunai',
-                                        'assets/images/Tarik Tunai.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/tarikTunai');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Pinjaman',
-                                        'assets/images/Pinjaman.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/pinjaman');
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 16.0),
-                                Container(
-                                  height: 150,
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/banner/Banner-1.png'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 25.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          height: 100,
+                          color: const Color(0xFF43964F),
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width * 0.05,
+                              vertical: 0),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 120,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'Transaksi terkini',
-                                      style: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold),
+                                    iconMenuButton(
+                                      'Transfer',
+                                      'assets/images/Transfer.png',
+                                      () {
+                                        NavigatorManager
+                                            .navigatorKey.currentState
+                                            ?.pushNamed('/transfer');
+                                      },
                                     ),
-                                    const Text('Hari ini',
-                                        style: TextStyle(color: Colors.grey)),
-                                    const SizedBox(height: 16.0),
-                                    Card(
-                                      color: Colors.white.withOpacity(0.9),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                      ),
-                                      elevation: 4.0,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                          ],
-                                        ),
-                                      ),
+                                    iconMenuButton(
+                                      'Isi saldo',
+                                      'assets/images/Isi Saldo.png',
+                                      () {
+                                        NavigatorManager
+                                            .navigatorKey.currentState
+                                            ?.pushNamed('/isiSaldo');
+                                      },
                                     ),
-                                    Container(
-                                      height: 80,
+                                    iconMenuButton(
+                                      'Tarik tunai',
+                                      'assets/images/Tarik Tunai.png',
+                                      () {
+                                        NavigatorManager
+                                            .navigatorKey.currentState
+                                            ?.pushNamed('/tarikTunai');
+                                      },
+                                    ),
+                                    iconMenuButton(
+                                      'Pinjaman',
+                                      'assets/images/Pinjaman.png',
+                                      () {
+                                        NavigatorManager
+                                            .navigatorKey.currentState
+                                            ?.pushNamed('/pinjaman');
+                                      },
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      Positioned(
-                          top: 10,
-                          left: 0,
-                          right: 0,
-                          child: Padding(
+                              ),
+                              const SizedBox(height: 16.0),
+                              Container(
+                                height: 150,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/banner/Banner-1.png'),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 25.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Transaksi terkini',
+                                    style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text('Hari ini',
+                                      style: TextStyle(color: Colors.grey)),
+                                  const SizedBox(height: 16.0),
+                                  Card(
+                                    color: Colors.white.withOpacity(0.9),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                    ),
+                                    elevation: 4.0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Transfer',
+                                              -10000000,
+                                              true),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Isi saldo',
+                                              10000000,
+                                              false),
+                                          _buildTransactionItem('Selai Apel',
+                                              'Isi saldo', 30000000, false),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Transfer',
+                                              -10000000,
+                                              true),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Isi saldo',
+                                              10000000,
+                                              false),
+                                          _buildTransactionItem('Selai Apel',
+                                              'Isi saldo', 30000000, false),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Transfer',
+                                              -10000000,
+                                              true),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Isi saldo',
+                                              10000000,
+                                              false),
+                                          _buildTransactionItem('Selai Apel',
+                                              'Isi saldo', 30000000, false),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Transfer',
+                                              -10000000,
+                                              true),
+                                          _buildTransactionItem(
+                                              'Seila Salsabiela',
+                                              'Isi saldo',
+                                              10000000,
+                                              false),
+                                          _buildTransactionItem('Selai Apel',
+                                              'Isi saldo', 30000000, false),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 80,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    Positioned(
+                        top: 10,
+                        left: 0,
+                        right: 0,
+                        child: Padding(
                             padding: EdgeInsets.symmetric(
                               vertical: 0,
                               horizontal:
@@ -313,80 +316,89 @@ class _HomePageState extends State<HomePage>
                                     ConnectionState.waiting) {
                                   // Menampilkan indikator loading
                                   return Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            blurRadius: 8,
-                                            offset: Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          CircularProgressIndicator(),
-                                          SizedBox(height: 12,),
-                                          Text("Memuat data Rekening"),
-                                        ],
-                                      ));
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 24, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: const [
+                                        CircularProgressIndicator(),
+                                        SizedBox(height: 12),
+                                        Text("Memuat data Rekening"),
+                                      ],
+                                    ),
+                                  );
                                 } else if (snapshot.hasData &&
                                     snapshot.data != null) {
                                   final rekeningData = snapshot.data!;
+
+                                  // Cek apakah 'data' ada dan berbentuk List
+                                  final List<Map<String, dynamic>>
+                                      allRekeningData =
+                                      (rekeningData['data'] as List?)
+                                              ?.cast<Map<String, dynamic>>() ??
+                                          [];
+
                                   return RekeningCard(
-                                    saldo: rekeningData['saldo'],
-                                    nomorRekening: rekeningData['no_rek'],
+                                    saldo: rekeningData['saldo'] ?? 0,
+                                    nomorRekening: rekeningData['no_rek'] ?? '',
                                     initialSaldoVisible: true,
+                                    rekeningList: allRekeningData,
                                   );
                                 } else {
                                   // Menampilkan pesan jika data tidak ada
                                   return Container(
-                                      padding: const EdgeInsets.all(16.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            blurRadius: 8,
-                                            offset: Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Text("Gagal Memuat data Rekening"),
-                                          SizedBox(
-                                            height: 12,
-                                          ),
-                                          button(
-                                              onPressed: () {
-                                                _loadRekeningData();
-                                              },
-                                              text: "Tekan untuk refresh")
-                                        ],
-                                      ));
+                                    padding: const EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                            "Gagal Memuat data Rekening"),
+                                        const SizedBox(height: 12),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            loadRekening();
+                                          },
+                                          child:
+                                              const Text("Tekan untuk refresh"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                 }
                               },
-                            ),
-                          )),
-                    ],
-                  ),
-                ],
-              ),
+                            ))),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  void _showFloatingPopup(BuildContext context, String message) {
-    // Membuat overlay
+  void _showFloatingPopup(BuildContext context, String message,
+      {Color backgroundColor = Colors.black, int duration = 2500}) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -398,7 +410,7 @@ class _HomePageState extends State<HomePage>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.8),
+              color: backgroundColor.withOpacity(0.8),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -410,11 +422,8 @@ class _HomePageState extends State<HomePage>
         ),
       ),
     );
-
     overlay.insert(overlayEntry);
-
-    // Menghilangkan popup setelah 2 detik
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    Future.delayed(Duration(milliseconds: duration), () {
       overlayEntry.remove();
     });
   }

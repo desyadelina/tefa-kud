@@ -148,9 +148,8 @@ class _ProfileState extends State<ProfilePage>
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => TarikTunaiPage(
-                                                title: '',
-                                              )));
+                                          builder: (context) =>
+                                              TarikTunaiPage()));
                                 },
                                 child: Text("Edit Akun"))
                           ],
@@ -186,9 +185,8 @@ class _ProfileState extends State<ProfilePage>
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => TarikTunaiPage(
-                                                title: '',
-                                              )));
+                                          builder: (context) =>
+                                              TarikTunaiPage()));
                                 },
                                 child: Text("Edit Akun"))
                           ],

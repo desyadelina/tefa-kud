@@ -72,7 +72,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
+            // RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
             const SizedBox(height: 20),
             // Input Nominal Transfer
             Container(

@@ -3,26 +3,19 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RekeningService {
-  final String baseUrl = 'http://192.168.1.9:8000/api/v1/pengguna';
+  final String baseUrl = 'http://192.168.33.169:8000/api/v1/pengguna';
 
   // Fungsi untuk mendapatkan semua rekening pengguna dan menyimpan no_rek
-  Future<Map<String, dynamic>?> getAllRekeningPengguna() async {
+  Future<List<Map<String, dynamic>>> getAllRekeningPengguna() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // Ambil slug dan token dari sesi
     String? slug = prefs.getString('slug');
     String? token = prefs.getString('token');
 
-    // Pastikan slug dan token tersedia
-    if (slug == null && token == null) {
-      throw Exception("Slug dan Token tidak ditemukan. Silakan login kembali.");
-    } else if (slug == null) {
-      throw Exception("Slug tidak ditemukan. Silakan login kembali.");
-    } else if (token == null) {
-      throw Exception("Token tidak ditemukan. Silakan login kembali.");
+    if (slug == null || token == null) {
+      throw Exception(
+          "Slug atau Token tidak ditemukan. Silakan login kembali.");
     }
 
-    // Request ke endpoint dengan autentikasi Bearer Token
     final response = await http.get(
       Uri.parse('$baseUrl/$slug/rekening-pengguna'),
       headers: {
@@ -33,9 +26,41 @@ class RekeningService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return (data['data'] as List).isNotEmpty ? data['data'][0] : null;
+      return (data['data'] as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList(); // Mengubah menjadi List<Map<String, dynamic>>
     } else {
       throw Exception("Gagal mengambil data rekening: ${response.statusCode}");
+    }
+  }
+
+  Future<Map<String, dynamic>?> getFirstRekeningPengguna() async {
+    final allRekening = await getAllRekeningPengguna();
+    return allRekening.isNotEmpty ? allRekening[0] : null;
+  }
+
+  Future<Map<String, dynamic>?> getSelectedOrFirstRekening() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Coba ambil rekening pilihan yang tersimpan
+    String? savedNoRek = prefs.getString('selected_no_rek');
+
+    if (savedNoRek != null) {
+      try {
+        // Jika ada rekening pilihan, ambil detail rekening tersebut
+        return await getRekeningPengguna();
+      } catch (e) {
+        print("Gagal mengambil rekening pilihan: $e");
+        // Jika gagal mengambil rekening, fallback ke rekening pertama
+      }
+    }
+
+    // Jika tidak ada rekening pilihan atau gagal mengambil data, ambil rekening pertama
+    try {
+      return await getFirstRekeningPengguna();
+    } catch (e) {
+      print("Gagal mengambil rekening pertama: $e");
+      throw Exception("Tidak ada rekening yang tersedia.");
     }
   }
 
@@ -45,7 +70,7 @@ class RekeningService {
 
     // Ambil no_rek yang sudah disimpan di SharedPreferences
     String? slug = prefs.getString('slug');
-    String? noRek = prefs.getString('no_rek');
+    String? noRek = prefs.getString('selected_no_rek'); // no_rek terpilih
     String? token = prefs.getString('token');
 
     if (slug == null || noRek == null || token == null) {
@@ -70,5 +95,15 @@ class RekeningService {
     } else {
       throw Exception("Gagal mengambil data rekening: ${response.statusCode}");
     }
+  }
+
+  Future<void> saveSelectedRekening(String noRek) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_no_rek', noRek);
+  }
+
+  Future<String?> getSelectedRekening() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('selected_no_rek');
   }
 }

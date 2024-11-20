@@ -9,7 +9,7 @@ import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
 import 'package:tefa_kud/widget/rekening_card.dart';
 
 class IsiSaldoPage extends StatefulWidget {
-  const IsiSaldoPage({super.key, required String title});
+  const IsiSaldoPage({super.key});
 
   @override
   State<IsiSaldoPage> createState() => _IsiSaldoPageState();
@@ -63,7 +63,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
+            // RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(16.0),

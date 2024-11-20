@@ -10,7 +10,7 @@ import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
 import 'package:tefa_kud/widget/rekening_card.dart';
 
 class TarikTunaiPage extends StatefulWidget {
-  const TarikTunaiPage({super.key, required String title});
+  const TarikTunaiPage({super.key});
 
   @override
   State<TarikTunaiPage> createState() => _TarikTunaiPageState();
@@ -73,7 +73,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
+            // RekeningCard(nomorRekening: '123456789012', initialSaldoVisible: true,),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(16.0),

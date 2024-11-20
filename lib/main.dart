@@ -33,9 +33,9 @@ class NavigatorManager {
       case '/transfer':
         return ListTransfer();
       case '/isiSaldo':
-        return IsiSaldoPage(title: 'Isi Saldo',);
+        return IsiSaldoPage();
       case '/tarikTunai':
-        return TarikTunaiPage(title: 'Tarik Tunai',);
+        return TarikTunaiPage();
       case '/pinjaman':
         return PinjamanPage();
       default:
@@ -66,8 +66,8 @@ class MainApp extends StatelessWidget {
         '/splashscreen': (context) => const SplashScreen(),
         '/profile': (context) => ProfilePage(),
         '/transfer': (context) => const ListTransfer(),
-        '/isiSaldo': (context) => const IsiSaldoPage(title: 'Isi Saldo',),
-        '/tarikTunai': (context) => const TarikTunaiPage(title: 'Tarik Tunai'),
+        '/isiSaldo': (context) => const IsiSaldoPage(),
+        '/tarikTunai': (context) => const TarikTunaiPage(),
         '/pinjaman': (context) => const PinjamanPage(),
         '/profileEdit': (context) => const DetailedPage(
               content: ProfileEditScreen(),
