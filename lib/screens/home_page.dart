@@ -1,12 +1,12 @@
-
 // ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/isi_saldo.dart';
-import 'package:tefa_kud/Start/screens/pinjaman/pinjaman.dart';
-import 'package:tefa_kud/Start/screens/tarik_tunai/tarik_tunai.dart';
-import 'package:tefa_kud/Start/screens/transfer/list_transfer.dart';
+import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
+import 'package:tefa_kud/screens/pinjaman/pinjaman.dart';
+import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
+import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
@@ -189,53 +189,36 @@ class _HomePageState extends State<HomePage>
                                         'Transfer',
                                         'assets/images/Transfer.png',
                                         () {
-                                          Navigator.push(
-                                            context,
-                                            PageRouteBuilder(
-                                              pageBuilder: (context, animation,
-                                                      secondaryAnimation) =>
-                                                  ListTransfer(),
-                                              transitionDuration: Duration
-                                                  .zero, // Disable transition animation
-                                              reverseTransitionDuration: Duration
-                                                  .zero, // Disable reverse animation
-                                            ),
-                                          );
+                                          NavigatorManager
+                                              .navigatorKey.currentState
+                                              ?.pushNamed('/transfer');
                                         },
                                       ),
                                       iconMenuButton(
                                         'Isi saldo',
                                         'assets/images/Isi Saldo.png',
                                         () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  IsiSaldoPage(title: '',),
-                                            ),
-                                          );
+                                          NavigatorManager
+                                              .navigatorKey.currentState
+                                              ?.pushNamed('/isiSaldo');
                                         },
                                       ),
                                       iconMenuButton(
                                         'Tarik tunai',
                                         'assets/images/Tarik Tunai.png',
                                         () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      TarikTunaiPage(title: '',)));
+                                          NavigatorManager
+                                              .navigatorKey.currentState
+                                              ?.pushNamed('/tarikTunai');
                                         },
                                       ),
                                       iconMenuButton(
                                         'Pinjaman',
                                         'assets/images/Pinjaman.png',
                                         () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      PinjamanPage()));
+                                          NavigatorManager
+                                              .navigatorKey.currentState
+                                              ?.pushNamed('/pinjaman');
                                         },
                                       ),
                                     ],

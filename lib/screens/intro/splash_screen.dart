@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/guide_screen.dart';
+import 'package:tefa_kud/screens/intro/guide_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/Start/screens/transfer/confirm_pin_transfer.dart';
+import 'package:tefa_kud/screens/transfer/confirm_pin_transfer.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ConfirmTransfer extends StatefulWidget {

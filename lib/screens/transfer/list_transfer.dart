@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_super_parameters
 
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/transfer/transfer_new_rek.dart';
+import 'package:tefa_kud/screens/transfer/transfer_new_rek.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ListTransfer extends StatefulWidget {
@@ -42,7 +42,7 @@ class _ListTransferState extends State<ListTransfer> {
           .toList();
     });
   }
-
+  
   @override
   void dispose() {
     _searchController.removeListener(_filterAccounts);

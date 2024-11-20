@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/input_pin_isi_saldo.dart';
-import 'package:tefa_kud/Start/screens/tarik_tunai/input_pin.dart'; // Don't forget to import this for currency formatting.
+import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
+import 'package:tefa_kud/screens/tarik_tunai/input_pin.dart'; // Don't forget to import this for currency formatting.
 
 class ConfirmTarikTunai extends StatefulWidget {
   const ConfirmTarikTunai({super.key, required this.title});

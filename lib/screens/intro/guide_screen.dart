@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/login_page.dart';
+import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/guide_layout.dart';

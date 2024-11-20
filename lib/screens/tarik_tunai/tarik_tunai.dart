@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/confirm_isi_saldo.dart';
-import 'package:tefa_kud/Start/screens/tarik_tunai/confirm_tarik_tunai.dart';
+import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
+import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
 
 class TarikTunaiPage extends StatefulWidget {
   const TarikTunaiPage({super.key, required String title});

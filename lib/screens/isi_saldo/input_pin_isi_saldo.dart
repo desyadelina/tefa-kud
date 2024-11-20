@@ -1,8 +1,8 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/receipt_isi_saldo.dart';
-import 'package:tefa_kud/Start/screens/transfer/receipt_transfer.dart';
+import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
+import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 
 class InputPinIsiSaldo extends StatefulWidget {
   const InputPinIsiSaldo({Key? key, required String title}) : super(key: key);

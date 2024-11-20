@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tefa_kud/Start/screens/home_page.dart';
+import 'package:tefa_kud/screens/home_page.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
 class ReceiptTransfer extends StatefulWidget {

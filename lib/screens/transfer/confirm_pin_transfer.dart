@@ -1,17 +1,18 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/receipt_isi_saldo.dart';
-import 'package:tefa_kud/Start/screens/transfer/receipt_transfer.dart';
+import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 
-class InputPinTarikTunai extends StatefulWidget {
-  const InputPinTarikTunai({Key? key, required String title}) : super(key: key);
+class ConfirmationPinTransfer extends StatefulWidget {
+  const ConfirmationPinTransfer({Key? key, required String title})
+      : super(key: key);
 
   @override
-  State<InputPinTarikTunai> createState() => _InputPinTarikTunaiState();
+  State<ConfirmationPinTransfer> createState() =>
+      _ConfirmationPinTransferState();
 }
 
-class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
+class _ConfirmationPinTransferState extends State<ConfirmationPinTransfer> {
   final TextEditingController _pinController = TextEditingController();
   String _pin = '';
   final int pinLength = 6;
@@ -135,9 +136,13 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReceiptIsiSaldo(
-                            nominal: '',
+                          builder: (context) => const ReceiptTransfer(
+                            title: 'Selesai',
+                            nominal: '', // Tambahkan nominal sesuai kebutuhan
                             date: '',
+                            namaPenerima: '',
+                            rekeningTujuan:
+                                '', // Tambahkan date sesuai kebutuhan
                           ),
                         ),
                       );

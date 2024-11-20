@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/Start/screens/isi_saldo/input_pin_isi_saldo.dart'; // Don't forget to import this for currency formatting.
+import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart'; // Don't forget to import this for currency formatting.
 
 class ConfirmIsiSaldo extends StatefulWidget {
   const ConfirmIsiSaldo({super.key, required this.title});

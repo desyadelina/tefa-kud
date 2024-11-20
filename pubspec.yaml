@@ -17,6 +17,7 @@ dependencies:
   flutter_svg: ^2.0.14
   intl_utils: ^2.8.7
   http: ^1.2.2
+  google_fonts: ^6.2.1
   getwidget: ^4.0.0
   flutter_launcher_icons: ^0.14.1
   sp_util: ^2.0.3

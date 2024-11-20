@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/screens/intro/splash_screen.dart';
+import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
+import 'package:tefa_kud/screens/pinjaman/pinjaman.dart';
+import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
+import 'package:tefa_kud/screens/profile/profile_screen.dart';
+import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
+import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 
-import 'package:tefa_kud/Settings/screens/profile_edit_screen.dart';
-import 'package:tefa_kud/Settings/screens/profile_screen.dart';
-import 'package:tefa_kud/Start/screens/splash_screen.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
@@ -26,6 +30,14 @@ class NavigatorManager {
     switch (routeName) {
       case '/profileEdit':
         return ProfileEditScreen();
+      case '/transfer':
+        return ListTransfer();
+      case '/isiSaldo':
+        return IsiSaldoPage(title: 'Isi Saldo',);
+      case '/tarikTunai':
+        return TarikTunaiPage(title: 'Tarik Tunai',);
+      case '/pinjaman':
+        return PinjamanPage();
       default:
         return MainLayout(
           title: '',
@@ -53,6 +65,10 @@ class MainApp extends StatelessWidget {
             ),
         '/splashscreen': (context) => const SplashScreen(),
         '/profile': (context) => const ProfilePage(),
+        '/transfer': (context) => const ListTransfer(),
+        '/isiSaldo': (context) => const IsiSaldoPage(title: 'Isi Saldo',),
+        '/tarikTunai': (context) => const TarikTunaiPage(title: 'Tarik Tunai'),
+        '/pinjaman': (context) => const PinjamanPage(),
         '/profileEdit': (context) => const DetailedPage(
               content: ProfileEditScreen(),
               background: Color(0xFFF2F2F2),

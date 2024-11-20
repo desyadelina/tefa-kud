@@ -2,9 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tefa_kud/Start/screens/transfer/input_nominal_transfer.dart';
+import 'package:tefa_kud/screens/transfer/input_nominal_transfer.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
-
 class TransferNewRek extends StatefulWidget {
   final String title;
   const TransferNewRek({Key? key, required this.title}) : super(key: key);
