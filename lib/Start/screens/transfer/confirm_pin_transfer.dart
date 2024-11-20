@@ -140,8 +140,8 @@ class _ConfirmationPinTransferState extends State<ConfirmationPinTransfer> {
                             title: 'Selesai',
                             nominal: '', // Tambahkan nominal sesuai kebutuhan
                             date: '',
-                            receiverName: '',
-                            accountNumber:
+                            namaPenerima: '',
+                            rekeningTujuan:
                                 '', // Tambahkan date sesuai kebutuhan
                           ),
                         ),

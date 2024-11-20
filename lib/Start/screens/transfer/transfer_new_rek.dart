@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/Start/screens/transfer/input_nominal_transfer.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class TransferNewRek extends StatefulWidget {
   final String title;
@@ -13,13 +14,14 @@ class TransferNewRek extends StatefulWidget {
 }
 
 class _TransferNewRekState extends State<TransferNewRek> {
-  final TextEditingController _accountController = TextEditingController();
+  final TextEditingController _rekeningTujuanController =
+      TextEditingController();
   bool isButtonEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _accountController.addListener(_onTextChanged);
+    _rekeningTujuanController.addListener(_onTextChanged);
   }
 
   // Fungsi untuk menambahkan spasi setiap 4 digit
@@ -34,8 +36,8 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
   // Fungsi yang dipanggil saat teks berubah
   void _onTextChanged() {
-    String formattedText = _formatText(_accountController.text);
-    _accountController.value = _accountController.value.copyWith(
+    String formattedText = _formatText(_rekeningTujuanController.text);
+    _rekeningTujuanController.value = _rekeningTujuanController.value.copyWith(
       text: formattedText,
       selection: TextSelection.collapsed(offset: formattedText.length),
     );
@@ -43,8 +45,33 @@ class _TransferNewRekState extends State<TransferNewRek> {
     // Aktifkan tombol hanya jika teks berisi 12 digit (tanpa spasi)
     setState(() {
       isButtonEnabled =
-          _accountController.text.replaceAll(' ', '').length == 12;
+          _rekeningTujuanController.text.replaceAll(' ', '').length == 12;
     });
+  }
+
+  Future<void> _prosesKirimUang() async {
+    String rekeningTujuan = _rekeningTujuanController.text.replaceAll(' ', '');
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User  not logged in')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InputNominalTransfer(
+          title: 'Input Nominal',
+          rekeningTujuan: rekeningTujuan, 
+          userSlug: userSlug,
+        ),
+      ),
+    );
   }
 
   @override
@@ -105,7 +132,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
                         ],
                       ),
                       child: TextField(
-                        controller: _accountController,
+                        controller: _rekeningTujuanController,
                         maxLength: 14, // Maksimal termasuk spasi untuk 12 digit
                         decoration: const InputDecoration(
                           hintText: 'xxxx xxxx xxxx',
@@ -127,20 +154,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
                   ),
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                onPressed: isButtonEnabled
-                    ? () {
-                        String accountNumber =
-                            _accountController.text.replaceAll(' ', '');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InputNominalTransfer(
-                                title: 'Input Nominal'),
-                          ),
-                        );
-                        print('Nomor rekening: $accountNumber');
-                      }
-                    : null,
+                onPressed: isButtonEnabled ? _prosesKirimUang : null,
                 child: const Text(
                   "Lanjut",
                   style: TextStyle(
@@ -159,8 +173,8 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
   @override
   void dispose() {
-    _accountController.removeListener(_onTextChanged);
-    _accountController.dispose();
+    _rekeningTujuanController.removeListener(_onTextChanged);
+    _rekeningTujuanController.dispose();
     super.dispose();
   }
 }

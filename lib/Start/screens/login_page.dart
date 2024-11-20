@@ -57,7 +57,9 @@ class _LoginFormState extends State<LoginScreen> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainLayout(title: '',),
+              const MainLayout(
+            title: '',
+          ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -65,8 +67,9 @@ class _LoginFormState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Gagal masuk. Silahkan masukkan data anda dengan benar.')),
+        SnackBar(
+            content: Text(
+                response?['error'] ?? 'Silahkan periksa kembali data Anda.')),
       );
     }
   }
@@ -219,6 +222,7 @@ class _LoginFormState extends State<LoginScreen> {
                                               color: Colors.green),
                                         ),
                                       ),
+                                      keyboardType: TextInputType.number,
                                     ),
                                   ),
                                 ],

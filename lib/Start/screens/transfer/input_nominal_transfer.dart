@@ -6,17 +6,27 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/Start/screens/transfer/confirm_page.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class InputNominalTransfer extends StatefulWidget {
-  const InputNominalTransfer({super.key, required String title});
+  final String title;
+  final String rekeningTujuan;
+  final String userSlug;
+
+  const InputNominalTransfer({
+    super.key,
+    required this.title,
+    required this.rekeningTujuan,
+    required this.userSlug,
+  });
 
   @override
   State<InputNominalTransfer> createState() => _InputNominalTransferState();
 }
 
 class _InputNominalTransferState extends State<InputNominalTransfer> {
-  double saldo = 10000000000;
-  final String nomorRekening = '1283 1234 1234';
+  double saldo = 0.0;
+  String nomorRekening = '';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
@@ -26,15 +36,36 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   void initState() {
     super.initState();
 
-    // Format saldo ke dalam format rupiah setelah inisialisasi
-    formattedCurrency = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(saldo);
-
+    _getUserAccount();
     // Tambahkan listener pada controller
     _nominalController.addListener(_onNominalChanged);
+  }
+
+  Future<void> _getUserAccount() async {
+    TransactionService transactionService = TransactionService();
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(widget.userSlug);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+           saldo = (rekening['saldo'] is int) ? (rekening['saldo'] as int).toDouble() : rekening['saldo'];
+          formattedCurrency = NumberFormat.currency(
+            locale: 'id',
+            symbol: 'Rp',
+            decimalDigits: 0,
+          ).format(saldo);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Rekening tidak ditemukan.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
+      );
+    }
   }
 
   void _onNominalChanged() {
@@ -58,6 +89,31 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
     _nominalController.removeListener(_onNominalChanged);
     _nominalController.dispose();
     super.dispose();
+  }
+
+  void _proceedToConfirm() {
+    double nominalTransaksi = double.tryParse(
+            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+        0.0;
+
+    if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConfirmTransfer(
+            title: 'Konfirmasi Transfer',
+            nominalTransfer: nominalTransaksi,
+            noRekPengguna: '',
+            noRekTujuan: widget.rekeningTujuan,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Nominal tidak valid atau melebihi saldo')),
+      );
+    }
   }
 
   @override
@@ -233,20 +289,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isButtonEnabled
-                    ? () {
-                        String nominal = _nominalController.text;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ConfirmTransfer(
-                              title: 'Input Nominal',
-                            ),
-                          ),
-                        );
-                        print('Nominal transfer: $nominal');
-                      }
-                    : null,
+                onPressed: isButtonEnabled ? _proceedToConfirm : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: isButtonEnabled ? Colors.black : Colors.grey,
