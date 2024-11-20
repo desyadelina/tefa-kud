@@ -20,6 +20,9 @@ dependencies:
   google_fonts: ^6.2.1
   getwidget: ^4.0.0
   flutter_launcher_icons: ^0.14.1
+  sp_util: ^2.0.3
+  flutter_secure_storage: ^9.2.2
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:

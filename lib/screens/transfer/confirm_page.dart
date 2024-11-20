@@ -4,19 +4,77 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/transfer/confirm_pin_transfer.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ConfirmTransfer extends StatefulWidget {
-  const ConfirmTransfer({super.key, required String title});
+  final String title;
+  final double nominalTransfer;
+  String noRekPengguna;
+  final String noRekTujuan;
+  ConfirmTransfer({
+    super.key,
+    required this.title,
+    required this.nominalTransfer,
+    required this.noRekPengguna,
+    required this.noRekTujuan,
+  });
 
   @override
   State<ConfirmTransfer> createState() => _ConfirmTransferState();
 }
 
 class _ConfirmTransferState extends State<ConfirmTransfer> {
-  final double nominalTransfer = 150000000;
-  final double saldoAkhir = 5000000;
+  String? namaPengirim;
+  String? namaPenerima;
+  String? noRekPengguna;
+  double saldoAkhir = 0.0;
   final NumberFormat currencyFormat =
       NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserDetails();
+    _getPenerimaDetails();
+  }
+
+  Future<void> _getUserDetails() async {
+    TransactionService transactionService = TransactionService();
+
+    var currentUser = await transactionService.getCurrentUser();
+    if (currentUser != null) {
+      namaPengirim = currentUser['nama_pengguna'];
+      String slug = currentUser['slug'];
+
+      var rekeningData = await transactionService.getRekeningPengguna(slug);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        saldoAkhir = (rekening['saldo'] is int)
+            ? (rekening['saldo'] as int).toDouble() - widget.nominalTransfer
+            : rekening['saldo'] - widget.nominalTransfer;
+
+        noRekPengguna = rekening['no_rek'];
+      }
+    }
+
+    await _getPenerimaDetails();
+  }
+
+  Future<void> _getPenerimaDetails() async {
+    TransactionService transactionService = TransactionService();
+
+    var penerimaData =
+        await transactionService.getRekeningPengguna(widget.noRekTujuan);
+    if (penerimaData != null && penerimaData.isNotEmpty) {
+      var penerima = penerimaData[0];
+      setState(() {
+        namaPenerima = penerima['nama_pengguna'];
+        print('Nama Penerima: $namaPenerima');
+      });
+    } else {
+      print('Rekening penerima tidak ditemukan');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,16 +133,16 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
-                                  '#nama pengirim',
-                                  style: TextStyle(
+                                  namaPengirim ?? 'Loading...',
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                 ),
                                 Text(
-                                  '#no rek pengirim',
-                                  style: TextStyle(color: Colors.grey),
+                                  widget.noRekPengguna,
+                                  style: const TextStyle(color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -112,15 +170,15 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
-                                  '#nama penerima',
+                                  namaPenerima ?? 'Loading...',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                 ),
                                 Text(
-                                  '#no rek penerima',
+                                  widget.noRekTujuan,
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               ],
@@ -164,7 +222,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    currencyFormat.format(nominalTransfer),
+                    currencyFormat.format(widget.nominalTransfer),
                     style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

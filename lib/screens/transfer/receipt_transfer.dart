@@ -8,15 +8,15 @@ import 'package:tefa_kud/widget/layout/main_layout.dart';
 class ReceiptTransfer extends StatefulWidget {
   final String nominal;
   final String date;
-  final String receiverName;
-  final String accountNumber;
+  final String namaPenerima;
+  final String rekeningTujuan;
 
   const ReceiptTransfer({
     Key? key,
     required this.nominal,
     required this.date,
-    required this.receiverName,
-    required this.accountNumber,
+    required this.namaPenerima,
+    required this.rekeningTujuan,
     required String title,
   }) : super(key: key);
 
@@ -112,7 +112,7 @@ class _ReceiptTransferState extends State<ReceiptTransfer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.receiverName,
+                          widget.namaPenerima,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -120,7 +120,7 @@ class _ReceiptTransferState extends State<ReceiptTransfer> {
                           ),
                         ),
                         Text(
-                          widget.accountNumber,
+                          widget.rekeningTujuan,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
