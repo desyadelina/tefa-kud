@@ -22,7 +22,7 @@ class ConfirmIsiSaldo extends StatefulWidget {
   State<ConfirmIsiSaldo> createState() => _ConfirmIsiSaldoState();
 }
 
-class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
+class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo>with WidgetsBindingObserver {
   String? noRekPengguna;
   String? namaPengguna;
   double saldoAkhir = 0.0;
@@ -47,11 +47,15 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
           slug, widget.noRekPengguna);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
-        saldoAkhir = (rekening['saldo'] is int)
-            ? (rekening['saldo'] as int).toDouble() + widget.nominalIsiSaldo
-            : rekening['saldo'] + widget.nominalIsiSaldo;
+        setState(() {
+          saldoAkhir = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble() + widget.nominalIsiSaldo
+              : rekening['saldo'] + widget.nominalIsiSaldo;
 
-        noRekPengguna = rekening['no_rek'];
+          noRekPengguna = rekening['no_rek'];
+        });
+      } else {
+        print('Rekening pengguna tidak ditemukan');
       }
     }
   }

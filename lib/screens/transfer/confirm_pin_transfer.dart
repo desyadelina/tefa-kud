@@ -65,7 +65,7 @@ class _ConfirmationPinTransferState extends State<ConfirmationPinTransfer> {
             title: 'Selesai',
             nominal: widget.nominalTransfer.toString(),
             date: DateTime.now().toString(),
-            namaPenerima: '',
+            namaPenerima: widget.namaPenerima,
             rekeningTujuan: widget.noRekTujuan,
           ),
         ),

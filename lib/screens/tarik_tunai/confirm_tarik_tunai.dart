@@ -21,7 +21,7 @@ class ConfirmTarikTunai extends StatefulWidget {
   State<ConfirmTarikTunai> createState() => _ConfirmTarikTunaiState();
 }
 
-class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
+class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>with WidgetsBindingObserver {
   String? noRekPengguna;
   String? namaPengguna;
   double saldoAkhir = 0.0; // Example value
@@ -46,9 +46,11 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
           slug, widget.noRekPengguna);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
-        saldoAkhir = (rekening['saldo'] is int)
-            ? (rekening['saldo'] as int).toDouble() - widget.nominalTarikTunai
-            : rekening['saldo'] - widget.nominalTarikTunai;
+        setState(() {
+          saldoAkhir = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble() - widget.nominalTarikTunai
+              : rekening['saldo'] - widget.nominalTarikTunai;
+        });
 
         noRekPengguna = rekening['no_rek'];
       }

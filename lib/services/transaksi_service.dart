@@ -18,6 +18,7 @@ class TransactionService {
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
     );
 
@@ -29,15 +30,38 @@ class TransactionService {
     }
   }
 
-  Future<List<dynamic>?> getRekeningPengguna(String slug, String rekening) async {
+  Future<Map<String, dynamic>?> getSlugByRekening(String rekening) async {
     String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/v1/pengguna/$slug/rekening-pengguna/$rekening');
+    final url = Uri.parse('$baseUrl/rekening/$rekening/slug');
 
     final response = await http.get(
       url,
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data;
+    } else {
+      throw Exception('Gagal memuat slug: ${response.body}');
+    }
+  }
+
+  Future<List<dynamic>?> getRekeningPengguna(
+      String slug, String rekening) async {
+    String? token = await storage.read(key: 'token');
+    final url =
+        Uri.parse('$baseUrl/v1/pengguna/$slug/rekening-pengguna/$rekening');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
     );
 
@@ -64,6 +88,7 @@ class TransactionService {
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
     );
 

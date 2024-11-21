@@ -25,7 +25,7 @@ class ConfirmTransfer extends StatefulWidget {
   State<ConfirmTransfer> createState() => _ConfirmTransferState();
 }
 
-class _ConfirmTransferState extends State<ConfirmTransfer> {
+class _ConfirmTransferState extends State<ConfirmTransfer>with WidgetsBindingObserver {
   String? namaPengirim;
   String? namaPenerima;
   String? noRekPengguna;
@@ -48,7 +48,8 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
       namaPengirim = currentUser['nama_pengguna'];
       String slug = currentUser['slug'];
 
-      var rekeningData = await transactionService.getRekeningPengguna(slug, widget.noRekPengguna);
+      var rekeningData = await transactionService.getRekeningPengguna(
+          slug, widget.noRekPengguna);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         saldoAkhir = (rekening['saldo'] is int)
@@ -56,25 +57,35 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
             : rekening['saldo'] - widget.nominalTransfer;
 
         noRekPengguna = rekening['no_rek'];
+      } else {
+        print('Rekening pengguna tidak ditemukan');
       }
     }
-
-    await _getPenerimaDetails();
   }
 
   Future<void> _getPenerimaDetails() async {
     TransactionService transactionService = TransactionService();
-
-    var penerimaData =
-        await transactionService.getRekeningPengguna(widget.noRekTujuan, widget.noRekPengguna);
-    if (penerimaData != null && penerimaData.isNotEmpty) {
-      var penerima = penerimaData[0];
-      setState(() {
-        namaPenerima = penerima['nama_pengguna'];
-        print('Nama Penerima: $namaPenerima');
-      });
-    } else {
-      print('Rekening penerima tidak ditemukan');
+    try {
+      var slugData =
+          await transactionService.getSlugByRekening(widget.noRekTujuan);
+      if (slugData != null) {
+        String slugTujuan = slugData['slug'];
+        String namaPenerima = slugData['nama_pengguna'];
+        var penerimaData = await transactionService.getRekeningPengguna(
+            slugTujuan, widget.noRekTujuan);
+        if (penerimaData != null && penerimaData.isNotEmpty) {
+          setState(() {
+            this.namaPenerima = namaPenerima;
+          });
+          print('Nama Penerima: $namaPenerima');
+        } else {
+          print('Rekening penerima tidak ditemukan');
+        }
+      } else {
+        print('Slug penerima tidak ditemukan');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 

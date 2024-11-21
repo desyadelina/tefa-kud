@@ -29,8 +29,7 @@ class ReceiptTransfer extends StatefulWidget {
 class _ReceiptTransferState extends State<ReceiptTransfer> {
   @override
   Widget build(BuildContext context) {
-    final DateTime dateTime = DateTime.parse(widget.date);
-    final String formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+    final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
 
 
     return Scaffold(
