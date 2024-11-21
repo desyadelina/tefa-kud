@@ -57,7 +57,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in')),
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
       );
       return;
     }

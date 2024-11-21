@@ -2,22 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
-import 'package:tefa_kud/screens/tarik_tunai/input_pin.dart'; // Don't forget to import this for currency formatting.
+import 'package:tefa_kud/screens/tarik_tunai/input_pin.dart';
+import 'package:tefa_kud/services/transaksi_service.dart'; // Don't forget to import this for currency formatting.
 
 class ConfirmTarikTunai extends StatefulWidget {
-  const ConfirmTarikTunai({super.key, required this.title});
-
   final String title;
+  final double nominalTarikTunai;
+  final String noRekPengguna;
+  final String userSlug;
+  const ConfirmTarikTunai(
+      {super.key,
+      required this.title,
+      required this.nominalTarikTunai,
+      required this.noRekPengguna,
+      required this.userSlug});
 
   @override
   State<ConfirmTarikTunai> createState() => _ConfirmTarikTunaiState();
 }
 
 class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
-  final double nominalTransfer = 150000000; // Example value
-  final double saldoAkhir = 5000000; // Example value
+  String? noRekPengguna;
+  String? namaPengguna;
+  double saldoAkhir = 0.0; // Example value
   final NumberFormat currencyFormat =
       NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserDetails();
+  }
+
+  Future<void> _getUserDetails() async {
+    TransactionService transactionService = TransactionService();
+
+    var currentUser = await transactionService.getCurrentUser();
+    if (currentUser != null) {
+      namaPengguna = currentUser['nama_pengguna'];
+      String slug = currentUser['slug'];
+
+      var rekeningData = await transactionService.getRekeningPengguna(
+          slug, widget.noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        saldoAkhir = (rekening['saldo'] is int)
+            ? (rekening['saldo'] as int).toDouble() - widget.nominalTarikTunai
+            : rekening['saldo'] - widget.nominalTarikTunai;
+
+        noRekPengguna = rekening['no_rek'];
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +97,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    currencyFormat.format(nominalTransfer),
+                    currencyFormat.format(widget.nominalTarikTunai),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -120,7 +156,13 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const InputPinTarikTunai(title: ''),
+                      builder: (context) => InputPinTarikTunai(
+                        title: '',
+                        userSlug: widget.userSlug,
+                        noRekPengguna: widget.noRekPengguna,
+                        namaPengguna: namaPengguna ?? 'Unknown',
+                        nominalTarikTunai: widget.nominalTarikTunai,
+                        ),
                     ),
                   );
                 },

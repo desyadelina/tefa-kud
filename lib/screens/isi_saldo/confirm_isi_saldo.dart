@@ -48,8 +48,8 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         saldoAkhir = (rekening['saldo'] is int)
-            ? (rekening['saldo'] as int).toDouble() - widget.nominalIsiSaldo
-            : rekening['saldo'] - widget.nominalIsiSaldo;
+            ? (rekening['saldo'] as int).toDouble() + widget.nominalIsiSaldo
+            : rekening['saldo'] + widget.nominalIsiSaldo;
 
         noRekPengguna = rekening['no_rek'];
       }

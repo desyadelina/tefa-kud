@@ -40,7 +40,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in')),
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
       );
       return;
     }
@@ -117,7 +117,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in')),
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
       );
       return;
     }
