@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReceiptTarikTunai extends StatefulWidget {
-  const ReceiptTarikTunai({super.key});
+  const ReceiptTarikTunai({super.key, required String nominal, required String date});
 
   @override
   State<ReceiptTarikTunai> createState() => _ReceiptTarikTunaiState();

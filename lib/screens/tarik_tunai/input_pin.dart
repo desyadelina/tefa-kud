@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
+import 'package:tefa_kud/screens/tarik_tunai/receipt_tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 
 class InputPinTarikTunai extends StatefulWidget {
@@ -135,7 +136,7 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReceiptIsiSaldo(
+                          builder: (context) => ReceiptTarikTunai(
                             nominal: '',
                             date: '',
                           ),

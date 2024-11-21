@@ -1,11 +1,25 @@
-// ignore_for_file: use_super_parameters
+// ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
+import 'package:tefa_kud/services/auth_service.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class InputPinIsiSaldo extends StatefulWidget {
-  const InputPinIsiSaldo({Key? key, required String title}) : super(key: key);
+  final String title;
+  final String userSlug;
+  final String noRekPengguna;
+  final String namaPengguna;
+  final double nominalIsiSaldo;
+  const InputPinIsiSaldo(
+      {Key? key,
+      required this.title,
+      required this.userSlug,
+      required this.noRekPengguna,
+      required this.namaPengguna,
+      required this.nominalIsiSaldo})
+      : super(key: key);
 
   @override
   State<InputPinIsiSaldo> createState() => _InputPinIsiSaldoState();
@@ -20,6 +34,46 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
     setState(() {
       _pin = value;
     });
+  }
+
+  Future<void> _confirmPin() async {
+    AuthService authService = AuthService();
+    TransactionService transactionService = TransactionService();
+
+    String? storedPin = await authService.storage.read(key: 'pin');
+    print('Stored PIN: $storedPin');
+    print('Entered PIN: $_pin');
+    print(
+        'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
+
+    var response = await transactionService.konfirmasiRekening(
+        widget.userSlug, widget.noRekPengguna, _pin);
+    if (response != null &&
+        response['message'] == 'Rekening berhasil dikonfirmasi') {
+      await transactionService.topUp(
+        widget.userSlug,
+        widget.noRekPengguna,
+        widget.nominalIsiSaldo,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReceiptIsiSaldo(
+            title: 'Selesai',
+            nominal: widget.nominalIsiSaldo.toString(),
+            date: DateTime.now().toString(),
+            namaPengguna: widget.namaPengguna,
+            noRekPengguna: widget.noRekPengguna,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+      );
+    }
   }
 
   @override
@@ -125,24 +179,7 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
-              onPressed: _pin.length == pinLength
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('PIN Diterima, Transaksi Berhasil!'),
-                        ),
-                      );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReceiptIsiSaldo(
-                            nominal: '',
-                            date: '',
-                          ),
-                        ),
-                      );
-                    }
-                  : null,
+              onPressed: _pin.length == pinLength ? _confirmPin : null,
               child: const Text(
                 'Selesai',
                 style: TextStyle(

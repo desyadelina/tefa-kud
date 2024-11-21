@@ -1,32 +1,70 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart'; // Don't forget to import this for currency formatting.
+import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ConfirmIsiSaldo extends StatefulWidget {
-  const ConfirmIsiSaldo({super.key, required this.title});
-
   final String title;
+  final double nominalIsiSaldo;
+  final String noRekPengguna;
+  final String userSlug;
+  const ConfirmIsiSaldo(
+      {super.key,
+      required this.title,
+      required this.nominalIsiSaldo,
+      required this.noRekPengguna,
+      required this.userSlug});
 
   @override
   State<ConfirmIsiSaldo> createState() => _ConfirmIsiSaldoState();
 }
 
 class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
-  final double nominalTransfer = 150000000; // Example value
-  final double saldoAkhir = 5000000; // Example value
+  String? noRekPengguna;
+  String? namaPengguna;
+  double saldoAkhir = 0.0;
   final NumberFormat currencyFormat =
       NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserDetails();
+  }
+
+  Future<void> _getUserDetails() async {
+    TransactionService transactionService = TransactionService();
+
+    var currentUser = await transactionService.getCurrentUser();
+    if (currentUser != null) {
+      namaPengguna = currentUser['nama_pengguna'];
+      String slug = currentUser['slug'];
+
+      var rekeningData = await transactionService.getRekeningPengguna(
+          slug, widget.noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        saldoAkhir = (rekening['saldo'] is int)
+            ? (rekening['saldo'] as int).toDouble() - widget.nominalIsiSaldo
+            : rekening['saldo'] - widget.nominalIsiSaldo;
+
+        noRekPengguna = rekening['no_rek'];
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("dummy appbar"), 
-        backgroundColor: Colors.green, 
+        title: Text("dummy appbar"),
+        backgroundColor: Colors.green,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0), 
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -60,7 +98,7 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    currencyFormat.format(nominalTransfer),
+                    currencyFormat.format(widget.nominalIsiSaldo),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -119,7 +157,13 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const InputPinIsiSaldo(title: ''),
+                      builder: (context) => InputPinIsiSaldo(
+                        title: '',
+                        userSlug: widget.userSlug,
+                        noRekPengguna: widget.noRekPengguna,
+                        namaPengguna: namaPengguna ?? 'Unknown',
+                        nominalIsiSaldo: widget.nominalIsiSaldo,
+                        ),
                     ),
                   );
                 },

@@ -1,14 +1,22 @@
+// ignore_for_file: use_super_parameters, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
 class ReceiptIsiSaldo extends StatefulWidget {
+  final String title;
   final String nominal;
   final String date;
+  final String namaPengguna;
+  final String noRekPengguna;
 
   const ReceiptIsiSaldo({
     Key? key,
+    required this.title,
     required this.nominal,
     required this.date,
+    required this.namaPengguna,
+    required this.noRekPengguna,
   }) : super(key: key);
 
   @override
