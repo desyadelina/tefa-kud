@@ -25,12 +25,30 @@ class AuthService {
       var data = jsonDecode(response.body);
       await storage.write(key: 'token', value: data['token']);
       await storage.write(key: 'user', value: jsonEncode(data['pengguna']));
+      await storage.write(key: 'pin', value: data['pengguna']['pin']);
       print('User  data: ${data['pengguna']}');
-      print('User  slug: ${data['slug']}');
       return data;
     } else {
       print('Login error: ${response.body}');
       return jsonDecode(response.body);
     }
+  }
+
+  Future<void> signOut() async {
+    final token = await storage.read(key: 'token');
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/signout'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to sign out: ${response.body}');
+    }
+
+    await storage.delete(key: 'token');
+    await storage.delete(key: 'pin');
   }
 }

@@ -1,11 +1,13 @@
-// ignore_for_file: use_super_parameters
+// ignore_for_file: use_super_parameters, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/screens/home_page.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:intl/intl.dart';
 
 class ReceiptTransfer extends StatefulWidget {
+  final String title;
   final String nominal;
   final String date;
   final String namaPenerima;
@@ -17,7 +19,7 @@ class ReceiptTransfer extends StatefulWidget {
     required this.date,
     required this.namaPenerima,
     required this.rekeningTujuan,
-    required String title,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -27,6 +29,10 @@ class ReceiptTransfer extends StatefulWidget {
 class _ReceiptTransferState extends State<ReceiptTransfer> {
   @override
   Widget build(BuildContext context) {
+    final DateTime dateTime = DateTime.parse(widget.date);
+    final String formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+
+
     return Scaffold(
       backgroundColor:
           const Color(0xFF43AA4F), // Matching the green background color
@@ -61,9 +67,8 @@ class _ReceiptTransferState extends State<ReceiptTransfer> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text("18/11/2024 18:50"),
                 Text(
-                  widget.date,
+                  formattedDate,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,

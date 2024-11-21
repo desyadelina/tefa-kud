@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters
+// ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,6 +16,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
   final TextEditingController _rekeningTujuanController =
       TextEditingController();
   bool isButtonEnabled = false;
+  String? noRekPengguna;
 
   @override
   void initState() {
@@ -56,18 +57,29 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User  not logged in')),
+        const SnackBar(content: Text('User not logged in')),
       );
       return;
     }
+
+    var rekeningData = await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    String noRekPengguna = rekeningData[0]['no_rek'];
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => InputNominalTransfer(
           title: 'Input Nominal',
-          rekeningTujuan: rekeningTujuan, 
+          rekeningTujuan: rekeningTujuan,
           userSlug: userSlug,
+          noRekPengguna: noRekPengguna,
         ),
       ),
     );

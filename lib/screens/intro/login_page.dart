@@ -15,9 +15,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _teleponFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   bool _isObscured = true;
   String _selectedCountryCode = "+62";
@@ -27,7 +27,7 @@ class _LoginFormState extends State<LoginScreen> {
   void initState() {
     super.initState();
 
-    _usernameFocusNode.addListener(() {
+    _teleponFocusNode.addListener(() {
       setState(() {});
     });
     _passwordFocusNode.addListener(() {
@@ -37,16 +37,16 @@ class _LoginFormState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameFocusNode.dispose();
+    _teleponFocusNode.dispose();
     _passwordFocusNode.dispose();
-    _usernameController.dispose();
+    _teleponController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
     String noTelepon =
-        _selectedCountryCode.replaceFirst('+', '') + _usernameController.text;
+        _selectedCountryCode.replaceFirst('+', '') + _teleponController.text;
     String password = _passwordController.text;
 
     var response = await _authService.login(noTelepon, password);
@@ -149,7 +149,7 @@ class _LoginFormState extends State<LoginScreen> {
                                     height: 58,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: _usernameFocusNode.hasFocus
+                                        color: _teleponFocusNode.hasFocus
                                             ? Colors.green
                                             : const Color.fromARGB(
                                                 255, 128, 127, 127),
@@ -192,8 +192,8 @@ class _LoginFormState extends State<LoginScreen> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: TextField(
-                                      controller: _usernameController,
-                                      focusNode: _usernameFocusNode,
+                                      controller: _teleponController,
+                                      focusNode: _teleponFocusNode,
                                       style: const TextStyle(
                                         fontFamily: 'RedRose',
                                         color: Colors.grey,
@@ -205,7 +205,7 @@ class _LoginFormState extends State<LoginScreen> {
                                           color: Colors.grey[400],
                                         ),
                                         labelStyle: TextStyle(
-                                          color: _usernameFocusNode.hasFocus
+                                          color: _teleponFocusNode.hasFocus
                                               ? Colors.green
                                               : Colors.grey,
                                         ),

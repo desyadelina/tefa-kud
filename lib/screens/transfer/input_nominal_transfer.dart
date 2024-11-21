@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,12 +12,14 @@ class InputNominalTransfer extends StatefulWidget {
   final String title;
   final String rekeningTujuan;
   final String userSlug;
+  final String noRekPengguna;
 
   const InputNominalTransfer({
     super.key,
     required this.title,
     required this.rekeningTujuan,
     required this.userSlug,
+    required this.noRekPengguna,
   });
 
   @override
@@ -44,12 +46,15 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   Future<void> _getUserAccount() async {
     TransactionService transactionService = TransactionService();
     try {
-      var rekeningData =
-          await transactionService.getRekeningPengguna(widget.userSlug);
+      var rekeningData = await transactionService.getRekeningPengguna(
+          widget.userSlug, widget.noRekPengguna);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         setState(() {
-           saldo = (rekening['saldo'] is int) ? (rekening['saldo'] as int).toDouble() : rekening['saldo'];
+          saldo = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble()
+              : rekening['saldo'];
+          nomorRekening = rekening['no_rek'];
           formattedCurrency = NumberFormat.currency(
             locale: 'id',
             symbol: 'Rp',
@@ -103,8 +108,9 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
           builder: (context) => ConfirmTransfer(
             title: 'Konfirmasi Transfer',
             nominalTransfer: nominalTransaksi,
-            noRekPengguna: '',
+            noRekPengguna: nomorRekening,
             noRekTujuan: widget.rekeningTujuan,
+            userSlug: widget.userSlug,
           ),
         ),
       );

@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, avoid_unnecessary_containers
+// ignore_for_file: depend_on_referenced_packages, avoid_unnecessary_containers, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,14 +9,16 @@ import 'package:tefa_kud/services/transaksi_service.dart';
 class ConfirmTransfer extends StatefulWidget {
   final String title;
   final double nominalTransfer;
-  String noRekPengguna;
+  final String noRekPengguna;
   final String noRekTujuan;
+  final String userSlug;
   ConfirmTransfer({
     super.key,
     required this.title,
     required this.nominalTransfer,
     required this.noRekPengguna,
     required this.noRekTujuan,
+    required this.userSlug,
   });
 
   @override
@@ -46,7 +48,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
       namaPengirim = currentUser['nama_pengguna'];
       String slug = currentUser['slug'];
 
-      var rekeningData = await transactionService.getRekeningPengguna(slug);
+      var rekeningData = await transactionService.getRekeningPengguna(slug, widget.noRekPengguna);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         saldoAkhir = (rekening['saldo'] is int)
@@ -64,7 +66,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
     TransactionService transactionService = TransactionService();
 
     var penerimaData =
-        await transactionService.getRekeningPengguna(widget.noRekTujuan);
+        await transactionService.getRekeningPengguna(widget.noRekTujuan, widget.noRekPengguna);
     if (penerimaData != null && penerimaData.isNotEmpty) {
       var penerima = penerimaData[0];
       setState(() {
@@ -273,8 +275,13 @@ class _ConfirmTransferState extends State<ConfirmTransfer> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const ConfirmationPinTransfer(title: 'Input Nominal'),
+                      builder: (context) => ConfirmationPinTransfer(
+                        userSlug: widget.userSlug,
+                        noRekPengguna: widget.noRekPengguna,
+                        noRekTujuan: widget.noRekTujuan,
+                        nominalTransfer: widget.nominalTransfer,
+                        namaPenerima: namaPenerima ?? 'Unknown',
+                      ),
                     ),
                   );
                 },
