@@ -1,6 +1,6 @@
 name: tefa_kud
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -37,6 +37,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/background-receipt.png
     - assets/logo/
     - assets/images/banner/
     - assets/icon/
@@ -49,4 +50,4 @@ flutter:
         - asset: fonts/RedRose-Regular.ttf
         - weight: 400
         - asset: fonts/RedRose-Light.ttf
-        - weight: 300  
+        - weight: 300

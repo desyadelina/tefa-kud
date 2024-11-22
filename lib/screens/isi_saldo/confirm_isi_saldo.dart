@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -62,12 +62,16 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo>with WidgetsBindingObs
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("dummy appbar"),
-        backgroundColor: Colors.green,
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

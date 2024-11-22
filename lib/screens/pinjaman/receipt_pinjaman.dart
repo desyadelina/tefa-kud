@@ -1,41 +1,32 @@
-// ignore_for_file: use_super_parameters, avoid_unnecessary_containers
+// ignore_for_file: use_super_parameters, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
-class ReceiptIsiSaldo extends StatefulWidget {
-  final String title;
+class ReceiptPinjaman extends StatefulWidget {
   final String nominal;
   final String date;
-  final String namaPengguna;
-  final String noRekPengguna;
+  final String receiverName;
+  final String accountNumber;
 
-  const ReceiptIsiSaldo({
+  const ReceiptPinjaman({
     Key? key,
-    required this.title,
     required this.nominal,
     required this.date,
-    required this.namaPengguna,
-    required this.noRekPengguna,
+    required this.receiverName,
+    required this.accountNumber,
+    required String title,
   }) : super(key: key);
 
   @override
-  State<ReceiptIsiSaldo> createState() => _ReceiptIsiSaldoState();
+  State<ReceiptPinjaman> createState() => _ReceiptPinjamanState();
 }
 
-class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
+class _ReceiptPinjamanState extends State<ReceiptPinjaman> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        color: Color(0xFF43964F),
-      ),
       child: Center(
         child: SingleChildScrollView(
           child: Container(
@@ -43,11 +34,10 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
               image: const DecorationImage(
-                image: AssetImage(
-                    'assets/images/bg-receipt.png'), // Background image
-                fit: BoxFit.cover, // Cover the entire container
+                image: AssetImage('assets/images/bg-receipt.png'),
+                fit: BoxFit.cover,
               ),
-              borderRadius: BorderRadius.circular(16.0), // Rounded corners
+              borderRadius: BorderRadius.circular(16.0),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -59,7 +49,7 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Isi Saldo berhasil',
+                  'Pinjaman Uang berhasil',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -77,7 +67,7 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Isi Saldo dana',
+                  'Pinjaman Uang',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -118,7 +108,7 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.namaPengguna,
+                          widget.receiverName,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -126,7 +116,7 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
                           ),
                         ),
                         Text(
-                          widget.noRekPengguna,
+                          widget.accountNumber,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
-import 'package:tefa_kud/screens/pinjaman/pinjaman.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
@@ -44,43 +43,6 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
-      // appBar: AppBar(
-      //   backgroundColor: const Color(0xFF43964F),
-      //   toolbarHeight: 110,
-      //   title: const Row(
-      //     mainAxisAlignment: MainAxisAlignment.start,
-      //     children: [
-      //       Padding(padding: EdgeInsets.only(left: 15)),
-      //       CircleAvatar(
-      //         radius: 24,
-      //         backgroundImage:
-      //             AssetImage('assets/logo/koperasi-indonesia-seeklogo.png'),
-      //       ),
-      //       SizedBox(width: 12),
-      //       Column(
-      //         crossAxisAlignment: CrossAxisAlignment.start,
-      //         mainAxisAlignment: MainAxisAlignment.center,
-      //         children: [
-      //           Text(
-      //             "Koperasi Unit Desa",
-      //             style: TextStyle(
-      //               fontSize: 18,
-      //               fontWeight: FontWeight.bold,
-      //               color: Colors.white,
-      //             ),
-      //           ),
-      //           Text(
-      //             "Banjarbaru, Indonesia",
-      //             style: TextStyle(
-      //               fontSize: 14,
-      //               color: Colors.white,
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ],
-      //   ),
-      // ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
           if (scrollInfo.metrics.axis == Axis.vertical) {
@@ -256,7 +218,7 @@ class _HomePageState extends State<HomePage>
                                       ),
                                       elevation: 4.0,
                                       child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
+                                        padding: const EdgeInsets.all(10),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [

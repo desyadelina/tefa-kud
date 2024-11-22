@@ -27,15 +27,20 @@ class ReceiptTransfer extends StatefulWidget {
 }
 
 class _ReceiptTransferState extends State<ReceiptTransfer> {
+      final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
+
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
-
-
-    return Scaffold(
-      backgroundColor:
-          const Color(0xFF43AA4F), // Matching the green background color
-      body: Center(
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Color(0xFF43964F),
+      ),
+      child: Center(
         child: SingleChildScrollView(
           child: Container(
             margin: const EdgeInsets.all(16.0),

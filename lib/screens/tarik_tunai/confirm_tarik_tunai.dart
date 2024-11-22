@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
-import 'package:tefa_kud/screens/tarik_tunai/input_pin.dart';
+import 'package:tefa_kud/screens/tarik_tunai/input_pin_tarik_tunai.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ConfirmTarikTunai extends StatefulWidget {
@@ -23,7 +23,8 @@ class ConfirmTarikTunai extends StatefulWidget {
   State<ConfirmTarikTunai> createState() => _ConfirmTarikTunaiState();
 }
 
-class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>with WidgetsBindingObserver {
+class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>
+    with WidgetsBindingObserver {
   String? noRekPengguna;
   String? namaPengguna;
   double saldoAkhir = 0.0; // Example value
@@ -61,12 +62,16 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>with WidgetsBindin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("dummy appbar"), // Dynamic title from the widget
-        backgroundColor: Colors.green, // Color change to fit the theme
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0), // Padding to avoid screen edges
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +95,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>with WidgetsBindin
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Nominal Isi Saldo',
+                        'Nominal Tarik Tunai',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -166,7 +171,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>with WidgetsBindin
                         noRekPengguna: widget.noRekPengguna,
                         namaPengguna: namaPengguna ?? 'Unknown',
                         nominalTarikTunai: widget.nominalTarikTunai,
-                        ),
+                      ),
                     ),
                   );
                 },

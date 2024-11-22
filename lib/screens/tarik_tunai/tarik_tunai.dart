@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,9 +7,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/main.dart';
 
 class TarikTunaiPage extends StatefulWidget {
-  const TarikTunaiPage({super.key, required String title});
+  const TarikTunaiPage({
+    super.key, required String title,
+  });
 
   @override
   State<TarikTunaiPage> createState() => _TarikTunaiPageState();
@@ -154,12 +157,16 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text("dummy appbar"),
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -268,7 +275,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'Nominal Isi Saldo',
+                        'Nominal Tarik Tunai',
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(0xFF43964F),

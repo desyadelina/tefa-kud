@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
@@ -153,16 +154,132 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text("dummy appbar"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Container(
+    return Stack(
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 30),
+          padding: EdgeInsets.only(top: 100),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.moneyBillTransfer,
+                            color: Color(0xFF43964F),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            'Nominal Isi Saldo',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF43964F),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Text(
+                            'Rp',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _nominalController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: '0',
+                                hintStyle: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(12),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor:
+                          isButtonEnabled ? Colors.black : Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lanjut',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -248,102 +365,9 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        FontAwesomeIcons.moneyBillTransfer,
-                        color: Color(0xFF43964F),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Nominal Isi Saldo',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF43964F),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text(
-                        'Rp',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _nominalController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: '0',
-                            hintStyle: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                            border: InputBorder.none,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter
-                                .digitsOnly, // Only digits allowed
-                            LengthLimitingTextInputFormatter(
-                                12), // Limit to 12 characters
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isButtonEnabled ? _proceedToConfirm : null,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: isButtonEnabled ? Colors.black : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Lanjut',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 

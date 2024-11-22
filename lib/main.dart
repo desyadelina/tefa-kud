@@ -1,43 +1,55 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
-import 'package:tefa_kud/screens/pinjaman/pinjaman.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_screen.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
+import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
+import 'package:tefa_kud/screens/transfer/input_pin_transfer.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
-
+import 'package:tefa_kud/screens/isi_saldo/code_isi_saldo.dart';
+import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
+import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
+import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
+import 'package:tefa_kud/screens/pinjaman/code_pinjaman.dart';
+import 'package:tefa_kud/screens/pinjaman/input_pin_pinjaman.dart';
+import 'package:tefa_kud/screens/pinjaman/pinjaman_page.dart';
+import 'package:tefa_kud/screens/pinjaman/receipt_pinjaman.dart';
+import 'package:tefa_kud/screens/tarik_tunai/code_tarik_tunai.dart';
+import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
+import 'package:tefa_kud/screens/tarik_tunai/input_pin_tarik_tunai.dart';
+import 'package:tefa_kud/screens/tarik_tunai/receipt_tarik_tunai.dart';
+import 'package:tefa_kud/screens/transfer/input_nominal_transfer.dart';
+import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
+import 'package:tefa_kud/screens/transfer/transfer_new_rek.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  static Future<void> navigateWithoutAnimation(String routeName) {
-    return navigatorKey.currentState?.push(PageRouteBuilder(
-          settings: RouteSettings(name: routeName),
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return getRouteWidget(
-                routeName); // Fungsi untuk mengambil widget berdasarkan routeName
-          },
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        )) ??
-        Future.value();
-  }
-
   static Widget getRouteWidget(String routeName) {
     switch (routeName) {
       case '/profileEdit':
-        return ProfileEditScreen();
+        return const ProfileEditScreen();
+      case '/MutasiPage':
+        return const MutasiPage(
+          titleBar: 'Mutasi',
+          background: Colors.white,
+        );
       case '/transfer':
         return ListTransfer();
-      case '/isiSaldo':
-        return IsiSaldoPage(title: 'Isi Saldo',);
       case '/tarikTunai':
-        return TarikTunaiPage(title: 'Tarik Tunai',);
+        return TarikTunaiPage(
+          title: '',
+        );
       case '/pinjaman':
-        return PinjamanPage();
+        return PinjamanPage(
+          title: '',
+        );
       default:
         return MainLayout(
           title: '',
@@ -57,18 +69,199 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splashscreen',
+      initialRoute: '/',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         '/': (context) => const MainLayout(
               title: '',
             ),
         '/splashscreen': (context) => const SplashScreen(),
-        '/profile': (context) => const ProfilePage(),
-        '/transfer': (context) => const ListTransfer(),
-        '/isiSaldo': (context) => const IsiSaldoPage(title: 'Isi Saldo',),
-        '/tarikTunai': (context) => const TarikTunaiPage(title: 'Tarik Tunai'),
-        '/pinjaman': (context) => const PinjamanPage(),
+        '/MutasiPage': (context) => const MutasiPage(
+              titleBar: 'Mutasi',
+              background: Colors.white,
+            ),
+        '/profile': (context) => ProfilePage(),
+        '/transfer': (context) => const DetailedPage(
+              titleBar: "Transfer",
+              background: Colors.white,
+              content: ListTransfer(),
+            ),
+        '/TransferNewRek': (context) => const DetailedPage(
+              titleBar: "Transfer",
+              background: Colors.white,
+              content: TransferNewRek(
+                title: '',
+              ),
+            ),
+        '/InputNominalTransfer': (context) => const DetailedPage(
+              titleBar: "Transfer",
+              background: Colors.white,
+              content: InputNominalTransfer(
+                title: '',
+                rekeningTujuan: '',
+                userSlug: '',
+                noRekPengguna: '',
+              ),
+            ),
+        '/ConfirmTransfer': (context) => DetailedPage(
+              titleBar: "Transfer",
+              content: ConfirmTransfer(
+                title: '',
+                nominalTransfer: 0,
+                noRekPengguna: '',
+                noRekTujuan: '',
+                userSlug: '',
+              ),
+            ),
+        '/ConfirmationPinTransfer': (context) => const DetailedPage(
+              titleBar: "Transfer",
+              background: Colors.white,
+              content: InputPinTransfer(
+                title: '',
+                userSlug: '',
+                noRekTujuan: '',
+                noRekPengguna: '',
+                nominalTransfer: 0,
+                namaPenerima: '',
+              ),
+            ),
+        '/ReceiptTransfer': (context) => const DetailedPage(
+              titleBar: "Transfer",
+              background: Color(0xFF43964F),
+              content: ReceiptTransfer(
+                nominal: '',
+                date: '',
+                title: '',
+                namaPenerima: '',
+                rekeningTujuan: '',
+              ),
+            ),
+        '/isiSaldo': (context) => const DetailedPage(
+              titleBar: "Isi Saldo",
+              background: Colors.white,
+              content: IsiSaldoPage(title: ''),
+            ),
+        '/ConfirmIsiSaldo': (context) => const DetailedPage(
+              titleBar: "Isi Saldo",
+              background: Colors.white,
+              content: ConfirmIsiSaldo(
+                title: '',
+                nominalIsiSaldo: 0,
+                noRekPengguna: '',
+                userSlug: '',
+              ),
+            ),
+        '/InputPinIsiSaldo': (context) => const DetailedPage(
+              titleBar: "Isi Saldo",
+              background: Colors.white,
+              content: InputPinIsiSaldo(
+                title: '',
+                userSlug: '',
+                noRekPengguna: '',
+                nominalIsiSaldo: 0,
+                namaPengguna: '',
+              ),
+            ),
+        '/CodeIsiSaldo': (context) => const DetailedPage(
+              titleBar: "Isi Saldo",
+              background: Colors.white,
+              content: CodeIsiSaldo(
+                title: '',
+                nominal: '',
+                date: '',
+              ),
+            ),
+        '/ReceiptIsiSaldo': (context) => const DetailedPage(
+              titleBar: "Isi Saldo",
+              background: Color(0xFF43964F),
+              content: ReceiptIsiSaldo(
+                title: '',
+                nominal: '',
+                date: '',
+                namaPengguna: '',
+                noRekPengguna: '',
+              ),
+            ),
+        '/tarikTunai': (context) => const DetailedPage(
+              titleBar: "Tarik Tunai",
+              background: Colors.white,
+              content: TarikTunaiPage(title: ''),
+            ),
+        '/ConfirmTarikTunai': (context) => const DetailedPage(
+              titleBar: "Tarik Tunai",
+              background: Colors.white,
+              content: ConfirmTarikTunai(
+                title: '',
+                nominalTarikTunai: 0,
+                noRekPengguna: '',
+                userSlug: '',
+              ),
+            ),
+        '/InputPinTarikTunai': (context) => const DetailedPage(
+              titleBar: "Tarik Tunai",
+              background: Colors.white,
+              content: InputPinTarikTunai(
+                title: '',
+                noRekPengguna: '',
+                userSlug: '',
+                namaPengguna: '',
+                nominalTarikTunai: 0,
+              ),
+            ),
+        '/CodeTarikTunai': (context) => const DetailedPage(
+              titleBar: "Tarik Tunai",
+              background: Colors.white,
+              content: CodeTarikTunai(
+                title: '',
+                nominal: '',
+                date: '',
+              ),
+            ),
+        '/ReceiptTarikTunai': (context) => DetailedPage(
+              titleBar: "Tarik Tunai",
+              background: const Color(0xFF43964F),
+              content: ReceiptTarikTunai(
+                title: '',
+                nominal: '',
+                date: '',
+                namaPengguna: '',
+                noRekPengguna: '',
+              ),
+            ),
+        '/pinjaman': (context) => DetailedPage(
+              content: PinjamanPage(
+                title: '',
+              ),
+              background: Colors.white,
+              titleBar: "Pinjaman",
+            ),
+        '/InputPinPinjaman': (context) => DetailedPage(
+              content: InputPinPinjaman(
+                title: '',
+              ),
+              background: Colors.white,
+              titleBar: "Pinjaman",
+            ),
+        '/CodePinjaman': (context) => DetailedPage(
+              content: CodePinjaman(
+                title: '',
+                nominal: '',
+                date: '',
+              ),
+              background: Color(0xFFF9F9F9),
+              titleBar: "Pinjaman",
+            ),
+        '/ReceiptPinjaman': (context) => DetailedPage(
+              content: ReceiptPinjaman(
+                title: '',
+                nominal: '',
+                date: '',
+                receiverName: '',
+                accountNumber: '',
+              ),
+              background: Color(0xFF43964F),
+              titleBar: "Pinjaman",
+            ),
         '/profileEdit': (context) => const DetailedPage(
               content: ProfileEditScreen(),
               background: Color(0xFFF2F2F2),
