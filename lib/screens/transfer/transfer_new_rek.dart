@@ -16,7 +16,6 @@ class _TransferNewRekState extends State<TransferNewRek> {
   final TextEditingController _rekeningTujuanController =
       TextEditingController();
   bool isButtonEnabled = false;
-  String? noRekPengguna;
 
   @override
   void initState() {
