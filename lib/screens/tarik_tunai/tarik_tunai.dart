@@ -1,41 +1,90 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, prefer_const_constructors, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/main.dart';
 
 class TarikTunaiPage extends StatefulWidget {
-  const TarikTunaiPage({super.key, required String title});
+  const TarikTunaiPage({
+    super.key, required String title,
+  });
 
   @override
   State<TarikTunaiPage> createState() => _TarikTunaiPageState();
 }
 
 class _TarikTunaiPageState extends State<TarikTunaiPage> {
-  double tariktunai = 10000000000;
-  final String nomorRekening = '1283 1234 1234';
+  double tariktunai = 0.0;
+  String nomorRekening = '';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
+  String? noRekPengguna;
 
   @override
   void initState() {
     super.initState();
 
-    // Format saldo ke dalam format rupiah setelah inisialisasi
-    formattedCurrency = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(tariktunai);
-
+    _getUserAccount();
     // Tambahkan listener pada controller
     _nominalController.addListener(_onNominalChanged);
+  }
+
+  Future<void> _getUserAccount() async {
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    String noRekPengguna = rekeningData[0]['no_rek'];
+
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+          tariktunai = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble()
+              : rekening['saldo'];
+          nomorRekening = rekening['no_rek'];
+          formattedCurrency = NumberFormat.currency(
+            locale: 'id',
+            symbol: 'Rp',
+            decimalDigits: 0,
+          ).format(tariktunai);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Rekening tidak ditemukan.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
+      );
+    }
   }
 
   void _onNominalChanged() {
@@ -54,6 +103,51 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
     });
   }
 
+    Future<void> _proceedToConfirm() async {
+    double nominalTransaksi = double.tryParse(
+            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+        0.0;
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    if (nominalTransaksi > 0 && nominalTransaksi <= tariktunai) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConfirmTarikTunai(
+            title: 'Konfirmasi Transfer',
+            nominalTarikTunai: nominalTransaksi,
+            noRekPengguna: nomorRekening,
+            userSlug: userSlug,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Nominal tidak valid atau melebihi saldo')),
+      );
+    }
+  }
+
+
   @override
   void dispose() {
     _nominalController.removeListener(_onNominalChanged);
@@ -63,12 +157,16 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text("dummy appbar"),
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -177,7 +275,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'Nominal Isi Saldo',
+                        'Nominal Tarik Tunai',
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(0xFF43964F),
@@ -233,20 +331,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isButtonEnabled
-                    ? () {
-                        String nominal = _nominalController.text;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ConfirmTarikTunai(
-                              title: '',
-                            ),
-                          ),
-                        );
-                        print('Nominal isi saldo: $nominal');
-                      }
-                    : null,
+                onPressed: isButtonEnabled ? _proceedToConfirm : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: isButtonEnabled ? Colors.black : Colors.grey,

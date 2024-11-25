@@ -7,62 +7,72 @@ class TransactionService {
   final String baseUrl = 'http://10.0.2.2:8000/api';
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
-  Future<List<dynamic>?> getTransactionHistory(String slug) async {
-    String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/v1/transaksi/$slug/riwayat_transaksi');
+  Future<String?> _getToken() async {
+    return await storage.read(key: 'token');
+  }
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+  Future<Map<String, String>> _getHeaders() async {
+    String? token = await _getToken();
+    return {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+  }
+
+  Future<dynamic> _getRequest(String endpoint) async {
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.get(url, headers: await _getHeaders());
 
     if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return data['data'];
+      return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load transaction history: ${response.body}');
+      throw Exception('Gagal memuat data: ${response.body}');
     }
   }
 
-  Future<List<dynamic>?> getRekeningPengguna(String slug) async {
-    String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/v1/pengguna/$slug/rekening-pengguna');
-
-    final response = await http.get(
+  Future<dynamic> _postRequest(
+      String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.post(
       url,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body)['data'];
-    } else {
-      throw Exception('Failed to load user account: ${response.body}');
-    }
-  }
-
-  Future<Map<String, dynamic>?> getCurrentUser() async {
-    String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/user');
-
-    final response = await http.get(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      headers: await _getHeaders(),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load current user: ${response.body}');
+      throw Exception('Gagal mengirim data: ${response.body}');
     }
+  }
+
+  Future<List<dynamic>?> getTransactionHistory(
+      String slug, String rekening) async {
+    final data =
+        await _getRequest('/v1/transaksi/$slug/$rekening/riwayat_transaksi');
+    return data['data'];
+  }
+
+  Future<Map<String, dynamic>?> getSlugByRekening(String rekening) async {
+    return await _getRequest('/rekening/$rekening/slug');
+  }
+
+  Future<List<dynamic>?> getRekeningPengguna(
+      String slug, String rekening) async {
+    final data =
+        await _getRequest('/v1/pengguna/$slug/rekening-pengguna/$rekening');
+    if (data['data'] is List) {
+      return data['data'];
+    } else if (data['data'] is Map) {
+      return [data['data']];
+    } else {
+      throw Exception('Unexpected response format: $data');
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    return await _getRequest('/user');
   }
 
   Future<String?> getUserSlug() async {
@@ -74,52 +84,47 @@ class TransactionService {
     return null;
   }
 
-  Future<Map<String, dynamic>?> kirimUang(String slug, String rekening,
-      String rekeningTujuan, double nominalTransaksi) async {
-    String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/v1/transaksi/$slug/$rekening/kirim_uang');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'jenis_transaksi': 'kirim_uang',
-        'rekening_tujuan': rekeningTujuan,
-        'nominal_transaksi': nominalTransaksi,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to send money: ${response.body}');
-    }
+  Future<Map<String, dynamic>?> konfirmasiRekening(
+      String slug, String rekening, String pin) async {
+    return await _postRequest(
+        '/v1/pengguna/$slug/rekening-pengguna/$rekening/konfirmasi-rekening',
+        {'pin': pin});
   }
 
-  Future<Map<String, dynamic>?> topUp(
-      String slug, double nominalTransaksi) async {
-    String? token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/v1/transaksi/$slug/top_up');
+  Future<Map<String, dynamic>?> kirimUang(String slug, String rekening,
+      String rekeningTujuan, double nominalTransaksi) async {
+    return await _postRequest('/v1/transaksi/$slug/$rekening/kirim_uang', {
+      'rekening_tujuan': rekeningTujuan,
+      'nominal_transaksi': nominalTransaksi,
+    });
+  }
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'jenis_transaksi': 'top_up',
-        'nominal_transaksi': nominalTransaksi,
-      }),
-    );
+  Future<Map<String, dynamic>> topUp(
+      String slug, String rekening, double nominal) async {
+    return await _postRequest('/v1/transaksi/$slug/$rekening/top_up', {
+      'nominal_transaksi': nominal,
+    });
+  }
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to top up: ${response.body}');
-    }
+  Future<Map<String, dynamic>> tarikUang(
+      String slug, String rekening, double nominal) async {
+    return await _postRequest('/v1/transaksi/$slug/$rekening/tarik_uang', {
+      'nominal_transaksi': nominal,
+    });
+  }
+
+  Future<Map<String, dynamic>> pinjaman(
+      String slug, String rekening, double nominal, int tenor) async {
+    return await _postRequest('/v1/transaksi/$slug/$rekening/pinjaman', {
+      'nominal_transaksi': nominal,
+      'tenor': tenor,
+    });
+  }
+
+  Future<Map<String, dynamic>> pembayaran(
+      String slug, String rekening, double nominal) async {
+    return await _postRequest('/v1/transaksi/$slug/$rekening/pembayaran', {
+      'nominal_transaksi': nominal,
+    });
   }
 }

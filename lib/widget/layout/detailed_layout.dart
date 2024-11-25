@@ -1,5 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DetailedPage extends StatefulWidget {
   final String titleBar;
@@ -53,22 +56,39 @@ class _DetailedPagedState extends State<DetailedPage>
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 1,
                 titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
-                title: Opacity(
-                  opacity: _appBarOpacity,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Text(
-                        widget.titleBar,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                title: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 0, 0),
+                        child: IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+                              color: Colors.white),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
                       ),
                     ),
-                  ),
+                    Opacity(
+                      opacity: _appBarOpacity,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 32),
+                          child: Text(
+                            widget.titleBar,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

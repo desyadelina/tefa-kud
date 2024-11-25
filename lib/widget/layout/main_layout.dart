@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
+import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/home_page.dart';
 import 'package:tefa_kud/screens/profile/profile_screen.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
@@ -24,9 +25,12 @@ class _MainLayoutState extends State<MainLayout>
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const DetailedPage(
-      content: ProfilePage(),
+      content: MutasiPage(
+        titleBar: 'Mutasi',
+        background: Colors.black,
+      ),
     ),
-    const DetailedPage(
+    DetailedPage(
       content: ProfilePage(),
     ),
   ];

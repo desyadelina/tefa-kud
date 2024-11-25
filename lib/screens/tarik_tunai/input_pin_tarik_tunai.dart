@@ -1,50 +1,35 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
+import 'package:tefa_kud/screens/tarik_tunai/receipt_tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
-class InputPinIsiSaldo extends StatefulWidget {
+class InputPinTarikTunai extends StatefulWidget {
   final String title;
   final String userSlug;
   final String noRekPengguna;
   final String namaPengguna;
-  final double nominalIsiSaldo;
-  const InputPinIsiSaldo(
+  final double nominalTarikTunai;
+  const InputPinTarikTunai(
       {Key? key,
       required this.title,
       required this.userSlug,
       required this.noRekPengguna,
       required this.namaPengguna,
-      required this.nominalIsiSaldo})
+      required this.nominalTarikTunai})
       : super(key: key);
 
   @override
-  State<InputPinIsiSaldo> createState() => _InputPinIsiSaldoState();
+  State<InputPinTarikTunai> createState() => _InputPinTarikTunaiState();
 }
 
-class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
+class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
   final TextEditingController _pinController = TextEditingController();
   String _pin = '';
   final int pinLength = 6;
-  late FocusNode _pinFocusNode;
-  @override
-  void initState() {
-    super.initState();
-    _pinFocusNode = FocusNode();
-    print(
-        'FocusNode initialized'); // Tambahkan log ini untuk memastikan inisialisasi
-  }
-
-  @override
-  void dispose() {
-    _pinFocusNode
-        .dispose(); // Jangan lupa dispose FocusNode untuk mencegah kebocoran memori
-    super.dispose();
-  }
 
   void _onPinChanged(String value) {
     setState(() {
@@ -66,18 +51,18 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
         widget.userSlug, widget.noRekPengguna, _pin);
     if (response != null &&
         response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.topUp(
+      await transactionService.tarikUang(
         widget.userSlug,
         widget.noRekPengguna,
-        widget.nominalIsiSaldo,
+        widget.nominalTarikTunai,
       );
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ReceiptIsiSaldo(
+          builder: (context) => ReceiptTarikTunai(
             title: 'Selesai',
-            nominal: widget.nominalIsiSaldo.toString(),
+            nominal: widget.nominalTarikTunai.toString(),
             date: DateTime.now().toString(),
             namaPengguna: widget.namaPengguna,
             noRekPengguna: widget.noRekPengguna,
@@ -95,13 +80,13 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Color(0xFF43964F),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -122,7 +107,7 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
             child: Column(
               children: [
                 Image.asset(
-                  'assets/images/Money-Tree.png',
+                  'assets/images/Pay-Money.png',
                   height: 120,
                 ),
                 const SizedBox(height: 30),
@@ -147,33 +132,29 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    pinLength,
-                    (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          FocusScope.of(context).requestFocus(
-                              _pinFocusNode); // Fokuskan ke TextField
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: index < _pin.length
-                                ? const Color(
-                                    0xFF43964F) // Warna hijau ketika ada input
-                                : Colors.grey.shade300,
-                            shape: BoxShape.circle,
-                          ),
+                  children: List.generate(pinLength, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: index < _pin.length
+                              ? const Color(
+                                  0xFF43964F) // Warna hijau ketika ada input
+                              : Colors.grey.shade300,
+                          shape: BoxShape.circle,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  }),
                 ),
                 const SizedBox(height: 50),
                 TextField(
-                  focusNode: _pinFocusNode, // Gunakan focusNode untuk TextField
                   controller: _pinController,
                   maxLength: pinLength,
                   obscureText: true,
@@ -201,17 +182,7 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
-            onPressed: _pin.length == pinLength
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('PIN Diterima, Transaksi Berhasil!'),
-                      ),
-                    );
-                    NavigatorManager.navigatorKey.currentState
-                        ?.pushNamed('/CodeIsiSaldo');
-                  }
-                : null,
+            onPressed: _pin.length == pinLength ? _confirmPin : null,
             child: const Text(
               'Selesai',
               style: TextStyle(
@@ -223,5 +194,11 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    super.dispose();
   }
 }

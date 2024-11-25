@@ -1,6 +1,6 @@
 name: tefa_kud
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.2.3
+  shared_preferences: ^2.3.3
   smooth_page_indicator: ^1.2.0+3
   flutter_staggered_animations: ^1.1.1
   flutter_floating_bottom_bar: ^1.2.1+1
@@ -20,9 +20,8 @@ dependencies:
   google_fonts: ^6.2.1
   getwidget: ^4.0.0
   flutter_launcher_icons: ^0.14.1
-  sp_util: ^2.0.3
   flutter_secure_storage: ^9.2.2
-  dio: ^5.7.0
+
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +37,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/background-receipt.png
     - assets/logo/
     - assets/images/banner/
     - assets/icon/
@@ -50,4 +50,4 @@ flutter:
         - asset: fonts/RedRose-Regular.ttf
         - weight: 400
         - asset: fonts/RedRose-Light.ttf
-        - weight: 300  
+        - weight: 300

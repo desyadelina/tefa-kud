@@ -1,32 +1,77 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
-import 'package:tefa_kud/screens/tarik_tunai/input_pin.dart'; // Don't forget to import this for currency formatting.
+import 'package:tefa_kud/screens/tarik_tunai/input_pin_tarik_tunai.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ConfirmTarikTunai extends StatefulWidget {
-  const ConfirmTarikTunai({super.key, required this.title});
-
   final String title;
+  final double nominalTarikTunai;
+  final String noRekPengguna;
+  final String userSlug;
+  const ConfirmTarikTunai(
+      {super.key,
+      required this.title,
+      required this.nominalTarikTunai,
+      required this.noRekPengguna,
+      required this.userSlug});
 
   @override
   State<ConfirmTarikTunai> createState() => _ConfirmTarikTunaiState();
 }
 
-class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
-  final double nominalTransfer = 150000000; // Example value
-  final double saldoAkhir = 5000000; // Example value
+class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>
+    with WidgetsBindingObserver {
+  String? noRekPengguna;
+  String? namaPengguna;
+  double saldoAkhir = 0.0; // Example value
   final NumberFormat currencyFormat =
       NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
   @override
+  void initState() {
+    super.initState();
+    _getUserDetails();
+  }
+
+  Future<void> _getUserDetails() async {
+    TransactionService transactionService = TransactionService();
+
+    var currentUser = await transactionService.getCurrentUser();
+    if (currentUser != null) {
+      namaPengguna = currentUser['nama_pengguna'];
+      String slug = currentUser['slug'];
+
+      var rekeningData = await transactionService.getRekeningPengguna(
+          slug, widget.noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+          saldoAkhir = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble() - widget.nominalTarikTunai
+              : rekening['saldo'] - widget.nominalTarikTunai;
+        });
+
+        noRekPengguna = rekening['no_rek'];
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("dummy appbar"), // Dynamic title from the widget
-        backgroundColor: Colors.green, // Color change to fit the theme
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0), // Padding to avoid screen edges
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +95,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Nominal Isi Saldo',
+                        'Nominal Tarik Tunai',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -61,7 +106,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    currencyFormat.format(nominalTransfer),
+                    currencyFormat.format(widget.nominalTarikTunai),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -120,7 +165,13 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const InputPinTarikTunai(title: ''),
+                      builder: (context) => InputPinTarikTunai(
+                        title: '',
+                        userSlug: widget.userSlug,
+                        noRekPengguna: widget.noRekPengguna,
+                        namaPengguna: namaPengguna ?? 'Unknown',
+                        nominalTarikTunai: widget.nominalTarikTunai,
+                      ),
                     ),
                   );
                 },

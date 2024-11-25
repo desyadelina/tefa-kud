@@ -8,3 +8,8 @@ analyzer:
     prefer_final_fields: ignore
     deprecated_member_use: ignore
     prefer_const_literals_to_create_immutables: ignore
+    non_constant_identifier_names: ignore
+    avoid_unnecessary_containers: ignore
+    duplicate_ignore: ignore
+    unused_element: ignore
+    depend_on_referenced_packages: ignore

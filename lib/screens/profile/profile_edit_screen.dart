@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, duplicate_ignore
+
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
