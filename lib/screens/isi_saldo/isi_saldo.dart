@@ -132,7 +132,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
       return;
     }
 
-    if (nominalTransaksi > 0 && nominalTransaksi <= isisaldo) {
+    if (nominalTransaksi > 0) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -147,7 +147,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Nominal tidak valid atau melebihi saldo')),
+            content: Text('Nominal tidak valid')),
       );
     }
   }
