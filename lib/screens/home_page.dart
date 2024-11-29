@@ -9,6 +9,7 @@ import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,8 +20,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  double saldo = 17500000;
-  final String nomorRekening = '1283 1234 1234';
+  double saldo = 0.0;
+  String nomorRekening = '';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   double _appBarOpacity = 1.0;
@@ -28,15 +29,58 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    _getUserAccount();
+  }
 
-    // Format saldo ke dalam format rupiah setelah inisialisasi
-    formattedCurrency = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(saldo);
+  Future<void> _getUserAccount() async {
+    TransactionService transactionService = TransactionService();
 
-    nomorRekening;
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    String noRekPengguna = rekeningData[0]['no_rek'];
+
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+          saldo = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble()
+              : rekening['saldo'];
+          nomorRekening = rekening['no_rek'];
+          formattedCurrency = NumberFormat.currency(
+            locale: 'id',
+            symbol: 'Rp ',
+            decimalDigits: 0,
+          ).format(saldo);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Rekening tidak ditemukan.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -318,7 +362,7 @@ class _HomePageState extends State<HomePage>
                                           Text(
                                             isSaldoVisible
                                                 ? formattedCurrency
-                                                : 'Rp ${'*' * formattedCurrency.replaceAll(RegExp(r'[^0-9]'), '').length}',
+                                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
                                             style: const TextStyle(
                                               fontSize: 24,
                                               color: Colors.black,
