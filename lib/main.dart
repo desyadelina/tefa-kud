@@ -145,16 +145,16 @@ class MainApp extends StatelessWidget {
           final args = ModalRoute.of(context)?.settings.arguments
               as Map<String, dynamic>;
 
-              return DetailedPage(
-              titleBar: "Transfer",
-              background: Color(0xFF43964F),
-              content: ReceiptTransfer(
-                nominal: args['nominal'] ?? 0,
-                date: args['date'] ?? '',
-                title: args['title'] ?? '',
-                namaPenerima: args['namaPenerima'] ?? '',
-                rekeningTujuan: args['rekeningTujuan'] ?? '',
-              ),
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Color(0xFF43964F),
+            content: ReceiptTransfer(
+              nominal: args['nominal'] ?? 0,
+              date: args['date'] ?? '',
+              title: args['title'] ?? '',
+              namaPenerima: args['namaPenerima'] ?? '',
+              rekeningTujuan: args['rekeningTujuan'] ?? '',
+            ),
           );
         },
         '/isiSaldo': (context) => const DetailedPage(
@@ -162,36 +162,53 @@ class MainApp extends StatelessWidget {
               background: Colors.white,
               content: IsiSaldoPage(title: ''),
             ),
-        '/ConfirmIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: ConfirmIsiSaldo(
-                title: '',
-                nominalIsiSaldo: 0,
-                noRekPengguna: '',
-                userSlug: '',
-              ),
+        '/ConfirmIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: ConfirmIsiSaldo(
+              title: args['title'] ?? '',
+              nominalIsiSaldo: args['nominalIsiSaldo'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/InputPinIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: InputPinIsiSaldo(
-                title: '',
-                userSlug: '',
-                noRekPengguna: '',
-                nominalIsiSaldo: 0,
-                namaPengguna: '',
-              ),
+          );
+        },
+        '/InputPinIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: InputPinIsiSaldo(
+              title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalIsiSaldo: args['nominalIsiSaldo'] ?? 0,
+              namaPengguna: args['namaPengguna'] ?? '',
             ),
-        '/CodeIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: CodeIsiSaldo(
-                title: '',
-                nominal: '',
-                date: '',
-              ),
+          );
+        },
+        '/CodeIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: CodeIsiSaldo(
+              title: args?['title'] ?? '',
+              nominal: args?['nominal']?.toString() ?? '0',
+              date: args?['date'] ?? DateTime.now().toString(),
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+              namaPengguna: args?['namaPengguna'] ?? '',
             ),
+          );
+        },
         '/ReceiptIsiSaldo': (context) => const DetailedPage(
               titleBar: "Isi Saldo",
               background: Color(0xFF43964F),

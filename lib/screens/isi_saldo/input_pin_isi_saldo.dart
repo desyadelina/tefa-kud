@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/screens/isi_saldo/code_isi_saldo.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
-import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
@@ -52,6 +52,7 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
     });
   }
 
+  // jangan otak-atik kode di bawah ini
   Future<void> _confirmPin() async {
     AuthService authService = AuthService();
     TransactionService transactionService = TransactionService();
@@ -72,17 +73,15 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
         widget.nominalIsiSaldo,
       );
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ReceiptIsiSaldo(
-            title: 'Selesai',
-            nominal: widget.nominalIsiSaldo.toString(),
-            date: DateTime.now().toString(),
-            namaPengguna: widget.namaPengguna,
-            noRekPengguna: widget.noRekPengguna,
-          ),
-        ),
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/CodeIsiSaldo',
+        arguments: {
+          'title': 'Selesai',
+          'nominal': widget.nominalIsiSaldo.toString(),
+          'date': DateTime.now().toString(),
+          'namaPengguna': widget.namaPengguna,
+          'noRekPengguna': widget.noRekPengguna,
+        },
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,6 +90,7 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
       );
     }
   }
+  // end
 
   @override
   Widget build(BuildContext context) {
@@ -201,17 +201,9 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
-            onPressed: _pin.length == pinLength
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('PIN Diterima, Transaksi Berhasil!'),
-                      ),
-                    );
-                    NavigatorManager.navigatorKey.currentState
-                        ?.pushNamed('/CodeIsiSaldo');
-                  }
-                : null,
+            // jangan otak-atik kode di bawah ini
+            onPressed: _pin.length == pinLength ? _confirmPin : null,
+            // end
             child: const Text(
               'Selesai',
               style: TextStyle(

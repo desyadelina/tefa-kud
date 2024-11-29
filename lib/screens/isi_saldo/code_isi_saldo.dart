@@ -2,16 +2,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:intl/intl.dart';
 
 class CodeIsiSaldo extends StatefulWidget {
   final String nominal;
   final String date;
+  final String namaPengguna;
+  final String noRekPengguna;
+  final String title;
 
   const CodeIsiSaldo({
     Key? key,
     required this.nominal,
     required this.date,
-    required String title,
+    required this.namaPengguna,
+    required this.noRekPengguna,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -19,9 +25,11 @@ class CodeIsiSaldo extends StatefulWidget {
 }
 
 class _CodeIsiSaldoState extends State<CodeIsiSaldo> {
-  String get kodeIsiSaldo => '';
+  String get kodeIsiSaldo => 'KIS-${DateTime.now().millisecondsSinceEpoch}';
 
-  String get nominal => '';
+  String get nominal => widget.nominal;
+  final NumberFormat currencyFormat =
+      NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +83,9 @@ class _CodeIsiSaldoState extends State<CodeIsiSaldo> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Text(
-                      'Rp',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     const SizedBox(width: 5),
                     Text(
-                      nominal,
+                      currencyFormat.format(double.parse(widget.nominal)),
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -134,11 +134,9 @@ class _CodeIsiSaldoState extends State<CodeIsiSaldo> {
                 ),
                 const SizedBox(height: 10),
                 TextButton.icon(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(
-                        25, 67, 150, 79),
+                    backgroundColor: const Color.fromARGB(25, 67, 150, 79),
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 20),
                     shape: RoundedRectangleBorder(

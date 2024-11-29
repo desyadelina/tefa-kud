@@ -27,7 +27,9 @@ class ReceiptTransfer extends StatefulWidget {
 }
 
 class _ReceiptTransferState extends State<ReceiptTransfer> {
-      final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
+  final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
+  final NumberFormat currencyFormat =
+      NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,7 @@ class _ReceiptTransferState extends State<ReceiptTransfer> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Rp ${widget.nominal}',
+                  currencyFormat.format(double.parse(widget.nominal)),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
