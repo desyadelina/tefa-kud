@@ -45,6 +45,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
     _nominalController.addListener(_onNominalChanged);
   }
 
+  // jangan otak-atik kode di bawah ini
   Future<void> _getUserAccount() async {
     TransactionService transactionService = TransactionService();
     try {
@@ -74,6 +75,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
       );
     }
   }
+  // end
 
   void _onNominalChanged() {
     final text = _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '');
@@ -98,23 +100,22 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
     super.dispose();
   }
 
+  // jangan otak-atik kode di bawah ini
   void _proceedToConfirm() {
     double nominalTransaksi = double.tryParse(
             _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
         0.0;
 
     if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConfirmTransfer(
-            title: 'Konfirmasi Transfer',
-            nominalTransfer: nominalTransaksi,
-            noRekPengguna: nomorRekening,
-            noRekTujuan: widget.rekeningTujuan,
-            userSlug: widget.userSlug,
-          ),
-        ),
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/ConfirmTransfer',
+        arguments: {
+          'title': 'Konfirmasi Transfer',
+          'nominalTransfer': nominalTransaksi,
+          'noRekPengguna': nomorRekening,
+          'noRekTujuan': widget.rekeningTujuan,
+          'userSlug': widget.userSlug,
+        },
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,6 +124,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
       );
     }
   }
+  // end
 
   Widget build(BuildContext context) {
     return Stack(
@@ -221,14 +223,9 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: isButtonEnabled
-                        ? () {
-                            String nominal = _nominalController.text;
-                            NavigatorManager.navigatorKey.currentState
-                                ?.pushNamed('/ConfirmTransfer');
-                            print('Nominal Transfer: $nominal');
-                          }
-                        : null,
+                    // jangan otak-atik kode di bawah ini
+                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    // end
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor:

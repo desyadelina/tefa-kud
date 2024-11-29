@@ -69,7 +69,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splashscreen',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         '/': (context) => const MainLayout(
@@ -93,49 +93,70 @@ class MainApp extends StatelessWidget {
                 title: '',
               ),
             ),
-        '/InputNominalTransfer': (context) => const DetailedPage(
-              titleBar: "Transfer",
-              background: Colors.white,
-              content: InputNominalTransfer(
-                title: '',
-                rekeningTujuan: '',
-                userSlug: '',
-                noRekPengguna: '',
-              ),
+        '/InputNominalTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: InputNominalTransfer(
+              title: args['title'] ?? '',
+              rekeningTujuan: args['rekeningTujuan'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
             ),
-        '/ConfirmTransfer': (context) => DetailedPage(
-              titleBar: "Transfer",
-              content: ConfirmTransfer(
-                title: '',
-                nominalTransfer: 0,
-                noRekPengguna: '',
-                noRekTujuan: '',
-                userSlug: '',
-              ),
+          );
+        },
+        '/ConfirmTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: ConfirmTransfer(
+              title: args['title'] ?? '',
+              nominalTransfer: args['nominalTransfer'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              noRekTujuan: args['noRekTujuan'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/ConfirmationPinTransfer': (context) => const DetailedPage(
-              titleBar: "Transfer",
-              background: Colors.white,
-              content: InputPinTransfer(
-                title: '',
-                userSlug: '',
-                noRekTujuan: '',
-                noRekPengguna: '',
-                nominalTransfer: 0,
-                namaPenerima: '',
-              ),
+          );
+        },
+        '/ConfirmationPinTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: InputPinTransfer(
+              title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekTujuan: args['noRekTujuan'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalTransfer: args['nominalTransfer'] ?? 0,
+              namaPenerima: args['namaPenerima'] ?? '',
             ),
-        '/ReceiptTransfer': (context) => const DetailedPage(
+          );
+        },
+        '/ReceiptTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+              return DetailedPage(
               titleBar: "Transfer",
               background: Color(0xFF43964F),
               content: ReceiptTransfer(
-                nominal: '',
-                date: '',
-                title: '',
-                namaPenerima: '',
-                rekeningTujuan: '',
+                nominal: args['nominal'] ?? 0,
+                date: args['date'] ?? '',
+                title: args['title'] ?? '',
+                namaPenerima: args['namaPenerima'] ?? '',
+                rekeningTujuan: args['rekeningTujuan'] ?? '',
               ),
-            ),
+          );
+        },
         '/isiSaldo': (context) => const DetailedPage(
               titleBar: "Isi Saldo",
               background: Colors.white,
