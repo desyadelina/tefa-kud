@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   double saldo = 0.0;
   String nomorRekening = '';
+  String namaPengguna = '';
+  List<dynamic> riwayatTransaksi = [];
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   double _appBarOpacity = 1.0;
@@ -58,6 +60,9 @@ class _HomePageState extends State<HomePage>
     try {
       var rekeningData =
           await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      var riwayatTransaksiData = await transactionService.getTransactionHistory(
+          userSlug, noRekPengguna);
+
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         setState(() {
@@ -71,6 +76,27 @@ class _HomePageState extends State<HomePage>
             decimalDigits: 0,
           ).format(saldo);
         });
+        if (riwayatTransaksiData != null && riwayatTransaksiData.isNotEmpty) {
+          var pengguna = await transactionService
+              .getNamaPenggunaByIdRekening(rekening['id']);
+          namaPengguna = pengguna?['pengguna'];
+          riwayatTransaksi = riwayatTransaksiData
+              .where((transaction) =>
+                  transaction['status_transaksi'].toString().toLowerCase() !=
+                  'pending')
+              .toList();
+          if (riwayatTransaksi.length > 5) {
+            riwayatTransaksi = riwayatTransaksi
+                .where((transaction) =>
+                    transaction['status_transaksi'].toString().toLowerCase() !=
+                    'pending')
+                .take(5)
+                .toList();
+            setState(() {
+              this.riwayatTransaksi = riwayatTransaksi;
+            });
+          }
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Rekening tidak ditemukan.')),
@@ -266,54 +292,29 @@ class _HomePageState extends State<HomePage>
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Transfer',
-                                                -10000000,
-                                                true),
-                                            _buildTransactionItem(
-                                                'Seila Salsabiela',
-                                                'Isi saldo',
-                                                10000000,
-                                                false),
-                                            _buildTransactionItem('Selai Apel',
-                                                'Isi saldo', 30000000, false),
+                                            ...riwayatTransaksi
+                                                .map((transaction) {
+                                              return _buildTransactionItem(
+                                                namaPengguna,
+                                                toBeginningOfSentenceCase(
+                                                    transaction[
+                                                            'jenis_transaksi']
+                                                        .replaceAll('_', ' ')),
+                                                transaction[
+                                                    'nominal_transaksi'],
+                                                transaction[
+                                                                'jenis_transaksi'] ==
+                                                            'kirim_uang' ||
+                                                        transaction[
+                                                                'jenis_transaksi'] ==
+                                                            'tarik_uang' ||
+                                                        transaction[
+                                                                'jenis_transaksi'] ==
+                                                            'pembayaran'
+                                                    ? true
+                                                    : false,
+                                              );
+                                            })
                                           ],
                                         ),
                                       ),
