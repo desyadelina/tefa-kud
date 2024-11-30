@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/transfer/input_nominal_transfer.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+
 class TransferNewRek extends StatefulWidget {
   final String title;
   const TransferNewRek({Key? key, required this.title}) : super(key: key);
@@ -49,11 +50,14 @@ class _TransferNewRekState extends State<TransferNewRek> {
     });
   }
 
+  // jangan otak-atik kode di bawah ini
   Future<void> _prosesKirimUang() async {
     String rekeningTujuan = _rekeningTujuanController.text.replaceAll(' ', '');
     TransactionService transactionService = TransactionService();
 
     String? userSlug = await transactionService.getUserSlug();
+
+    print('User Slug: $userSlug');
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -62,7 +66,8 @@ class _TransferNewRekState extends State<TransferNewRek> {
       return;
     }
 
-    var rekeningData = await transactionService.getRekeningPengguna(userSlug, '');
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
     if (rekeningData == null || rekeningData.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rekening tidak ditemukan')),
@@ -72,18 +77,17 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
     String noRekPengguna = rekeningData[0]['no_rek'];
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => InputNominalTransfer(
-          title: 'Input Nominal',
-          rekeningTujuan: rekeningTujuan,
-          userSlug: userSlug,
-          noRekPengguna: noRekPengguna,
-        ),
-      ),
+    NavigatorManager.navigatorKey.currentState?.pushNamed(
+      '/InputNominalTransfer',
+      arguments: {
+        'title': 'Input Nominal',
+        'rekeningTujuan': rekeningTujuan,
+        'userSlug': userSlug,
+        'noRekPengguna': noRekPengguna,
+      },
     );
   }
+  // end
 
   @override
   Widget build(BuildContext context) {
@@ -170,15 +174,9 @@ class _TransferNewRekState extends State<TransferNewRek> {
                 ),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              onPressed: isButtonEnabled
-                  ? () {
-                      String accountNumber =
-                          _rekeningTujuanController.text.replaceAll(' ', '');
-                      NavigatorManager.navigatorKey.currentState
-                          ?.pushNamed('/InputNominalTransfer');
-                      print('Nomor rekening: $accountNumber');
-                    }
-                  : null,
+              // jangan otak-atik kode di bawah ini
+              onPressed: isButtonEnabled ? _prosesKirimUang : null,
+              // end
               child: const Text(
                 "Lanjut",
                 style: TextStyle(

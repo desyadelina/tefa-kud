@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/transfer/input_pin_transfer.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 
@@ -41,6 +42,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
     _getPenerimaDetails();
   }
 
+  // jangan otak-atik kode di bawah ini
   Future<void> _getUserDetails() async {
     TransactionService transactionService = TransactionService();
 
@@ -89,15 +91,13 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
       print('Error: $e');
     }
   }
+  // end
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      appBar: AppBar(
-        title: const Text("dummy appbar"),
-      ),
-      body: Padding(
+    return Container(
+      color: const Color(0xFFF2F2F2),
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -283,21 +283,21 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                // jangan otak-atik kode di bawah ini
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InputPinTransfer(
-                        userSlug: widget.userSlug,
-                        noRekPengguna: widget.noRekPengguna,
-                        noRekTujuan: widget.noRekTujuan,
-                        nominalTransfer: widget.nominalTransfer,
-                        namaPenerima: namaPenerima ?? 'Unknown',
-                        title: '',
-                      ),
-                    ),
+                  NavigatorManager.navigatorKey.currentState?.pushNamed(
+                    '/ConfirmationPinTransfer',
+                    arguments: {
+                      'userSlug': widget.userSlug,
+                      'noRekPengguna': widget.noRekPengguna,
+                      'noRekTujuan': widget.noRekTujuan,
+                      'nominalTransfer': widget.nominalTransfer,
+                      'namaPenerima': namaPenerima ?? 'Unknown',
+                      'title': '',
+                    },
                   );
                 },
+                // end
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.black,

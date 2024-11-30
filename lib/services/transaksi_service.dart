@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TransactionService {
   // final String baseUrl = 'http://192.168.100.86:8000/api';
-  final String baseUrl = 'http://10.215.0.172:8000/api';
+  final String baseUrl = 'http://10.0.2.2:8000/api';
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
   Future<String?> _getToken() async {

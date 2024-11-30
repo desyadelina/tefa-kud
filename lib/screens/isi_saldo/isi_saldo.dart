@@ -133,17 +133,15 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
     }
 
     if (nominalTransaksi > 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConfirmIsiSaldo(
-            title: 'Konfirmasi Transfer',
-            nominalIsiSaldo: nominalTransaksi,
-            noRekPengguna: nomorRekening,
-            userSlug: userSlug,
-          ),
-        ),
-      );
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+      '/ConfirmIsiSaldo',
+      arguments: {
+            'title': 'Konfirmasi Transfer',
+            'nominalIsiSaldo': nominalTransaksi,
+            'noRekPengguna': nomorRekening,
+            'userSlug': userSlug,
+        },
+    );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
