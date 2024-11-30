@@ -1,9 +1,10 @@
-// ignore_for_file: depend_on_referenced_packages, avoid_unnecessary_containers, prefer_const_constructors
+// ignore_for_file: depend_on_referenced_packages, avoid_unnecessary_containers, prefer_const_constructors, use_build_context_synchronously, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class PinjamanPage extends StatefulWidget {
   const PinjamanPage({super.key, required String title});
@@ -14,12 +15,13 @@ class PinjamanPage extends StatefulWidget {
 
 class _PinjamanPageState extends State<PinjamanPage>
     with SingleTickerProviderStateMixin {
-  double nominal = 10000000000;
-  final String nomorRekening = '1283 1234 1234';
+  double nominal = 0.0;
+  String nomorRekening = '';
   String formattedCurrency = '';
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
+  String? noRekPengguna;
 
   String? _selectedMonth;
   OverlayEntry? _overlayEntry;
@@ -35,13 +37,59 @@ class _PinjamanPageState extends State<PinjamanPage>
       duration: const Duration(milliseconds: 200),
     );
 
-    formattedCurrency = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    ).format(nominal);
-
+    _getUserAccount();
     _nominalController.addListener(_onNominalChanged);
+  }
+
+  Future<void> _getUserAccount() async {
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    String noRekPengguna = rekeningData[0]['no_rek'];
+
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+          nominal = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble()
+              : rekening['saldo'];
+          nomorRekening = rekening['no_rek'];
+          formattedCurrency = NumberFormat.currency(
+            locale: 'id',
+            symbol: 'Rp',
+            decimalDigits: 0,
+          ).format(nominal);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Rekening tidak ditemukan.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
+      );
+    }
   }
 
   void _onNominalChanged() {
@@ -107,12 +155,15 @@ class _PinjamanPageState extends State<PinjamanPage>
             offset: const Offset(0, 50),
             child: Material(
               elevation: 4,
-              child: ListView(
-                shrinkWrap: true,
-                children: List.generate(12, (index) {
-                  final month = '${index + 1} Bulan';
-                  return _buildDropdownItem(month);
-                }),
+              child: Container(
+                height: 200,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: List.generate(12, (index) {
+                    final month = '${index + 1} Bulan';
+                    return _buildDropdownItem(month);
+                  }),
+                ),
               ),
             ),
           ),
