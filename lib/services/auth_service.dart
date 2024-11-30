@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:tefa_kud/config/api_config.dart';
 
 class AuthService {
-  // final String baseUrl = 'http://192.168.100.86:8000/api';
-  final String baseUrl = 'http://10.0.2.2:8000/api';
+  final String baseUrl = ApiConfig.baseUrl;
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
   Future<Map<String, dynamic>?> login(String noTelepon, String password) async {

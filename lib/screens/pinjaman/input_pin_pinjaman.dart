@@ -2,9 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/services/auth_service.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class InputPinPinjaman extends StatefulWidget {
-  const InputPinPinjaman({Key? key, required String title}) : super(key: key);
+  final String title;
+  final String userSlug;
+  final String noRekPengguna;
+  final double nominalPinjaman;
+  final String tenor;
+  const InputPinPinjaman({
+    Key? key,
+    required this.title,
+    required this.userSlug,
+    required this.noRekPengguna,
+    required this.nominalPinjaman,
+    required this.tenor,
+  }) : super(key: key);
 
   @override
   State<InputPinPinjaman> createState() => _InputPinPinjamanState();
@@ -36,6 +50,47 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
     });
   }
 
+// jangan otak-atik kode di bawah ini
+  Future<void> _confirmPin() async {
+    AuthService authService = AuthService();
+    TransactionService transactionService = TransactionService();
+
+    String? storedPin = await authService.storage.read(key: 'pin');
+    print('Stored PIN: $storedPin');
+    print('Entered PIN: $_pin');
+    print(
+        'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
+
+    var response = await transactionService.konfirmasiRekening(
+        widget.userSlug, widget.noRekPengguna, _pin);
+    if (response != null &&
+        response['message'] == 'Rekening berhasil dikonfirmasi') {
+      await transactionService.pinjaman(
+        widget.userSlug,
+        widget.noRekPengguna,
+        widget.nominalPinjaman,
+        widget.tenor,
+      );
+
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/CodePinjaman',
+        arguments: {
+          'title': 'Selesai',
+          'nominal': widget.nominalPinjaman.toString(),
+          'date': DateTime.now().toString(),
+          'noRekPengguna': widget.noRekPengguna,
+          'tenor': widget.tenor,
+        },
+      );  
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+      );
+    }
+  }
+
+  // end
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -145,17 +200,7 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
-            onPressed: _pin.length == pinLength
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('PIN Diterima, Transaksi Berhasil!'),
-                      ),
-                    );
-                    NavigatorManager.navigatorKey.currentState
-                        ?.pushNamed('/CodePinjaman');
-                  }
-                : null,
+            onPressed: _pin.length == pinLength ? _confirmPin : null,
             child: const Text(
               'Selesai',
               style: TextStyle(

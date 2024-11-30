@@ -18,6 +18,7 @@ class _PinjamanPageState extends State<PinjamanPage>
   double nominal = 0.0;
   String nomorRekening = '';
   String formattedCurrency = '';
+  String tenor = '';
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
@@ -196,6 +197,48 @@ class _PinjamanPageState extends State<PinjamanPage>
     }
   }
 
+  Future<void> _proceedToConfirm() async {
+    double nominalPinjaman = double.tryParse(
+            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+        0.0;
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    if (nominalPinjaman > 0) {
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/ConfirmPinjaman',
+        arguments: {
+          'title': 'Konfirmasi Pinjaman',
+          'nominalPinjaman': nominalPinjaman,
+          'noRekPengguna': nomorRekening,
+          'userSlug': userSlug,
+          'tenor': _selectedMonth,
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nominal tidak valid')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -367,14 +410,7 @@ class _PinjamanPageState extends State<PinjamanPage>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: isButtonEnabled
-                          ? () {
-                              String nominal = _nominalController.text;
-                              NavigatorManager.navigatorKey.currentState
-                                  ?.pushNamed('/InputPinPinjaman');
-                              print('Nominal Transfer: $nominal');
-                            }
-                          : null,
+                      onPressed: isButtonEnabled ? _proceedToConfirm : null,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor:
