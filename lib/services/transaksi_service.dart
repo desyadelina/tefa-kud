@@ -118,7 +118,7 @@ class TransactionService {
   }
 
   Future<Map<String, dynamic>> pinjaman(
-      String slug, String rekening, double nominal, int tenor) async {
+      String slug, String rekening, double nominal, String tenor) async {
     return await _postRequest('/v1/transaksi/$slug/$rekening/pinjaman', {
       'nominal_transaksi': nominal,
       'tenor': tenor,

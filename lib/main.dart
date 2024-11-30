@@ -16,6 +16,7 @@ import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
 import 'package:tefa_kud/screens/pinjaman/code_pinjaman.dart';
 import 'package:tefa_kud/screens/pinjaman/input_pin_pinjaman.dart';
+import 'package:tefa_kud/screens/pinjaman/confirm_pinjaman.dart';
 import 'package:tefa_kud/screens/pinjaman/pinjaman_page.dart';
 import 'package:tefa_kud/screens/pinjaman/receipt_pinjaman.dart';
 import 'package:tefa_kud/screens/tarik_tunai/code_tarik_tunai.dart';
@@ -283,29 +284,59 @@ class MainApp extends StatelessWidget {
                 noRekPengguna: '',
               ),
             ),
-        '/pinjaman': (context) => DetailedPage(
-              content: PinjamanPage(
-                title: '',
-              ),
+        '/pinjaman': (context) => const DetailedPage(
+              titleBar: "Pinjaman",
               background: Colors.white,
-              titleBar: "Pinjaman",
+              content: PinjamanPage(title: ''),
             ),
-        '/InputPinPinjaman': (context) => DetailedPage(
-              content: InputPinPinjaman(
-                title: '',
-              ),
-              background: Colors.white,
-              titleBar: "Pinjaman",
+        '/ConfirmPinjaman': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Colors.white,
+            content: ConfirmPinjaman(
+             title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalPinjaman: args['nominalPinjaman'] ?? 0,
+              tenor: args['tenor'] ?? '',
             ),
-        '/CodePinjaman': (context) => DetailedPage(
-              content: CodePinjaman(
-                title: '',
-                nominal: '',
-                date: '',
-              ),
-              background: Color(0xFFF9F9F9),
-              titleBar: "Pinjaman",
+          );
+        },
+        '/InputPinPinjaman': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Colors.white,
+            content: InputPinPinjaman(
+              title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalPinjaman: args['nominalPinjaman'] ?? 0,
+              tenor: args['tenor'] ?? '',
             ),
+          );
+        },
+        '/CodePinjaman': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Color(0xFFF9F9F9),
+            content: CodePinjaman(
+              title: args?['title'] ?? '',
+              nominal: args?['nominal']?.toString() ?? '0',
+              date: args?['date'] ?? DateTime.now().toString(),
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+              tenor: args?['tenor'] ?? '',
+            ),
+          );
+        },
         '/ReceiptPinjaman': (context) => DetailedPage(
               content: ReceiptPinjaman(
                 title: '',

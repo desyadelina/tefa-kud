@@ -2,16 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:intl/intl.dart';
 
 class CodePinjaman extends StatefulWidget {
+  final String title;
   final String nominal;
   final String date;
-
+  final String noRekPengguna;
+  final String tenor;
   const CodePinjaman({
     Key? key,
+    required this.title,
     required this.nominal,
     required this.date,
-    required String title,
+    required this.noRekPengguna,
+    required this.tenor,
   }) : super(key: key);
 
   @override
@@ -19,9 +24,11 @@ class CodePinjaman extends StatefulWidget {
 }
 
 class _CodePinjamanState extends State<CodePinjaman> {
-  String get kodePinjaman => '';
+  String get kodePinjaman => 'PI-${DateTime.now().millisecondsSinceEpoch}';
 
-  String get nominal => '';
+  String get nominal => widget.nominal;
+  final NumberFormat currencyFormat =
+      NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +92,7 @@ class _CodePinjamanState extends State<CodePinjaman> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      nominal,
+                      currencyFormat.format(double.parse(widget.nominal)),
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -126,7 +133,7 @@ class _CodePinjamanState extends State<CodePinjaman> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  kodePinjaman,
+                 kodePinjaman,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
