@@ -37,6 +37,7 @@ class _InputPinTransferState extends State<InputPinTransfer> {
     });
   }
 
+  // jangan otak-atik kode di bawah ini
   Future<void> _confirmPin() async {
     AuthService authService = AuthService();
     TransactionService transactionService = TransactionService();
@@ -77,17 +78,18 @@ class _InputPinTransferState extends State<InputPinTransfer> {
       );
     }
   }
+  // end
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
-        color: Color(0xFF43964F),
+        color: Color(0xFFF9F9F9),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +185,9 @@ class _InputPinTransferState extends State<InputPinTransfer> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
+            // jangan otak-atik kode di bawah ini
             onPressed: _pin.length == pinLength ? _confirmPin : null,
+            // end
             child: const Text(
               'Selesai',
               style: TextStyle(

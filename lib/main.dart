@@ -69,7 +69,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splashscreen',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         '/': (context) => const MainLayout(
@@ -93,84 +93,122 @@ class MainApp extends StatelessWidget {
                 title: '',
               ),
             ),
-        '/InputNominalTransfer': (context) => const DetailedPage(
-              titleBar: "Transfer",
-              background: Colors.white,
-              content: InputNominalTransfer(
-                title: '',
-                rekeningTujuan: '',
-                userSlug: '',
-                noRekPengguna: '',
-              ),
+        '/InputNominalTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: InputNominalTransfer(
+              title: args['title'] ?? '',
+              rekeningTujuan: args['rekeningTujuan'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
             ),
-        '/ConfirmTransfer': (context) => DetailedPage(
-              titleBar: "Transfer",
-              content: ConfirmTransfer(
-                title: '',
-                nominalTransfer: 0,
-                noRekPengguna: '',
-                noRekTujuan: '',
-                userSlug: '',
-              ),
+          );
+        },
+        '/ConfirmTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: ConfirmTransfer(
+              title: args['title'] ?? '',
+              nominalTransfer: args['nominalTransfer'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              noRekTujuan: args['noRekTujuan'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/ConfirmationPinTransfer': (context) => const DetailedPage(
-              titleBar: "Transfer",
-              background: Colors.white,
-              content: InputPinTransfer(
-                title: '',
-                userSlug: '',
-                noRekTujuan: '',
-                noRekPengguna: '',
-                nominalTransfer: 0,
-                namaPenerima: '',
-              ),
+          );
+        },
+        '/ConfirmationPinTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Colors.white,
+            content: InputPinTransfer(
+              title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekTujuan: args['noRekTujuan'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalTransfer: args['nominalTransfer'] ?? 0,
+              namaPenerima: args['namaPenerima'] ?? '',
             ),
-        '/ReceiptTransfer': (context) => const DetailedPage(
-              titleBar: "Transfer",
-              background: Color(0xFF43964F),
-              content: ReceiptTransfer(
-                nominal: '',
-                date: '',
-                title: '',
-                namaPenerima: '',
-                rekeningTujuan: '',
-              ),
+          );
+        },
+        '/ReceiptTransfer': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Transfer",
+            background: Color(0xFF43964F),
+            content: ReceiptTransfer(
+              nominal: args['nominal'] ?? 0,
+              date: args['date'] ?? '',
+              title: args['title'] ?? '',
+              namaPenerima: args['namaPenerima'] ?? '',
+              rekeningTujuan: args['rekeningTujuan'] ?? '',
             ),
+          );
+        },
         '/isiSaldo': (context) => const DetailedPage(
               titleBar: "Isi Saldo",
               background: Colors.white,
               content: IsiSaldoPage(title: ''),
             ),
-        '/ConfirmIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: ConfirmIsiSaldo(
-                title: '',
-                nominalIsiSaldo: 0,
-                noRekPengguna: '',
-                userSlug: '',
-              ),
+        '/ConfirmIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: ConfirmIsiSaldo(
+              title: args['title'] ?? '',
+              nominalIsiSaldo: args['nominalIsiSaldo'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/InputPinIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: InputPinIsiSaldo(
-                title: '',
-                userSlug: '',
-                noRekPengguna: '',
-                nominalIsiSaldo: 0,
-                namaPengguna: '',
-              ),
+          );
+        },
+        '/InputPinIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: InputPinIsiSaldo(
+              title: args['title'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              nominalIsiSaldo: args['nominalIsiSaldo'] ?? 0,
+              namaPengguna: args['namaPengguna'] ?? '',
             ),
-        '/CodeIsiSaldo': (context) => const DetailedPage(
-              titleBar: "Isi Saldo",
-              background: Colors.white,
-              content: CodeIsiSaldo(
-                title: '',
-                nominal: '',
-                date: '',
-              ),
+          );
+        },
+        '/CodeIsiSaldo': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Isi Saldo",
+            background: Colors.white,
+            content: CodeIsiSaldo(
+              title: args?['title'] ?? '',
+              nominal: args?['nominal']?.toString() ?? '0',
+              date: args?['date'] ?? DateTime.now().toString(),
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+              namaPengguna: args?['namaPengguna'] ?? '',
             ),
+          );
+        },
         '/ReceiptIsiSaldo': (context) => const DetailedPage(
               titleBar: "Isi Saldo",
               background: Color(0xFF43964F),
@@ -187,36 +225,53 @@ class MainApp extends StatelessWidget {
               background: Colors.white,
               content: TarikTunaiPage(title: ''),
             ),
-        '/ConfirmTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: ConfirmTarikTunai(
-                title: '',
-                nominalTarikTunai: 0,
-                noRekPengguna: '',
-                userSlug: '',
-              ),
+        '/ConfirmTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: ConfirmTarikTunai(
+              title: args['title'] ?? '',
+              nominalTarikTunai: args['nominalTarikTunai'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/InputPinTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: InputPinTarikTunai(
-                title: '',
-                noRekPengguna: '',
-                userSlug: '',
-                namaPengguna: '',
-                nominalTarikTunai: 0,
-              ),
+          );
+        },
+        '/InputPinTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: InputPinTarikTunai(
+              title: args['title'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              namaPengguna: args['namaPengguna'] ?? '',
+              nominalTarikTunai: args['nominalTarikTunai'] ?? 0,
             ),
-        '/CodeTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: CodeTarikTunai(
-                title: '',
-                nominal: '',
-                date: '',
-              ),
+          );
+        },
+        '/CodeTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: CodeTarikTunai(
+              title: args?['title'] ?? '',
+              nominal: args?['nominal']?.toString() ?? '0',
+              date: args?['date'] ?? DateTime.now().toString(),
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+              namaPengguna: args?['namaPengguna'] ?? '',
             ),
+          );
+        },
         '/ReceiptTarikTunai': (context) => DetailedPage(
               titleBar: "Tarik Tunai",
               background: const Color(0xFF43964F),

@@ -2,16 +2,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:intl/intl.dart';
 
 class CodeTarikTunai extends StatefulWidget {
   final String nominal;
   final String date;
+  final String title;
+  final String namaPengguna;
+  final String noRekPengguna;
 
   const CodeTarikTunai({
     Key? key,
     required this.nominal,
     required this.date,
-    required String title,
+    required this.title,
+    required this.namaPengguna,
+    required this.noRekPengguna,
   }) : super(key: key);
 
   @override
@@ -19,9 +25,11 @@ class CodeTarikTunai extends StatefulWidget {
 }
 
 class _CodeTarikTunaiState extends State<CodeTarikTunai> {
-  String get kodeTarikTunai => '';
+  String get kodeTarikTunai => 'KTT-${DateTime.now().millisecondsSinceEpoch}';
 
-  String get nominal => '';
+  String get nominal => widget.nominal;
+  final NumberFormat currencyFormat =
+      NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -78,17 +86,9 @@ class _CodeTarikTunaiState extends State<CodeTarikTunai> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const Text(
-                        'Rp',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       const SizedBox(width: 5),
                       Text(
-                        nominal,
+                        currencyFormat.format(double.parse(widget.nominal)),
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,

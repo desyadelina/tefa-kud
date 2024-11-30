@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/input_pin_tarik_tunai.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
@@ -162,17 +163,15 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>
               width: double.infinity, // Full width button
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InputPinTarikTunai(
-                        title: '',
-                        userSlug: widget.userSlug,
-                        noRekPengguna: widget.noRekPengguna,
-                        namaPengguna: namaPengguna ?? 'Unknown',
-                        nominalTarikTunai: widget.nominalTarikTunai,
-                      ),
-                    ),
+                  NavigatorManager.navigatorKey.currentState?.pushNamed(
+                    '/InputPinTarikTunai',
+                    arguments: {
+                      'title': '',
+                      'userSlug': widget.userSlug,
+                      'noRekPengguna': widget.noRekPengguna,
+                      'namaPengguna': namaPengguna ?? 'Unknown',
+                      'nominalTarikTunai': widget.nominalTarikTunai,
+                    },
                   );
                 },
                 style: ElevatedButton.styleFrom(
