@@ -11,7 +11,8 @@ import 'package:tefa_kud/main.dart';
 
 class TarikTunaiPage extends StatefulWidget {
   const TarikTunaiPage({
-    super.key, required String title,
+    super.key,
+    required String title,
   });
 
   @override
@@ -103,7 +104,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
     });
   }
 
-    Future<void> _proceedToConfirm() async {
+  Future<void> _proceedToConfirm() async {
     double nominalTransaksi = double.tryParse(
             _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
         0.0;
@@ -128,16 +129,14 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
     }
 
     if (nominalTransaksi > 0 && nominalTransaksi <= tariktunai) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConfirmTarikTunai(
-            title: 'Konfirmasi Transfer',
-            nominalTarikTunai: nominalTransaksi,
-            noRekPengguna: nomorRekening,
-            userSlug: userSlug,
-          ),
-        ),
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/ConfirmTarikTunai',
+        arguments: {
+          'title': 'Konfirmasi Transfer',
+          'nominalTarikTunai': nominalTransaksi,
+          'noRekPengguna': nomorRekening,
+          'userSlug': userSlug,
+        },
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +145,6 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
       );
     }
   }
-
 
   @override
   void dispose() {

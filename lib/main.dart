@@ -225,36 +225,53 @@ class MainApp extends StatelessWidget {
               background: Colors.white,
               content: TarikTunaiPage(title: ''),
             ),
-        '/ConfirmTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: ConfirmTarikTunai(
-                title: '',
-                nominalTarikTunai: 0,
-                noRekPengguna: '',
-                userSlug: '',
-              ),
+        '/ConfirmTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: ConfirmTarikTunai(
+              title: args['title'] ?? '',
+              nominalTarikTunai: args['nominalTarikTunai'] ?? 0,
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
             ),
-        '/InputPinTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: InputPinTarikTunai(
-                title: '',
-                noRekPengguna: '',
-                userSlug: '',
-                namaPengguna: '',
-                nominalTarikTunai: 0,
-              ),
+          );
+        },
+        '/InputPinTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: InputPinTarikTunai(
+              title: args['title'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+              userSlug: args['userSlug'] ?? '',
+              namaPengguna: args['namaPengguna'] ?? '',
+              nominalTarikTunai: args['nominalTarikTunai'] ?? 0,
             ),
-        '/CodeTarikTunai': (context) => const DetailedPage(
-              titleBar: "Tarik Tunai",
-              background: Colors.white,
-              content: CodeTarikTunai(
-                title: '',
-                nominal: '',
-                date: '',
-              ),
+          );
+        },
+        '/CodeTarikTunai': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Tarik Tunai",
+            background: Colors.white,
+            content: CodeTarikTunai(
+              title: args?['title'] ?? '',
+              nominal: args?['nominal']?.toString() ?? '0',
+              date: args?['date'] ?? DateTime.now().toString(),
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+              namaPengguna: args?['namaPengguna'] ?? '',
             ),
+          );
+        },
         '/ReceiptTarikTunai': (context) => DetailedPage(
               titleBar: "Tarik Tunai",
               background: const Color(0xFF43964F),

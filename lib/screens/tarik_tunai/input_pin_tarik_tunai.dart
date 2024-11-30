@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/receipt_tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
@@ -57,17 +58,15 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
         widget.nominalTarikTunai,
       );
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ReceiptTarikTunai(
-            title: 'Selesai',
-            nominal: widget.nominalTarikTunai.toString(),
-            date: DateTime.now().toString(),
-            namaPengguna: widget.namaPengguna,
-            noRekPengguna: widget.noRekPengguna,
-          ),
-        ),
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/CodeTarikTunai',
+        arguments: {
+          'title': 'Selesai',
+          'nominal': widget.nominalTarikTunai.toString(),
+          'date': DateTime.now().toString(),
+          'namaPengguna': widget.namaPengguna,
+          'noRekPengguna': widget.noRekPengguna,
+        },
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,13 +79,13 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
-        color: Color(0xFF43964F),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +181,9 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
+            // jangan otak-atik kode di bawah ini
             onPressed: _pin.length == pinLength ? _confirmPin : null,
+            // end
             child: const Text(
               'Selesai',
               style: TextStyle(
