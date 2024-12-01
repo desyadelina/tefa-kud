@@ -30,7 +30,22 @@ class _InputPinTransferState extends State<InputPinTransfer> {
   final TextEditingController _pinController = TextEditingController();
   String _pin = '';
   final int pinLength = 6;
+  late FocusNode _pinFocusNode;
 
+ @override
+  void initState() {
+    super.initState();
+    _pinFocusNode = FocusNode();
+    print(
+        'FocusNode initialized'); // Tambahkan log ini untuk memastikan inisialisasi
+  }
+
+  @override
+  void dispose() {
+    _pinFocusNode
+        .dispose(); // Jangan lupa dispose FocusNode untuk mencegah kebocoran memori
+    super.dispose();
+  }
   void _onPinChanged(String value) {
     setState(() {
       _pin = value;
@@ -81,15 +96,15 @@ class _InputPinTransferState extends State<InputPinTransfer> {
   // end
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
-        color: Color(0xFFF9F9F9),
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -135,29 +150,33 @@ class _InputPinTransferState extends State<InputPinTransfer> {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(pinLength, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: index < _pin.length
-                              ? const Color(
-                                  0xFF43964F) // Warna hijau ketika ada input
-                              : Colors.grey.shade300,
-                          shape: BoxShape.circle,
+                  children: List.generate(
+                    pinLength,
+                    (index) {
+                      return GestureDetector(
+                        onTap: () {
+                          FocusScope.of(context).requestFocus(
+                              _pinFocusNode); // Fokuskan ke TextField
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: index < _pin.length
+                                ? const Color(
+                                    0xFF43964F) // Warna hijau ketika ada input
+                                : Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 50),
                 TextField(
+                  focusNode: _pinFocusNode, // Gunakan focusNode untuk TextField
                   controller: _pinController,
                   maxLength: pinLength,
                   obscureText: true,
@@ -185,9 +204,7 @@ class _InputPinTransferState extends State<InputPinTransfer> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
-            // jangan otak-atik kode di bawah ini
             onPressed: _pin.length == pinLength ? _confirmPin : null,
-            // end
             child: const Text(
               'Selesai',
               style: TextStyle(
@@ -199,11 +216,5 @@ class _InputPinTransferState extends State<InputPinTransfer> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    super.dispose();
   }
 }
