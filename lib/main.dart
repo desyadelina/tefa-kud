@@ -16,7 +16,6 @@ import 'package:tefa_kud/screens/isi_saldo/input_pin_isi_saldo.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
 import 'package:tefa_kud/screens/pinjaman/code_pinjaman.dart';
 import 'package:tefa_kud/screens/pinjaman/input_pin_pinjaman.dart';
-import 'package:tefa_kud/screens/pinjaman/confirm_pinjaman.dart';
 import 'package:tefa_kud/screens/pinjaman/pinjaman_page.dart';
 import 'package:tefa_kud/screens/pinjaman/receipt_pinjaman.dart';
 import 'package:tefa_kud/screens/tarik_tunai/code_tarik_tunai.dart';
@@ -289,22 +288,6 @@ class MainApp extends StatelessWidget {
               background: Colors.white,
               content: PinjamanPage(title: ''),
             ),
-        '/ConfirmPinjaman': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments
-              as Map<String, dynamic>;
-
-          return DetailedPage(
-            titleBar: "Pinjaman",
-            background: Colors.white,
-            content: ConfirmPinjaman(
-             title: args['title'] ?? '',
-              userSlug: args['userSlug'] ?? '',
-              noRekPengguna: args['noRekPengguna'] ?? '',
-              nominalPinjaman: args['nominalPinjaman'] ?? 0,
-              tenor: args['tenor'] ?? '',
-            ),
-          );
-        },
         '/InputPinPinjaman': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
               as Map<String, dynamic>;
