@@ -223,7 +223,7 @@ class _PinjamanPageState extends State<PinjamanPage>
 
     if (nominalPinjaman > 0) {
       NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/ConfirmPinjaman',
+        '/InputPinPinjaman',
         arguments: {
           'title': 'Konfirmasi Pinjaman',
           'nominalPinjaman': nominalPinjaman,
