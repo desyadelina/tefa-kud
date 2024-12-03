@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
+import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
@@ -25,6 +26,8 @@ import 'package:tefa_kud/screens/tarik_tunai/receipt_tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/input_nominal_transfer.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 import 'package:tefa_kud/screens/transfer/transfer_new_rek.dart';
+import 'package:tefa_kud/services/auth_service.dart';
+import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 
@@ -72,9 +75,11 @@ class MainApp extends StatelessWidget {
       initialRoute: '/splashscreen',
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
-        '/': (context) => const MainLayout(
-              title: '',
-            ),
+        // Add login route
+        '/login': (context) => const AuthLayout(content: LoginScreen()),
+
+        // Protected routes
+        '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
         '/MutasiPage': (context) => const MutasiPage(
               titleBar: 'Mutasi',
@@ -336,6 +341,40 @@ class MainApp extends StatelessWidget {
               background: Color(0xFFF2F2F2),
             ),
       },
+
+      // Add route guard
+      onGenerateRoute: (settings) {
+        // List of routes that don't need auth
+        final publicRoutes = ['/splashscreen', '/login'];
+
+        if (!publicRoutes.contains(settings.name)) {
+          return MaterialPageRoute(
+            builder: (context) => FutureBuilder<bool>(
+              future: AuthService().isLoggedIn(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (snapshot.data == true) {
+                  // User is logged in, get route widget from NavigatorManager
+                  return NavigatorManager.getRouteWidget(settings.name ?? '/');
+                } else {
+                  // Not logged in, redirect to login
+                  return const AuthLayout(content: LoginScreen());
+                }
+              },
+            ),
+          );
+        }
+        // Let MaterialApp handle public routes normally
+        return null;
+      },
+
       theme: ThemeData(
         fontFamily: 'RedRose',
         scaffoldBackgroundColor: Colors.white,
