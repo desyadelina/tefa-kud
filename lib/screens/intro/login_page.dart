@@ -22,6 +22,7 @@ class _LoginFormState extends State<LoginScreen> {
   bool _isObscured = true;
   String _selectedCountryCode = "+62";
   final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -45,32 +46,50 @@ class _LoginFormState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    String noTelepon =
-        _selectedCountryCode.replaceFirst('+', '') + _teleponController.text;
-    String password = _passwordController.text;
+    if (_isLoading) return;
 
-    var response = await _authService.login(noTelepon, password);
+    setState(() {
+      _isLoading = true;
+    });
 
-    print("Response: $response");
-    if (response != null && response['token'] != null) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainLayout(
-            title: '',
+    try {
+      String noTelepon = _selectedCountryCode.replaceFirst('+', '') + _teleponController.text;
+      String password = _passwordController.text;
+
+      var response = await _authService.login(noTelepon, password);
+
+      if (response != null && response['token'] != null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => 
+                const MainLayout(title: ''),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ),
-        (route) => false,
-      );
-    } else {
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response?['error'] ?? 'Login gagal, silakan coba lagi.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                response?['error'] ?? 'Silahkan periksa kembali data Anda.')),
+        const SnackBar(
+          content: Text('Terjadi kesalahan, silakan coba lagi.'),
+          backgroundColor: Colors.red,
+        ),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -304,8 +323,15 @@ class _LoginFormState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 24.0),
                               button(
-                                onPressed: _login,
-                                text: "Masuk",
+                                onPressed: _isLoading ? null : _login,
+                                text: _isLoading ? "Loading..." : "Masuk",
+                                child: _isLoading 
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(color: Colors.white),
+                                    )
+                                  : null,
                               ),
                             ],
                           ),

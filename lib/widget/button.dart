@@ -17,7 +17,7 @@ class button extends StatelessWidget {
     required this.text,
     this.textColor = Colors.white,
     this.outlineColor = const Color(0xFF43964F),
-    this.icon,
+    this.icon, SizedBox? child,
   });
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/screens/intro/guide_screen.dart';
+import 'package:tefa_kud/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,6 +10,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final AuthService _authService = AuthService();
   bool _isMoved = false;
   bool _isShow = false;
   bool _isShowLabel = false;
@@ -20,25 +22,40 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(showDuration, () {
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Animation sequence
+    await Future.delayed(showDuration, () {
       setState(() {
         _isShow = true;
         _isShowLabel = true;
       });
     });
-    Future.delayed(moveDuration, () {
+
+    await Future.delayed(moveDuration, () {
       setState(() {
         _isMoved = true;
         _isShowLabel = false;
-        Future.delayed(navigateDelay, () {
-          setState(() {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const GuideMain()),
-            );
-          });
-        });
       });
+    });
+
+    // Auth and navigation logic
+    await Future.delayed(navigateDelay, () async {
+      final isLoggedIn = await _authService.isLoggedIn();
+      final hasSeenGuide = await _authService.hasGuideBeenShown();
+
+      if (isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (!hasSeenGuide) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GuideMain()),
+        );
+      } else {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     });
   }
 

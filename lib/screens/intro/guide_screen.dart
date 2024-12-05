@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
+import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/guide_layout.dart';
@@ -160,13 +161,34 @@ class GuideScreens extends StatelessWidget {
   final PageController startPageController;
   final PageController guidePageController;
   final String nextButtonText;
+  final AuthService _authService = AuthService(); // Add AuthService
 
-  const GuideScreens(
+  GuideScreens(
     this.startPageController,
     this.guidePageController,
     this.nextButtonText, {
     super.key,
   });
+
+  Future<void> _handleNavigation(BuildContext context) async {
+    if (guidePageController.page?.round() == 2) {
+      await _authService.markGuideAsShown(); // Mark guide as shown
+      Navigator.pushReplacement( // Use pushReplacement instead of push
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const AuthLayout(content: LoginScreen()),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    } else {
+      guidePageController.nextPage(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,26 +247,7 @@ class GuideScreens extends StatelessWidget {
                     );
                   }
                 },
-                onNextPressed: () {
-                  if (guidePageController.page!.round() == 2) {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const AuthLayout(content: LoginScreen(),),
-                        transitionDuration:
-                            Duration.zero, // Disable transition duration
-                        reverseTransitionDuration:
-                            Duration.zero, // Disable reverse transition as well
-                      ),
-                    );
-                  } else {
-                    guidePageController.nextPage(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease,
-                    );
-                  }
-                },
+                onNextPressed: () => _handleNavigation(context),
               ),
             ),
           ),
