@@ -19,19 +19,13 @@ dependencies:
   http: ^1.2.2
   google_fonts: ^6.2.1
   getwidget: ^4.0.0
-  flutter_launcher_icons: ^0.14.1
   flutter_secure_storage: ^9.2.2
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/logo/icon-app.png"
+  flutter_launcher_icons: ^0.14.2
 
 flutter:
   uses-material-design: true
@@ -41,6 +35,16 @@ flutter:
     - assets/logo/
     - assets/images/banner/
     - assets/icon/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/logo2.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/logo/logo2.png"
+  min_sdk_android: 21
+  adaptive_icon_foreground_scale_factor: 0.95
+  remove_alpha_ios: true
 
   fonts:
     - family: RedRose
