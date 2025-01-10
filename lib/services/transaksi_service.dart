@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:tefa_kud/config/api_config.dart';
 
 class TransactionService {
-  // final String baseUrl = 'http://192.168.100.86:8000/api';
-  final String baseUrl = 'http://10.0.2.2:8000/api';
+  final String baseUrl = ApiConfig.baseUrl;
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
   Future<String?> _getToken() async {
@@ -118,7 +118,7 @@ class TransactionService {
   }
 
   Future<Map<String, dynamic>> pinjaman(
-      String slug, String rekening, double nominal, int tenor) async {
+      String slug, String rekening, double nominal, String tenor) async {
     return await _postRequest('/v1/transaksi/$slug/$rekening/pinjaman', {
       'nominal_transaksi': nominal,
       'tenor': tenor,

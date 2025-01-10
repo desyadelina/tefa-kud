@@ -31,6 +31,22 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
   final TextEditingController _pinController = TextEditingController();
   String _pin = '';
   final int pinLength = 6;
+  final FocusNode _pinFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_pinFocusNode);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    _pinFocusNode.dispose();
+    super.dispose();
+  }
 
   void _onPinChanged(String value) {
     setState(() {
@@ -129,43 +145,53 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
                 SizedBox(
                   height: 40,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(pinLength, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: index < _pin.length
-                              ? const Color(
-                                  0xFF43964F) // Warna hijau ketika ada input
-                              : Colors.grey.shade300,
-                          shape: BoxShape.circle,
+                SizedBox(
+                  width: MediaQuery.of(context).size.width *
+                      0.6, // Adjust width as needed
+                  child: GestureDetector(
+                    onTap: () =>
+                        FocusScope.of(context).requestFocus(_pinFocusNode),
+                    behavior: HitTestBehavior.opaque,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            pinLength,
+                            (index) => Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 12.0),
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: index < _pin.length
+                                    ? const Color(0xFF43964F)
+                                    : Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 50),
-                TextField(
-                  controller: _pinController,
-                  maxLength: pinLength,
-                  obscureText: true,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.transparent),
-                  cursorColor: Colors.transparent,
-                  showCursor: false,
-                  decoration: const InputDecoration(
-                    counterText: '',
-                    border: InputBorder.none,
+                        TextField(
+                          focusNode: _pinFocusNode,
+                          autofocus: true,
+                          controller: _pinController,
+                          maxLength: pinLength,
+                          obscureText: true,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.transparent),
+                          cursorColor: Colors.transparent,
+                          showCursor: false,
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            border: InputBorder.none,
+                          ),
+                          onChanged: _onPinChanged,
+                        ),
+                      ],
+                    ),
                   ),
-                  onChanged: _onPinChanged,
                 ),
               ],
             ),
@@ -195,11 +221,5 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    super.dispose();
   }
 }

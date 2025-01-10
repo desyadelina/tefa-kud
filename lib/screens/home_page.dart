@@ -296,10 +296,7 @@ class _HomePageState extends State<HomePage>
                                                 .map((transaction) {
                                               return _buildTransactionItem(
                                                 namaPengguna,
-                                                toBeginningOfSentenceCase(
-                                                    transaction[
-                                                            'jenis_transaksi']
-                                                        .replaceAll('_', ' ')),
+                                                formatTransactionType(transaction['jenis_transaksi']),
                                                 transaction[
                                                     'nominal_transaksi'],
                                                 transaction[
@@ -483,6 +480,20 @@ class _HomePageState extends State<HomePage>
       overlayEntry.remove();
     });
   }
+}
+
+// Add this helper function
+String formatTransactionType(String jenisTransaksi) {
+  final Map<String, String> transactionTypes = {
+    'kirim_uang': 'Transfer',
+    'top_up': 'Isi Saldo',
+    'tarik_uang': 'Tarik Tunai',
+    'pinjaman': 'Pinjaman',
+  };
+
+  return transactionTypes[jenisTransaksi.toLowerCase()] ?? 
+         toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ?? 
+         jenisTransaksi;
 }
 
 Widget _buildTransactionItem(
