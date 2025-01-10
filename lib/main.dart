@@ -30,6 +30,7 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:tefa_kud/screens/home_page.dart';
 
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -61,18 +62,25 @@ class NavigatorManager {
   }
 }
 
-void main() {
-  runApp(MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final AuthService authService = AuthService();
+  final bool isLoggedIn = await authService.isLoggedIn();
+  final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
+
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
-class MainApp extends StatelessWidget {
-  MainApp({super.key});
+class MyApp extends StatelessWidget {
+  final String initialRoute;
+
+  const MyApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splashscreen',
+      initialRoute: initialRoute,
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         // Add login route
@@ -340,6 +348,7 @@ class MainApp extends StatelessWidget {
               content: ProfileEditScreen(),
               background: Color(0xFFF2F2F2),
             ),
+        '/home': (context) => const HomePage(),
       },
 
       // Add route guard
