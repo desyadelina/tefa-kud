@@ -58,54 +58,66 @@ class _HomePageState extends State<HomePage>
     String noRekPengguna = rekeningData[0]['no_rek'];
 
     try {
-      var rekeningData =
+      if (!mounted) return;
+
+      final rekeningData =
           await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
-      var riwayatTransaksiData = await transactionService.getTransactionHistory(
-          userSlug, noRekPengguna);
+      final riwayatTransaksiData = await transactionService
+          .getTransactionHistory(userSlug, noRekPengguna);
+
+      if (!mounted) return;
 
       if (rekeningData != null && rekeningData.isNotEmpty) {
-        var rekening = rekeningData[0];
-        setState(() {
-          saldo = (rekening['saldo'] is int)
-              ? (rekening['saldo'] as int).toDouble()
-              : rekening['saldo'];
-          nomorRekening = rekening['no_rek'];
-          formattedCurrency = NumberFormat.currency(
-            locale: 'id',
-            symbol: 'Rp ',
-            decimalDigits: 0,
-          ).format(saldo);
-        });
+        final rekening = rekeningData[0];
+
+        if (mounted) {
+          setState(() {
+            saldo = (rekening['saldo'] is int)
+                ? (rekening['saldo'] as int).toDouble()
+                : rekening['saldo'];
+            nomorRekening = rekening['no_rek'];
+            formattedCurrency = NumberFormat.currency(
+              locale: 'id',
+              symbol: 'Rp ',
+              decimalDigits: 0,
+            ).format(saldo);
+          });
+        }
+
         if (riwayatTransaksiData != null && riwayatTransaksiData.isNotEmpty) {
-          var pengguna = await transactionService
+          if (!mounted) return;
+
+          final pengguna = await transactionService
               .getNamaPenggunaByIdRekening(rekening['id']);
           namaPengguna = pengguna?['pengguna'];
-          riwayatTransaksi = riwayatTransaksiData
+
+          final filteredTransactions = riwayatTransaksiData
               .where((transaction) =>
                   transaction['status_transaksi'].toString().toLowerCase() !=
                   'pending')
+              .take(5)
               .toList();
-          if (riwayatTransaksi.length > 5) {
-            riwayatTransaksi = riwayatTransaksi
-                .where((transaction) =>
-                    transaction['status_transaksi'].toString().toLowerCase() !=
-                    'pending')
-                .take(5)
-                .toList();
+
+          if (mounted) {
             setState(() {
-              this.riwayatTransaksi = riwayatTransaksi;
+              riwayatTransaksi = filteredTransactions;
             });
           }
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rekening tidak ditemukan.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Rekening tidak ditemukan.')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Gagal memuat data rekening: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -296,7 +308,9 @@ class _HomePageState extends State<HomePage>
                                                 .map((transaction) {
                                               return _buildTransactionItem(
                                                 namaPengguna,
-                                                formatTransactionType(transaction['jenis_transaksi']),
+                                                formatTransactionType(
+                                                    transaction[
+                                                        'jenis_transaksi']),
                                                 transaction[
                                                     'nominal_transaksi'],
                                                 transaction[
@@ -491,9 +505,9 @@ String formatTransactionType(String jenisTransaksi) {
     'pinjaman': 'Pinjaman',
   };
 
-  return transactionTypes[jenisTransaksi.toLowerCase()] ?? 
-         toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ?? 
-         jenisTransaksi;
+  return transactionTypes[jenisTransaksi.toLowerCase()] ??
+      toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ??
+      jenisTransaksi;
 }
 
 Widget _buildTransactionItem(

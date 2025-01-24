@@ -39,9 +39,12 @@ class NavigatorManager {
       case '/profileEdit':
         return const ProfileEditScreen();
       case '/MutasiPage':
-        return const MutasiPage(
-          titleBar: 'Mutasi',
-          background: Colors.white,
+        return DetailedPage(
+          titleBar: 'Mutasi Page',
+          content: MutasiPage(
+            titleBar: 'Mutasi',
+            background: Colors.white,
+          ),
         );
       case '/transfer':
         return ListTransfer();
@@ -81,9 +84,12 @@ class MainApp extends StatelessWidget {
         // Protected routes
         '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
-        '/MutasiPage': (context) => const MutasiPage(
-              titleBar: 'Mutasi',
-              background: Colors.white,
+        '/MutasiPage': (context) => const DetailedPage(
+              titleBar: 'Mutasi Pages',
+              content: MutasiPage(
+                titleBar: 'Mutasi',
+                background: Colors.white,
+              ),
             ),
         '/profile': (context) => ProfilePage(),
         '/transfer': (context) => const DetailedPage(

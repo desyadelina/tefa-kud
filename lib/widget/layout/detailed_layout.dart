@@ -8,11 +8,13 @@ class DetailedPage extends StatefulWidget {
   final String titleBar;
   final Color backgroundBar;
   final Color background;
+  final bool backButtonStatus;
   final Widget content;
 
   const DetailedPage({
     required this.content,
-    this.titleBar = "Detail",
+    this.backButtonStatus = false,
+    this.titleBar = "no title",
     this.backgroundBar = const Color(0xFF43964F),
     this.background = Colors.white,
     super.key,
@@ -50,7 +52,7 @@ class _DetailedPagedState extends State<DetailedPage>
           slivers: [
             SliverAppBar(
               backgroundColor: widget.backgroundBar,
-              expandedHeight: 50.0,
+              expandedHeight: 78.0,
               toolbarHeight: 0,
               pinned: false,
               flexibleSpace: FlexibleSpaceBar(
@@ -58,25 +60,26 @@ class _DetailedPagedState extends State<DetailedPage>
                 titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
                 title: Stack(
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 0, 0),
-                        child: IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                              color: Colors.white),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+                    if (widget.backButtonStatus == true) // Add conditional check
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 12, 0, 0),
+                          child: IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+                                color: Colors.white),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
                       ),
-                    ),
                     Opacity(
                       opacity: _appBarOpacity,
                       child: Align(
-                        alignment: Alignment.bottomCenter,
+                        alignment: Alignment.center,
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 32),
+                          padding: const EdgeInsets.only(top: 10),
                           child: Text(
                             widget.titleBar,
                             style: const TextStyle(
