@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/home_page.dart';
-import 'package:tefa_kud/screens/profile/profile_screen.dart';
+import 'package:tefa_kud/screens/profile/profile_page.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 
 class MainLayout extends StatefulWidget {
