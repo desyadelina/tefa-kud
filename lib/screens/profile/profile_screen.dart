@@ -7,6 +7,8 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../widget/layout/auth_layout.dart';
+import '../intro/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
@@ -76,6 +78,39 @@ class _ProfileState extends State<ProfilePage>
 
   void _editProfile() {
     print('Edit profile pressed');
+  }
+
+  Future<void> _logout() async {
+    await authService.signOut();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Apakah anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _logout();
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -243,7 +278,9 @@ class _ProfileState extends State<ProfilePage>
               const SizedBox(height: 16.0),
               // Button 2
               button(
-                onPressed: () {},
+                onPressed: () {
+                  _showLogoutConfirmationDialog(context);
+                },
                 text: "Keluar",
                 backgroundColor: Colors.white,
                 textColor: const Color(0xFFD02727),
