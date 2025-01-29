@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,29 +8,32 @@ import 'package:tefa_kud/services/transaksi_service.dart';
 class ListBayarPinjaman extends StatefulWidget {
   final String title;
 
-  const ListBayarPinjaman({ super.key, required this.title });
+  const ListBayarPinjaman({super.key, required this.title});
 
   @override
   State<ListBayarPinjaman> createState() => _ListBayarPinjamanState();
 }
 
 class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
-  double nominal = 0.0;
+  TransactionService transactionService = TransactionService();
+  List<Map<String, dynamic>> _pinjamanList = [];
+
+  double totalTagihan = 0.0;
+  double saldo = 0.0;
   String nomorRekening = '';
-  String formattedCurrency = '';
+  String formattedSaldo = '';
+  String formattedTotalTagihan = '';
   bool isSaldoVisible = true;
-  int totalTagihan = 0;
   String? noRekPengguna;
 
   @override
   void initState() {
     super.initState();
     _getUserAccount();
+    _fetchTotalPinjaman();
   }
 
   Future<void> _getUserAccount() async {
-    TransactionService transactionService = TransactionService();
-
     String? userSlug = await transactionService.getUserSlug();
 
     if (userSlug == null) {
@@ -59,15 +60,15 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         setState(() {
-          nominal = (rekening['saldo'] is int)
+          saldo = (rekening['saldo'] is int)
               ? (rekening['saldo'] as int).toDouble()
               : (rekening['saldo'] ?? 0.0);
           nomorRekening = rekening['no_rek'];
-          formattedCurrency = NumberFormat.currency(
+          formattedSaldo = NumberFormat.currency(
             locale: 'id',
             symbol: 'Rp',
             decimalDigits: 0,
-          ).format(nominal);
+          ).format(saldo);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -79,6 +80,65 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
         SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
       );
     }
+  }
+
+  Future<void> _fetchTotalPinjaman() async {
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    noRekPengguna = rekeningData[0]['no_rek'];
+
+    try {
+      final pinjamanData =
+          await transactionService.getTotalPinjaman(userSlug, noRekPengguna!);
+      setState(() {
+        totalTagihan = pinjamanData['jumlah_pinjaman'];
+        formattedTotalTagihan = NumberFormat.currency(
+          locale: 'id',
+          symbol: 'Rp',
+          decimalDigits: 0,
+        ).format(totalTagihan);
+        _pinjamanList = _generatePinjamanList(
+          totalTagihan,
+          pinjamanData['tenor'],
+        );
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat total pinjaman: ${e.toString()}')),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> _generatePinjamanList(double total, String tenor) {
+    int months = int.parse(tenor.split(' ')[0]);
+    double monthlyPayment = total / months;
+    List<Map<String, dynamic>> list = [];
+    for (int i = 0; i < months; i++) {
+      list.add({
+        'id': i + 1,
+        'amount': monthlyPayment,
+        'dueDate': DateFormat('dd MMMM yyyy').format(
+          DateTime.now().add(Duration(days: 30 * (i + 1))),
+        ),
+      });
+    }
+    return list;
   }
 
   @override
@@ -133,8 +193,8 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                           children: [
                             Text(
                               isSaldoVisible
-                                  ? formattedCurrency
-                                  : 'Rp ${'*' * (formattedCurrency.length - 3)}',
+                                  ? formattedSaldo
+                                  : 'Rp ${'*' * (formattedSaldo.length - 3)}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 color: Colors.black,
@@ -220,9 +280,10 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                       const Text(
                         'Total Tagihan',
                         style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16),
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,13 +291,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                           Row(
                             children: [
                               Text(
-                                isSaldoVisible
-                                    ? NumberFormat.currency(
-                                        locale: 'id',
-                                        symbol: 'Rp',
-                                        decimalDigits: 0,
-                                      ).format(totalTagihan)
-                                    : 'Rp ${'*' * (formattedCurrency.length - 3)}',
+                                formattedTotalTagihan,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   color: Colors.black,
@@ -262,21 +317,29 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  child: ListView(
-                    children: [
-                      _buildTransactionItem(
-                        amount: 'Rp 1.000.000',
-                        date: 'Dibayar 15 Agustus 2024',
+                  child: ListView.builder(
+                    itemCount: _pinjamanList.length,
+                    itemBuilder: (context, index) {
+                      final item = _pinjamanList[index];
+                      return _buildTransactionItem(
+                        amount: NumberFormat.currency(
+                          locale: 'id',
+                          symbol: 'Rp',
+                          decimalDigits: 0,
+                        ).format(item['amount']),
+                        date: item['dueDate'],
                         icon: FontAwesomeIcons.moneyBill,
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => DetailBayarPinjaman()),
+                              builder: (context) =>
+                                  DetailBayarPinjaman(id: item['id']),
+                            ),
                           );
                         },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ],

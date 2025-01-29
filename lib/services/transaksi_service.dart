@@ -131,4 +131,22 @@ class TransactionService {
       'nominal_transaksi': nominal,
     });
   }
+
+  Future<Map<String, dynamic>> getTotalPinjaman(String slug, String rekening) async {
+    try {
+      final data = await _getRequest('/v1/pinjaman/$slug/$rekening');
+      print('API Response: $data');
+      if (data != null && data['data'] != null) {
+        return {
+          'jumlah_pinjaman': data['data']['jumlah_pinjaman'].toDouble(),
+          'tenor': data['data']['tenor']
+        };
+      } else {
+        throw Exception('Failed to fetch total loan amount');
+      }
+    } catch (e) {
+      print('Error fetching total loan amount: $e');
+      throw Exception('Failed to fetch total loan amount');
+    }
+  }
 }

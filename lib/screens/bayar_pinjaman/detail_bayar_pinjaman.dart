@@ -3,8 +3,10 @@ import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/input_pin_bayar_pinjaman.dart';
 
 class DetailBayarPinjaman extends StatefulWidget {
-  const DetailBayarPinjaman({super.key});
+  final int id;
 
+  const DetailBayarPinjaman({super.key, required this.id});
+  
   @override
   State<DetailBayarPinjaman> createState() => _DetailBayarPinjamanState();
 }
