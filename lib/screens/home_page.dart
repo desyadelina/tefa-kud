@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
-import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
@@ -257,23 +256,21 @@ class _HomePageState extends State<HomePage>
                                               ?.pushNamed('/pinjaman');
                                         },
                                       ),
-                                      iconMenuButton(
+                                        iconMenuButton(
                                         'Bayar Pinjaman',
                                         'assets/images/Pinjaman.png',
                                         () {
                                           Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ListBayarPinjaman(
-                                                title: '',
-                                                totalTagihan: 0,
-                                                noRekPengguna: 0,
-                                              ),
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                              ListBayarPinjaman(
+                                            title: 'Bayar Pinjaman',
                                             ),
+                                          ),
                                           );
                                         },
-                                      ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -512,6 +509,7 @@ String formatTransactionType(String jenisTransaksi) {
     'top_up': 'Isi Saldo',
     'tarik_uang': 'Tarik Tunai',
     'pinjaman': 'Pinjaman',
+    'pembayaran': 'Bayar Pinjaman',
   };
 
   return transactionTypes[jenisTransaksi.toLowerCase()] ??

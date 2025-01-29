@@ -60,8 +60,6 @@ class NavigatorManager {
       case '/ListBayarPinjaman':
         return ListBayarPinjaman(
           title: 'Bayar Pinjaman',
-          totalTagihan: 0,
-          noRekPengguna: 0,
         );
       default:
         return MainLayout(
@@ -355,9 +353,7 @@ class MyApp extends StatelessWidget {
             ),
         '/ListBayarPinjaman': (context) => DetailedPage(
               content: ListBayarPinjaman(
-                title: 'title',
-                totalTagihan: 0,
-                noRekPengguna: 0,
+                title: 'Bayar Pinjaman',
               ),
               background: Colors.white,
               titleBar: "Bayar Pinjaman",

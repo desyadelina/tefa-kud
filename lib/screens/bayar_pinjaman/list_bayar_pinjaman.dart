@@ -1,28 +1,85 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/detail_bayar_pinjaman.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 
 class ListBayarPinjaman extends StatefulWidget {
   final String title;
-  final int totalTagihan;
-  final int noRekPengguna;
 
-  const ListBayarPinjaman({
-    super.key,
-    required this.title,
-    required this.totalTagihan,
-    required this.noRekPengguna,
-  });
+  const ListBayarPinjaman({ super.key, required this.title });
 
   @override
   State<ListBayarPinjaman> createState() => _ListBayarPinjamanState();
 }
 
 class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
-  String formattedCurrency = 'Rp 3.000.000';
-  String nomorRekening = '1283 1234 1234';
+  double nominal = 0.0;
+  String nomorRekening = '';
+  String formattedCurrency = '';
   bool isSaldoVisible = true;
+  int totalTagihan = 0;
+  String? noRekPengguna;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserAccount();
+  }
+
+  Future<void> _getUserAccount() async {
+    TransactionService transactionService = TransactionService();
+
+    String? userSlug = await transactionService.getUserSlug();
+
+    if (userSlug == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+      );
+      return;
+    }
+
+    var rekeningData =
+        await transactionService.getRekeningPengguna(userSlug, '');
+    if (rekeningData == null || rekeningData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rekening tidak ditemukan')),
+      );
+      return;
+    }
+
+    String noRekPengguna = rekeningData[0]['no_rek'];
+
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      if (rekeningData != null && rekeningData.isNotEmpty) {
+        var rekening = rekeningData[0];
+        setState(() {
+          nominal = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble()
+              : (rekening['saldo'] ?? 0.0);
+          nomorRekening = rekening['no_rek'];
+          formattedCurrency = NumberFormat.currency(
+            locale: 'id',
+            symbol: 'Rp',
+            decimalDigits: 0,
+          ).format(nominal);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Rekening tidak ditemukan.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +231,11 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                             children: [
                               Text(
                                 isSaldoVisible
-                                    ? formattedCurrency
+                                    ? NumberFormat.currency(
+                                        locale: 'id',
+                                        symbol: 'Rp',
+                                        decimalDigits: 0,
+                                      ).format(totalTagihan)
                                     : 'Rp ${'*' * (formattedCurrency.length - 3)}',
                                 style: const TextStyle(
                                   fontSize: 24,
