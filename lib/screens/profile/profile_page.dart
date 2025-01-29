@@ -179,15 +179,32 @@ class _ProfileState extends State<ProfilePage>
                             ),
                             SizedBox(height: 16.0),
                             ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TarikTunaiPage(
-                                                title: '',
-                                              )));
-                                },
-                                child: Text("Edit Akun"))
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TarikTunaiPage(
+                                      title: '',
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF43964F),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                minimumSize: const Size(220, 50),
+                              ),
+                              child: const Text(
+                                "Edit Akun",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ],
                         );
                       } else {

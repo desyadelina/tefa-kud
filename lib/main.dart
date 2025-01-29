@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
-import 'package:tefa_kud/screens/profile/profile_screen.dart';
+import 'package:tefa_kud/screens/profile/profile_page.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
 import 'package:tefa_kud/screens/transfer/input_pin_transfer.dart';
@@ -39,6 +40,8 @@ class NavigatorManager {
     switch (routeName) {
       case '/profileEdit':
         return const ProfileEditScreen();
+      case '/profile':
+        return ProfilePage();
       case '/MutasiPage':
         return const MutasiPage(
           titleBar: 'Mutasi',
@@ -53,6 +56,12 @@ class NavigatorManager {
       case '/pinjaman':
         return PinjamanPage(
           title: '',
+        );
+      case '/ListBayarPinjaman':
+        return ListBayarPinjaman(
+          title: 'Bayar Pinjaman',
+          totalTagihan: 0,
+          noRekPengguna: 0,
         );
       default:
         return MainLayout(
@@ -344,9 +353,14 @@ class MyApp extends StatelessWidget {
               background: Color(0xFF43964F),
               titleBar: "Pinjaman",
             ),
-        '/profileEdit': (context) => const DetailedPage(
-              content: ProfileEditScreen(),
-              background: Color(0xFFF2F2F2),
+        '/ListBayarPinjaman': (context) => DetailedPage(
+              content: ListBayarPinjaman(
+                title: 'title',
+                totalTagihan: 0,
+                noRekPengguna: 0,
+              ),
+              background: Colors.white,
+              titleBar: "Bayar Pinjaman",
             ),
         '/home': (context) => const HomePage(),
       },

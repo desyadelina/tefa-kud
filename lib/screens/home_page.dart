@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
@@ -213,9 +215,11 @@ class _HomePageState extends State<HomePage>
                               children: [
                                 SizedBox(
                                   height: 120,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  child: Wrap(
+                                    spacing:
+                                        16.0, // Space between the buttons horizontally
+                                    runSpacing:
+                                        16.0, // Space between the rows vertically
                                     children: [
                                       iconMenuButton(
                                         'Transfer',
@@ -253,10 +257,27 @@ class _HomePageState extends State<HomePage>
                                               ?.pushNamed('/pinjaman');
                                         },
                                       ),
+                                      iconMenuButton(
+                                        'Bayar Pinjaman',
+                                        'assets/images/Pinjaman.png',
+                                        () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ListBayarPinjaman(
+                                                title: '',
+                                                totalTagihan: 0,
+                                                noRekPengguna: 0,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 16.0),
+                                const SizedBox(height: 80.0),
                                 Container(
                                   height: 150,
                                   decoration: const BoxDecoration(
@@ -296,7 +317,9 @@ class _HomePageState extends State<HomePage>
                                                 .map((transaction) {
                                               return _buildTransactionItem(
                                                 namaPengguna,
-                                                formatTransactionType(transaction['jenis_transaksi']),
+                                                formatTransactionType(
+                                                    transaction[
+                                                        'jenis_transaksi']),
                                                 transaction[
                                                     'nominal_transaksi'],
                                                 transaction[
@@ -491,9 +514,9 @@ String formatTransactionType(String jenisTransaksi) {
     'pinjaman': 'Pinjaman',
   };
 
-  return transactionTypes[jenisTransaksi.toLowerCase()] ?? 
-         toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ?? 
-         jenisTransaksi;
+  return transactionTypes[jenisTransaksi.toLowerCase()] ??
+      toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ??
+      jenisTransaksi;
 }
 
 Widget _buildTransactionItem(
