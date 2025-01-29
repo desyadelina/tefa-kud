@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
-import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';

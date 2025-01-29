@@ -1,7 +1,10 @@
 // ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
+import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/button.dart';
@@ -148,9 +151,7 @@ class _ProfileState extends State<ProfilePage>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => TarikTunaiPage(
-                                      title: '',
-                                    ),
+                                    builder: (context) => ProfileEditScreen(),
                                   ),
                                 );
                               },
@@ -219,60 +220,93 @@ class _ProfileState extends State<ProfilePage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16.0),
-              button(
-                onPressed: () {
-                  NavigatorManager.navigatorKey.currentState
-                      ?.pushNamed('/profileEdit');
-                },
-                text: "Edit Profile",
-                backgroundColor: const Color(0xFF171717),
-                textColor: Colors.white,
-                outlineColor: const Color(0xFF171717),
-                icon: SvgPicture.asset(
-                  'assets/icon/Dialing Number.svg',
-                  width: 20,
-                  height: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              button(
+              ListButtonMenuProfile(
+                text: "Ganti Pin",
+                iconPath: 'assets/icon/Dialing Number.svg',
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => NewPage(),
+                      builder: (context) => PreviousPinPage(
+                        userSlug: '',
+                        title: '',
+                        noRekPengguna: '',
+                      ),
                     ),
                   );
                 },
-                text: "Ganti Pin",
-                backgroundColor: const Color(0xFF171717),
-                textColor: Colors.white,
-                outlineColor: const Color(0xFF171717),
-                icon: SvgPicture.asset(
-                  'assets/icon/Dialing Number.svg',
-                  width: 20,
-                  height: 20,
-                  color: Colors.white,
-                ),
               ),
-              const SizedBox(height: 16.0),
-              // Button 2
-              button(
+              const SizedBox(height: 8),
+              const Divider(
+                color: Color(0xFFd9d9d9),
+                thickness: 1,
+                height: 1,
+              ),
+              ListButtonMenuProfile(
+                text: "Bayar Pinjaman",
+                iconPath: 'assets/icon/Pay.svg',
                 onPressed: () {},
-                text: "Keluar",
-                backgroundColor: Colors.white,
-                textColor: const Color(0xFFD02727),
-                outlineColor: const Color(0xFFD02727),
-                icon: SvgPicture.asset(
-                  'assets/icon/Logout.svg',
-                  width: 20,
-                  height: 20,
-                  color: const Color.fromARGB(255, 255, 0, 0),
-                ),
+              ),
+              const SizedBox(height: 8),
+              const Divider(
+                color: Color(0xFFd9d9d9),
+                thickness: 1,
+                height: 1,
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ListButtonMenuProfile extends StatelessWidget {
+  final String text;
+  final String iconPath;
+  final VoidCallback onPressed;
+
+  const ListButtonMenuProfile({
+    super.key,
+    required this.text,
+    required this.iconPath,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SvgPicture.asset(
+            iconPath,
+            width: 30,
+            height: 30,
+            color: Color(0xFF43964F),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF616161),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Icon(
+            Icons.arrow_forward_ios,
+            color: Color(0xFF616161),
+            size: 18,
           ),
         ],
       ),
