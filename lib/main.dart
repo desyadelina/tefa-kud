@@ -30,6 +30,8 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -64,18 +66,23 @@ class NavigatorManager {
   }
 }
 
-void main() {
-  runApp(MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final storage = const FlutterSecureStorage();
+  final token = await storage.read(key: 'KEY_TOKEN');
+  runApp(MainApp(initialRoute: token == null ? '/login' : '/'));
 }
 
 class MainApp extends StatelessWidget {
-  MainApp({super.key});
+  final String initialRoute;
+
+  MainApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splashscreen',
+      initialRoute: initialRoute,
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         // Add login route
