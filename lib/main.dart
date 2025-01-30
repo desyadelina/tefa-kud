@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/receipt_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
@@ -358,6 +359,23 @@ class MyApp extends StatelessWidget {
               background: Colors.white,
               titleBar: "Bayar Pinjaman",
             ),
+        '/ReceiptBayarPinjaman': (context) {
+          // Add the ReceiptBayarPinjaman route
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Bayar Pinjaman",
+            background: Color(0xFF43964F),
+            content: ReceiptBayarPinjaman(
+              title: args['title'] ?? '',
+              nominal: args['nominal'] ?? '',
+              date: args['date'] ?? '',
+              namaPengguna: args['namaPengguna'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+            ),
+          );
+        },
         '/home': (context) => const HomePage(),
       },
 

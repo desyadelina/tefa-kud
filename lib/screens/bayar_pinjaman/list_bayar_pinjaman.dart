@@ -25,6 +25,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
   String formattedTotalTagihan = '';
   bool isSaldoVisible = true;
   String? noRekPengguna;
+  String? userSlug;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
   }
 
   Future<void> _getUserAccount() async {
-    String? userSlug = await transactionService.getUserSlug();
+    userSlug = await transactionService.getUserSlug();
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +45,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
     }
 
     var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
+        await transactionService.getRekeningPengguna(userSlug!, '');
     if (rekeningData == null || rekeningData.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rekening tidak ditemukan')),
@@ -52,11 +53,11 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
       return;
     }
 
-    String noRekPengguna = rekeningData[0]['no_rek'];
+    noRekPengguna = rekeningData[0]['no_rek'];
 
     try {
-      var rekeningData =
-          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
+      var rekeningData = await transactionService.getRekeningPengguna(
+          userSlug!, noRekPengguna!);
       if (rekeningData != null && rekeningData.isNotEmpty) {
         var rekening = rekeningData[0];
         setState(() {
@@ -83,7 +84,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
   }
 
   Future<void> _fetchTotalPinjaman() async {
-    String? userSlug = await transactionService.getUserSlug();
+    userSlug = await transactionService.getUserSlug();
 
     if (userSlug == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -93,7 +94,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
     }
 
     var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
+        await transactionService.getRekeningPengguna(userSlug!, '');
     if (rekeningData == null || rekeningData.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rekening tidak ditemukan')),
@@ -105,7 +106,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
 
     try {
       final pinjamanData =
-          await transactionService.getTotalPinjaman(userSlug, noRekPengguna!);
+          await transactionService.getTotalPinjaman(userSlug!, noRekPengguna!);
       setState(() {
         totalTagihan = pinjamanData['jumlah_pinjaman'];
         formattedTotalTagihan = NumberFormat.currency(
@@ -330,13 +331,40 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                         date: item['dueDate'],
                         icon: FontAwesomeIcons.moneyBill,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetailBayarPinjaman(id: item['id']),
-                            ),
-                          );
+                          DateTime dueDate =
+                              DateFormat('dd MMMM yyyy').parse(item['dueDate']);
+                          if (DateTime.now().isBefore(dueDate)) {
+                            if (userSlug != null && noRekPengguna != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailBayarPinjaman(
+                                    id: item['id'],
+                                    amount: NumberFormat.currency(
+                                      locale: 'id',
+                                      symbol: 'Rp',
+                                      decimalDigits: 0,
+                                    ).format(item['amount']),
+                                    dueDate: item['dueDate'],
+                                    userSlug: userSlug!,
+                                    noRekPengguna: noRekPengguna!,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('Data pengguna tidak lengkap')),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Pembayaran belum jatuh tempo')),
+                            );
+                          }
                         },
                       );
                     },

@@ -4,9 +4,20 @@ import 'package:tefa_kud/screens/bayar_pinjaman/input_pin_bayar_pinjaman.dart';
 
 class DetailBayarPinjaman extends StatefulWidget {
   final int id;
+  final String amount;
+  final String dueDate;
+  final String userSlug;
+  final String noRekPengguna;
 
-  const DetailBayarPinjaman({super.key, required this.id});
-  
+  const DetailBayarPinjaman({
+    super.key,
+    required this.id,
+    required this.amount,
+    required this.dueDate,
+    required this.userSlug,
+    required this.noRekPengguna,
+  });
+
   @override
   State<DetailBayarPinjaman> createState() => _DetailBayarPinjamanState();
 }
@@ -16,7 +27,7 @@ class _DetailBayarPinjamanState extends State<DetailBayarPinjaman> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("appbar"),
+        title: Text("Detail Bayar Pinjaman"),
       ),
       body: Stack(
         children: [
@@ -66,7 +77,7 @@ class _DetailBayarPinjamanState extends State<DetailBayarPinjaman> {
                         Row(
                           children: [
                             Text(
-                              "total tagihan",
+                              widget.amount,
                               style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,
@@ -118,7 +129,7 @@ class _DetailBayarPinjamanState extends State<DetailBayarPinjaman> {
                         Row(
                           children: [
                             Text(
-                              "tanggal jatuh tempo",
+                              widget.dueDate,
                               style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,
@@ -197,14 +208,22 @@ class _DetailBayarPinjamanState extends State<DetailBayarPinjaman> {
                     0.9, // 90% dari lebar layar
                 child: ElevatedButton(
                   onPressed: () {
+                    // Clean the amount string before parsing it to double
+                    String cleanedAmount = widget.amount
+                        .replaceAll('Rp', '')
+                        .replaceAll('.', '')
+                        .replaceAll(',', '.')
+                        .trim();
+                    double amount = double.parse(cleanedAmount);
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => InputPinBayarPinjaman(
-                          title: '',
-                          userSlug: '',
-                          nominalBayarPinjaman: 0,
-                          noRekPengguna: '',
+                          title: 'Input PIN',
+                          userSlug: widget.userSlug,
+                          nominalBayarPinjaman: amount,
+                          noRekPengguna: widget.noRekPengguna,
                           tenor: '',
                         ),
                       ),
