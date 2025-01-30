@@ -9,12 +9,14 @@ class DetailedPage extends StatefulWidget {
   final Color backgroundBar;
   final Color background;
   final bool backButtonStatus;
+  final bool refreshIndicator;
   final Widget content;
 
   const DetailedPage({
     required this.content,
     this.backButtonStatus = false,
-    this.titleBar = "no title",
+    this.refreshIndicator = false,
+    this.titleBar = "",
     this.backgroundBar = const Color(0xFF43964F),
     this.background = Colors.white,
     super.key,
@@ -28,97 +30,85 @@ class _DetailedPagedState extends State<DetailedPage>
     with TickerProviderStateMixin {
   double _appBarOpacity = 1.0;
 
+  Future<void> _onRefresh() async {
+    // Implement your refresh logic here
+    setState(() {
+          super.initState();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: widget.background,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification scrollInfo) {
-          if (scrollInfo.metrics.axis == Axis.vertical) {
-            double offset = scrollInfo.metrics.pixels;
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() {
-                  _appBarOpacity =
-                      offset <= 0 ? 1.0 : (1 - (offset / 100)).clamp(0.0, 1.0);
-                });
-              }
-            });
-          }
-          return true;
-        },
-        child: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              backgroundColor: widget.backgroundBar,
-              expandedHeight: 78.0,
-              toolbarHeight: 0,
-              pinned: false,
-              flexibleSpace: FlexibleSpaceBar(
-                expandedTitleScale: 1,
-                titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
-                title: Stack(
-                  children: [
-                    if (widget.backButtonStatus == true) // Add conditional check
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 12, 0, 0),
-                          child: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                                color: Colors.white),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
+      body: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            backgroundColor: widget.backgroundBar,
+            expandedHeight: 78.0,
+            toolbarHeight: 0,
+            pinned: false,
+            flexibleSpace: FlexibleSpaceBar(
+              expandedTitleScale: 1,
+              titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
+              title: Stack(
+                children: [
+                  if (widget.backButtonStatus == true) // Add conditional check
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 0, 0),
+                        child: IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+                              color: Colors.white),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
                       ),
-                    Opacity(
-                      opacity: _appBarOpacity,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            widget.titleBar,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                    ),
+                  Opacity(
+                    opacity: _appBarOpacity,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          widget.titleBar,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Stack(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.height,
-                        height: 200,
-                        color: Theme.of(context).appBarTheme.backgroundColor,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: widget.content,
-                      ),
-                    ],
                   ),
-                  SizedBox(
-                    height: 50,
-                  )
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Stack(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.height,
+                      height: 200,
+                      color: Theme.of(context).appBarTheme.backgroundColor,
+                    ),
+                    widget.content,
+                  ],
+                ),
+                SizedBox(
+                  height: 50,
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

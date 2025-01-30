@@ -33,6 +33,7 @@ class _MainLayoutState extends State<MainLayout>
       ),
     ),
     DetailedPage(
+      titleBar: 'Akun Saya',
       content: ProfilePage(),
     ),
   ];

@@ -32,7 +32,6 @@ import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -91,12 +90,9 @@ class MainApp extends StatelessWidget {
         // Protected routes
         '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
-        '/MutasiPage': (context) => const DetailedPage(
-              titleBar: 'Mutasi Pages',
-              content: MutasiPage(
-                titleBar: 'Mutasi',
-                background: Colors.white,
-              ),
+        '/MutasiPage': (context) => MutasiPage(
+              titleBar: 'Mutasi',
+              background: Colors.white,
             ),
         '/profile': (context) => ProfilePage(),
         '/transfer': (context) => const DetailedPage(

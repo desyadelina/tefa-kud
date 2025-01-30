@@ -41,7 +41,7 @@ class _MutasiPageState extends State<MutasiPage> {
     return Stack(
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 30),
+          margin: const EdgeInsets.only(top: 80),
           padding: const EdgeInsets.only(top: 100),
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
