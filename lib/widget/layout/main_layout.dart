@@ -25,12 +25,9 @@ class _MainLayoutState extends State<MainLayout>
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const DetailedPage(
+    MutasiPage(
       titleBar: 'Mutasi',
-      content: MutasiPage(
-        titleBar: 'Mutasi',
-        background: Colors.black,
-      ),
+      background: Colors.black,
     ),
     DetailedPage(
       titleBar: 'Akun Saya',
@@ -43,7 +40,6 @@ class _MainLayoutState extends State<MainLayout>
     super.initState();
     _tabController = TabController(length: _widgetOptions.length, vsync: this);
   }
-
 
   void _onTabTapped(int index) {
     setState(() {

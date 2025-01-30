@@ -86,109 +86,168 @@ class _MutasiPageState extends State<MutasiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 100),
-              padding: const EdgeInsets.only(top: 60),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 36),
-                child: Column(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Color(0xFF43964F),
+              expandedHeight: 78.0,
+              toolbarHeight: 0,
+              pinned: false,
+              flexibleSpace: FlexibleSpaceBar(
+                expandedTitleScale: 1,
+                titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
+                title: Stack(
                   children: [
-                    buildFilterButtons(),
-                    const SizedBox(height: 20),
-                    Column(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Riwayat Transaksi',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text('Hari Ini',
-                                  style: TextStyle(color: Colors.grey)),
-                            ],
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          "Mutasi",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        if (_isLoading)
-                          Container(
-                            padding: EdgeInsets.symmetric(vertical: 40),
-                            width: double.infinity,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  color: Color(0xFF43964F),
-                                ),
-                                SizedBox(
-                                  height: 18,
-                                ),
-                                Text(
-                                  "Memuat data transaksi..",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ),
-                          )
-                        else
-                          ...riwayatTransaksi.map((transaction) {
-                            return _buildTransactionItem(
-                              namaPengguna,
-                              formatTransactionType(
-                                  transaction['jenis_transaksi']),
-                              transaction['nominal_transaksi'],
-                              transaction['jenis_transaksi'] == 'kirim_uang' ||
-                                      transaction['jenis_transaksi'] ==
-                                          'tarik_uang' ||
-                                      transaction['jenis_transaksi'] ==
-                                          'pembayaran'
-                                  ? true
-                                  : false,
-                            );
-                          }),
-                        buildTransactionHistory(),
-                      ],
-                    )
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            Positioned(
-              top: 10,
-              left: 0,
-              right: 0,
-              child: rekeningCard(
-                isLoading: _isLoading,
-                formattedCurrency: formattedCurrency,
-                nomorRekening: nomorRekening,
-                isSaldoVisible: isSaldoVisible,
-                onVisibilityToggle: () {
-                  setState(() {
-                    isSaldoVisible = !isSaldoVisible;
-                  });
-                },
-                showFloatingPopup: _showFloatingPopup,
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Stack(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.height,
+                        height: 200,
+                        color: Theme.of(context).appBarTheme.backgroundColor,
+                      ),
+                      Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 100),
+                            padding: const EdgeInsets.only(top: 60),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              ),
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 36),
+                              child: Column(
+                                children: [
+                                  buildFilterButtons(),
+                                  const SizedBox(height: 20),
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 8),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Riwayat Transaksi',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text('Hari Ini',
+                                                style: TextStyle(
+                                                    color: Colors.grey)),
+                                          ],
+                                        ),
+                                      ),
+                                      if (_isLoading)
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 40),
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(
+                                                color: Color(0xFF43964F),
+                                              ),
+                                              SizedBox(
+                                                height: 18,
+                                              ),
+                                              Text(
+                                                "Memuat data transaksi..",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        ...riwayatTransaksi.map((transaction) {
+                                          return _buildTransactionItem(
+                                            namaPengguna,
+                                            formatTransactionType(
+                                                transaction['jenis_transaksi']),
+                                            transaction['nominal_transaksi'],
+                                            transaction['jenis_transaksi'] ==
+                                                        'kirim_uang' ||
+                                                    transaction[
+                                                            'jenis_transaksi'] ==
+                                                        'tarik_uang' ||
+                                                    transaction[
+                                                            'jenis_transaksi'] ==
+                                                        'pembayaran'
+                                                ? true
+                                                : false,
+                                          );
+                                        }),
+                                      buildTransactionHistory(),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            left: 0,
+                            right: 0,
+                            child: rekeningCard(
+                              isLoading: _isLoading,
+                              formattedCurrency: formattedCurrency,
+                              nomorRekening: nomorRekening,
+                              isSaldoVisible: isSaldoVisible,
+                              onVisibilityToggle: () {
+                                setState(() {
+                                  isSaldoVisible = !isSaldoVisible;
+                                });
+                              },
+                              showFloatingPopup: _showFloatingPopup,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
