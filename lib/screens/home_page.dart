@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   //Mengambil widget dari halaman lain yang diimpor
   final UserAccountService _userAccountService = UserAccountService();
+  bool _isLoading = true;
 
   double saldo = 0.0;
   String nomorRekening = '';
@@ -41,6 +42,7 @@ class _HomePageState extends State<HomePage>
   Future<void> _getUserAccount() async {
     try {
       if (!mounted) return;
+      setState(() => _isLoading = true);
 
       final result = await _userAccountService.getUserAccount(context);
 
@@ -51,10 +53,12 @@ class _HomePageState extends State<HomePage>
           namaPengguna = result['namaPengguna'];
           riwayatTransaksi = result['riwayatTransaksi'];
           formattedCurrency = result['formattedCurrency'];
+          _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
@@ -63,15 +67,20 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _onRefresh() async {
+    if (!mounted) return;
+
     setState(() {
-      _getUserAccount();
+      _isLoading = true;
+      riwayatTransaksi = []; // Clear existing transactions
     });
+
+    await _getUserAccount();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFFFFFF),
       extendBodyBehindAppBar: true,
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -252,28 +261,50 @@ class _HomePageState extends State<HomePage>
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                ...riwayatTransaksi
-                                                    .map((transaction) {
-                                                  return _buildTransactionItem(
-                                                    namaPengguna,
-                                                    formatTransactionType(
-                                                        transaction[
-                                                            'jenis_transaksi']),
-                                                    transaction[
-                                                        'nominal_transaksi'],
-                                                    transaction[
-                                                                    'jenis_transaksi'] ==
-                                                                'kirim_uang' ||
-                                                            transaction[
-                                                                    'jenis_transaksi'] ==
-                                                                'tarik_uang' ||
-                                                            transaction[
-                                                                    'jenis_transaksi'] ==
-                                                                'pembayaran'
-                                                        ? true
-                                                        : false,
-                                                  );
-                                                })
+                                                if (_isLoading)
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(vertical: 40),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        CircularProgressIndicator(
+                                                          color:
+                                                              Color(0xFF43964F),
+                                                        ),
+                                                        SizedBox(height: 18,),
+                                                        Text("Memuat data transaksi..", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+                                                      ],
+                                                    ),
+                                                  )
+                                                else
+                                                  ...riwayatTransaksi
+                                                      .map((transaction) {
+                                                    return _buildTransactionItem(
+                                                      namaPengguna,
+                                                      formatTransactionType(
+                                                          transaction[
+                                                              'jenis_transaksi']),
+                                                      transaction[
+                                                          'nominal_transaksi'],
+                                                      transaction[
+                                                                      'jenis_transaksi'] ==
+                                                                  'kirim_uang' ||
+                                                              transaction[
+                                                                      'jenis_transaksi'] ==
+                                                                  'tarik_uang' ||
+                                                              transaction[
+                                                                      'jenis_transaksi'] ==
+                                                                  'pembayaran'
+                                                          ? true
+                                                          : false,
+                                                    );
+                                                  })
                                               ],
                                             ),
                                           ),

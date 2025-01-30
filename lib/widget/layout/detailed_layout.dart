@@ -30,12 +30,6 @@ class _DetailedPagedState extends State<DetailedPage>
     with TickerProviderStateMixin {
   double _appBarOpacity = 1.0;
 
-  Future<void> _onRefresh() async {
-    // Implement your refresh logic here
-    setState(() {
-          super.initState();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
