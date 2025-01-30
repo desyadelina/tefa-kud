@@ -96,9 +96,6 @@ class _DetailedPagedState extends State<DetailedPage>
                     widget.content,
                   ],
                 ),
-                SizedBox(
-                  height: 50,
-                )
               ],
             ),
           ),

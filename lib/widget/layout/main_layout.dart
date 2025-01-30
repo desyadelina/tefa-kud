@@ -44,13 +44,6 @@ class _MainLayoutState extends State<MainLayout>
     _tabController = TabController(length: _widgetOptions.length, vsync: this);
   }
 
-  Future<void> _onRefresh() async {
-    // Implement your refresh logic here
-    setState(() {
-      _tabController =
-          TabController(length: _widgetOptions.length, vsync: this);
-    });
-  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -101,18 +94,15 @@ class _MainLayoutState extends State<MainLayout>
             scrollOpposite: false,
             onBottomBarHidden: () {},
             onBottomBarShown: () {},
-            body: (context, controller) => RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: _widgetOptions.map((widget) {
-                  return Navigator(
-                    onGenerateRoute: (routeSettings) {
-                      return MaterialPageRoute(builder: (context) => widget);
-                    },
-                  );
-                }).toList(),
-              ),
+            body: (context, controller) => IndexedStack(
+              index: _selectedIndex,
+              children: _widgetOptions.map((widget) {
+                return Navigator(
+                  onGenerateRoute: (routeSettings) {
+                    return MaterialPageRoute(builder: (context) => widget);
+                  },
+                );
+              }).toList(),
             ),
             child: TabBar(
               controller: _tabController,

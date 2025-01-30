@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:intl/intl.dart'; // Tambahkan ini untuk NumberFormat
 import 'package:tefa_kud/services/getUserAccount.dart';
+import 'package:tefa_kud/widget/rekeningCard.dart';
 
 class MutasiPage extends StatefulWidget {
   final String titleBar;
@@ -87,189 +88,111 @@ class _MutasiPageState extends State<MutasiPage> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: _onRefresh,
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 80),
-            padding: const EdgeInsets.only(top: 60),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 100),
+              padding: const EdgeInsets.only(top: 60),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                color: Theme.of(context).scaffoldBackgroundColor,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 36),
-              child: Column(
-                children: [
-                  buildFilterButtons(),
-                  const SizedBox(height: 20),
-                  Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Text(
-                          'Riwayat Transaksi',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Hari Ini', style: TextStyle(color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      if (_isLoading)
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 36),
+                child: Column(
+                  children: [
+                    buildFilterButtons(),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 40),
                           width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 8),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircularProgressIndicator(
-                                color: Color(0xFF43964F),
-                              ),
-                              SizedBox(
-                                height: 18,
-                              ),
                               Text(
-                                "Memuat data transaksi..",
+                                'Riwayat Transaksi',
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
-                              )
+                              ),
+                              const SizedBox(height: 8),
+                              Text('Hari Ini',
+                                  style: TextStyle(color: Colors.grey)),
                             ],
                           ),
-                        )
-                      else
-                        ...riwayatTransaksi.map((transaction) {
-                          return _buildTransactionItem(
-                            namaPengguna,
-                            formatTransactionType(
-                                transaction['jenis_transaksi']),
-                            transaction['nominal_transaksi'],
-                            transaction['jenis_transaksi'] == 'kirim_uang' ||
-                                    transaction['jenis_transaksi'] ==
-                                        'tarik_uang' ||
-                                    transaction['jenis_transaksi'] ==
-                                        'pembayaran'
-                                ? true
-                                : false,
-                          );
-                        }),
-                      buildTransactionHistory(),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: -15,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Saldo Sekarang',
-                          style: TextStyle(color: Color(0xFF8D8D8D)),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
+                        if (_isLoading)
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 40),
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                CircularProgressIndicator(
+                                  color: Color(0xFF43964F),
+                                ),
+                                SizedBox(
+                                  height: 18,
+                                ),
                                 Text(
-                                  isSaldoVisible
-                                      ? formattedCurrency
-                                      : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isSaldoVisible = !isSaldoVisible;
-                                    });
-                                  },
-                                  child: Icon(
-                                    isSaldoVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: const Color(0xFF8D8D8D),
-                                  ),
-                                ),
+                                  "Memuat data transaksi..",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                )
                               ],
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: const Color(0xFF43964F),
-                              ),
-                              child: const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Text(nomorRekening),
-                            const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () {
-                                Clipboard.setData(
-                                    ClipboardData(text: nomorRekening));
-                                _showFloatingPopup(
-                                    context, "Nomor Rekening Disalin");
-                              },
-                              child: const Icon(
-                                Icons.copy,
-                                color: Color(0xFF8D8D8D),
-                                size: 16,
-                              ),
-                            ),
-                          ],
-                        ),
+                          )
+                        else
+                          ...riwayatTransaksi.map((transaction) {
+                            return _buildTransactionItem(
+                              namaPengguna,
+                              formatTransactionType(
+                                  transaction['jenis_transaksi']),
+                              transaction['nominal_transaksi'],
+                              transaction['jenis_transaksi'] == 'kirim_uang' ||
+                                      transaction['jenis_transaksi'] ==
+                                          'tarik_uang' ||
+                                      transaction['jenis_transaksi'] ==
+                                          'pembayaran'
+                                  ? true
+                                  : false,
+                            );
+                          }),
+                        buildTransactionHistory(),
                       ],
-                    ),
-                  ),
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              top: 10,
+              left: 0,
+              right: 0,
+              child: rekeningCard(
+                isLoading: _isLoading,
+                formattedCurrency: formattedCurrency,
+                nomorRekening: nomorRekening,
+                isSaldoVisible: isSaldoVisible,
+                onVisibilityToggle: () {
+                  setState(() {
+                    isSaldoVisible = !isSaldoVisible;
+                  });
+                },
+                showFloatingPopup: _showFloatingPopup,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
