@@ -69,7 +69,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final storage = const FlutterSecureStorage();
   final token = await storage.read(key: 'KEY_TOKEN');
-  runApp(MainApp(initialRoute: token == null ? '/login' : '/'));
+  runApp(MainApp(initialRoute: token == null ? '/splashscreen' : '/'));
 }
 
 class MainApp extends StatelessWidget {

@@ -14,7 +14,7 @@ class DetailedPage extends StatefulWidget {
 
   const DetailedPage({
     required this.content,
-    this.backButtonStatus = false,
+    this.backButtonStatus = true,
     this.refreshIndicator = false,
     this.titleBar = "",
     this.backgroundBar = const Color(0xFF43964F),

@@ -83,6 +83,8 @@ class _HomePageState extends State<HomePage>
       backgroundColor: const Color(0xFFFFFFF),
       extendBodyBehindAppBar: true,
       body: RefreshIndicator(
+        backgroundColor: const Color.fromARGB(223, 255, 255, 255),
+        color: const Color(0xFF43964F),
         onRefresh: _onRefresh,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -178,153 +180,248 @@ class _HomePageState extends State<HomePage>
                                     horizontal: 32, vertical: 56),
                                 child: Column(
                                   children: [
-                                    SizedBox(
-                                      height: 120,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          iconMenuButton(
-                                            'Transfer',
-                                            'assets/images/Transfer.png',
-                                            () {
-                                              NavigatorManager
-                                                  .navigatorKey.currentState
-                                                  ?.pushNamed('/transfer');
-                                            },
-                                          ),
-                                          iconMenuButton(
-                                            'Isi saldo',
-                                            'assets/images/Isi Saldo.png',
-                                            () {
-                                              NavigatorManager
-                                                  .navigatorKey.currentState
-                                                  ?.pushNamed('/isiSaldo');
-                                            },
-                                          ),
-                                          iconMenuButton(
-                                            'Tarik tunai',
-                                            'assets/images/Tarik Tunai.png',
-                                            () {
-                                              NavigatorManager
-                                                  .navigatorKey.currentState
-                                                  ?.pushNamed('/tarikTunai');
-                                            },
-                                          ),
-                                          iconMenuButton(
-                                            'Pinjaman',
-                                            'assets/images/Pinjaman.png',
-                                            () {
-                                              NavigatorManager
-                                                  .navigatorKey.currentState
-                                                  ?.pushNamed('/pinjaman');
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16.0),
-                                    Container(
-                                      height: 150,
-                                      decoration: const BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/banner/Banner-1.png'),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 25.0),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Transaksi terkini',
-                                          style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        const Text('Hari ini',
-                                            style:
-                                                TextStyle(color: Colors.grey)),
-                                        const SizedBox(height: 16.0),
-                                        Card(
-                                          color: Colors.white.withOpacity(0.9),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                          ),
-                                          elevation: 4.0,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                if (_isLoading)
-                                                  Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 40),
-                                                    width: double.infinity,
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        CircularProgressIndicator(
-                                                          color:
-                                                              Color(0xFF43964F),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 18,
-                                                        ),
-                                                        Text(
-                                                          "Memuat data transaksi..",
-                                                          style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        )
-                                                      ],
+                                    if (_isLoading) ...[
+                                      // Menu buttons skeleton
+                                      SizedBox(
+                                        height: 120,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: List.generate(
+                                              4,
+                                              (index) => Container(
+                                                    width: 70,
+                                                    height: 70,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[300],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16),
                                                     ),
-                                                  )
-                                                else
-                                                  ...riwayatTransaksi
-                                                      .map((transaction) {
-                                                    return _buildTransactionItem(
-                                                      namaPengguna,
-                                                      formatTransactionType(
+                                                  )),
+                                        ),
+                                      ),
+
+                                      // Banner skeleton
+                                      Container(
+                                        height: 150,
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[300],
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                      ),
+
+                                      // Transactions skeleton
+                                      Column(
+                                        children: List.generate(
+                                            5,
+                                            (index) => Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        width: 24,
+                                                        height: 24,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color:
+                                                              Colors.grey[300],
+                                                          shape:
+                                                              BoxShape.circle,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 16),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Container(
+                                                            width: 120,
+                                                            height: 16,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 4),
+                                                          Container(
+                                                            width: 80,
+                                                            height: 14,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      Container(
+                                                        width: 100,
+                                                        height: 16,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )),
+                                      ),
+                                    ] else
+                                      Visibility(
+                                        visible: !_isLoading,
+                                        child: Column(
+                                          children: [
+                                            // Menu buttons
+                                            SizedBox(
+                                              height: 120,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  iconMenuButton(
+                                                    'Transfer',
+                                                    'assets/images/Transfer.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/transfer');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Isi saldo',
+                                                    'assets/images/Isi Saldo.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/isiSaldo');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Tarik tunai',
+                                                    'assets/images/Tarik Tunai.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/tarikTunai');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Pinjaman',
+                                                    'assets/images/Pinjaman.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/pinjaman');
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16.0),
+                                            Container(
+                                              height: 150,
+                                              decoration: const BoxDecoration(
+                                                image: DecorationImage(
+                                                  image: AssetImage(
+                                                      'assets/images/banner/Banner-1.png'),
+                                                  fit: BoxFit.fill,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 25.0),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Transaksi terkini',
+                                                  style: TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                const Text('Hari ini',
+                                                    style: TextStyle(
+                                                        color: Colors.grey)),
+                                                const SizedBox(height: 16.0),
+                                                Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    if (_isLoading)
+                                                      Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 40),
+                                                        width: double.infinity,
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            CircularProgressIndicator(
+                                                              color: Color(
+                                                                  0xFF43964F),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 18,
+                                                            ),
+                                                            Text(
+                                                              "Memuat data transaksi..",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )
+                                                    else
+                                                      ...riwayatTransaksi
+                                                          .map((transaction) {
+                                                        return _buildTransactionItem(
+                                                          namaPengguna,
+                                                          formatTransactionType(
+                                                              transaction[
+                                                                  'jenis_transaksi']),
                                                           transaction[
-                                                              'jenis_transaksi']),
-                                                      transaction[
-                                                          'nominal_transaksi'],
-                                                      transaction[
-                                                                      'jenis_transaksi'] ==
-                                                                  'kirim_uang' ||
-                                                              transaction[
-                                                                      'jenis_transaksi'] ==
-                                                                  'tarik_uang' ||
-                                                              transaction[
-                                                                      'jenis_transaksi'] ==
-                                                                  'pembayaran'
-                                                          ? true
-                                                          : false,
-                                                    );
-                                                  })
+                                                              'nominal_transaksi'],
+                                                          transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'kirim_uang' ||
+                                                                  transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'tarik_uang' ||
+                                                                  transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'pembayaran'
+                                                              ? true
+                                                              : false,
+                                                        );
+                                                      })
+                                                  ],
+                                                ),
+                                                Container(
+                                                  height: 80,
+                                                ),
                                               ],
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        Container(
-                                          height: 80,
-                                        ),
-                                      ],
-                                    ),
+                                      ),
                                   ],
                                 ),
                               )

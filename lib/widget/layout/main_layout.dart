@@ -30,6 +30,7 @@ class _MainLayoutState extends State<MainLayout>
       background: Colors.black,
     ),
     DetailedPage(
+      backButtonStatus: false,
       titleBar: 'Akun Saya',
       content: ProfilePage(),
     ),

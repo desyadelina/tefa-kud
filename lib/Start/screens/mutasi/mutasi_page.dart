@@ -87,8 +87,11 @@ class _MutasiPageState extends State<MutasiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
       body: RefreshIndicator(
+        backgroundColor: const Color.fromARGB(223, 255, 255, 255),
+        color: const Color(0xFF43964F),
         onRefresh: _onRefresh,
         child: CustomScrollView(
           physics: const ClampingScrollPhysics(),
@@ -359,14 +362,14 @@ Widget buildTransactionHistory() {
       // ),
       // const SizedBox(height: 8),
       // Text('Kemarin', style: TextStyle(color: Colors.grey)),
-      const SizedBox(height: 16),
-      Text('Minggu Kemarin', style: TextStyle(color: Colors.grey)),
-      _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-      _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-      const SizedBox(height: 16),
-      Text('1 Oktober 2024', style: TextStyle(color: Colors.grey)),
-      _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-      _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // const SizedBox(height: 16),
+      // Text('Minggu Kemarin', style: TextStyle(color: Colors.grey)),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // const SizedBox(height: 16),
+      // Text('1 Oktober 2024', style: TextStyle(color: Colors.grey)),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
     ],
   );
 }
