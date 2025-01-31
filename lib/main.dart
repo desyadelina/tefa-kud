@@ -76,15 +76,16 @@ class NavigatorManager {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final storage = const FlutterSecureStorage();
-  final token = await storage.read(key: 'KEY_TOKEN');
-  runApp(MainApp(initialRoute: token == null ? '/splashscreen' : '/'));
+  final AuthService authService = AuthService();
+  final bool isLoggedIn = await authService.isLoggedIn();
+  final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
+  runApp(MainApp(initialRoute: initialRoute));
 }
 
 class MainApp extends StatelessWidget {
   final String initialRoute;
 
-  MainApp({super.key, required this.initialRoute});
+  MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
