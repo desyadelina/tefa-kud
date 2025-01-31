@@ -5,6 +5,7 @@ import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/new_pin_screen.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/widget/layout/main_layout.dart';
 
 class NewPinPage extends StatefulWidget {
   final String title;
@@ -119,7 +120,7 @@ class _NewPinPageState extends State<NewPinPage> {
             child: Column(
               children: [
                 Image.asset(
-                  'assets/images/Calendar-Money.png',
+                  'assets/images/Phone-lock.png',
                   height: 120,
                 ),
                 const SizedBox(height: 30),
@@ -206,7 +207,83 @@ class _NewPinPageState extends State<NewPinPage> {
             ),
             // onPressed: _pin.length == pinLength ? _confirmPin : null,
             //direct ke NewPinPage
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                barrierDismissible:
+                    false, // Klik di luar dialog tidak akan menutup dialog
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    backgroundColor: Colors.white, // Background dialog putih
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 60.0,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'Pin Berhasil diperbarui!',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black, // Warna teks hitam
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Silakan gunakan pin terbaru untuk akses berikutnya.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(
+                                  0xFF8D8D8D), // Warna teks abu-abu (#8D8D8D)
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.black, // Warna latar tombol
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0, horizontal: 20.0),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainLayout(
+                                    title: '',
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Kembali ke Beranda',
+                              style: TextStyle(
+                                color: Colors.white, 
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
             child: const Text(
               'Lanjut',
               style: TextStyle(

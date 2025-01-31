@@ -6,6 +6,8 @@ import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
+import 'package:tefa_kud/screens/profile/ganti_pin/new_pin_screen.dart';
+import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_page.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
@@ -62,6 +64,18 @@ class NavigatorManager {
           title: 'Bayar Pinjaman',
           totalTagihan: 0,
           noRekPengguna: 0,
+        );
+      case '/PreviousPinPage':
+        return PreviousPinPage(
+          title: '',
+          userSlug: '',
+          noRekPengguna: '',
+        );
+      case '/NewPinPage':
+        return NewPinPage(
+          title: '',
+          userSlug: '',
+          noRekPengguna: '',
         );
       default:
         return MainLayout(
@@ -361,6 +375,26 @@ class MyApp extends StatelessWidget {
               ),
               background: Colors.white,
               titleBar: "Bayar Pinjaman",
+            ),
+
+        '/PreviousPinPage': (context) => DetailedPage(
+              content: PreviousPinPage(
+                title: '',
+                userSlug: '',
+                noRekPengguna: '',
+              ),
+              background: Colors.white,
+              titleBar: "Ganti PIN",
+            ),
+
+        '/NewPinPage': (context) => DetailedPage(
+              content: NewPinPage(
+                title: '',
+                userSlug: '',
+                noRekPengguna: '',
+              ),
+              background: Colors.white,
+              titleBar: "Ganti PIN",
             ),
         '/home': (context) => const HomePage(),
       },

@@ -119,12 +119,12 @@ class _PreviousPinPageState extends State<PreviousPinPage> {
             child: Column(
               children: [
                 Image.asset(
-                  'assets/images/Calendar-Money.png',
+                  'assets/images/Phone-lock.png',
                   height: 120,
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  'Konfirmasi pin',
+                  'Konfirmasi PIN',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -207,16 +207,8 @@ class _PreviousPinPageState extends State<PreviousPinPage> {
             // onPressed: _pin.length == pinLength ? _confirmPin : null,
             //direct ke NewPinPage
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewPinPage(
-                    title: '',
-                    userSlug: '',
-                    noRekPengguna: '',
-                  ),
-                ),
-              );
+              NavigatorManager.navigatorKey.currentState
+                  ?.pushNamed('/NewPinPage');
             },
             child: const Text(
               'Lanjut',

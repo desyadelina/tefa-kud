@@ -224,16 +224,8 @@ class _ProfileState extends State<ProfilePage>
                 text: "Ganti Pin",
                 iconPath: 'assets/icon/Dialing Number.svg',
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PreviousPinPage(
-                        userSlug: '',
-                        title: '',
-                        noRekPengguna: '',
-                      ),
-                    ),
-                  );
+                  NavigatorManager.navigatorKey.currentState
+                      ?.pushNamed('/PreviousPinPage');
                 },
               ),
               const SizedBox(height: 8),
@@ -242,17 +234,17 @@ class _ProfileState extends State<ProfilePage>
                 thickness: 1,
                 height: 1,
               ),
-              ListButtonMenuProfile(
-                text: "Bayar Pinjaman",
-                iconPath: 'assets/icon/Pay.svg',
-                onPressed: () {},
-              ),
-              const SizedBox(height: 8),
-              const Divider(
-                color: Color(0xFFd9d9d9),
-                thickness: 1,
-                height: 1,
-              ),
+              // ListButtonMenuProfile(
+              //   text: "Bayar Pinjaman",
+              //   iconPath: 'assets/icon/Logout.svg',
+              //   onPressed: () {},
+              // ),
+              // const SizedBox(height: 8),
+              // const Divider(
+              //   color: Color(0xFFd9d9d9),
+              //   thickness: 1,
+              //   height: 1,
+              // ),
             ],
           ),
         ],
