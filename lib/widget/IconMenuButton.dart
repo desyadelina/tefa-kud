@@ -24,6 +24,9 @@ Widget iconMenuButton(String label, String imagePath, VoidCallback onTap) {
         const SizedBox(height: 8),
         Text(
           label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.black,
             fontSize: 14,

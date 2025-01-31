@@ -32,6 +32,7 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tefa_kud/screens/home_page.dart';
 
 class NavigatorManager {
@@ -44,9 +45,12 @@ class NavigatorManager {
       case '/profile':
         return ProfilePage();
       case '/MutasiPage':
-        return const MutasiPage(
-          titleBar: 'Mutasi',
-          background: Colors.white,
+        return DetailedPage(
+          titleBar: 'Mutasi Page',
+          content: MutasiPage(
+            titleBar: 'Mutasi',
+            background: Colors.white,
+          ),
         );
       case '/transfer':
         return ListTransfer();
@@ -72,17 +76,15 @@ class NavigatorManager {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final AuthService authService = AuthService();
-  final bool isLoggedIn = await authService.isLoggedIn();
-  final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
-
-  runApp(MyApp(initialRoute: initialRoute));
+  final storage = const FlutterSecureStorage();
+  final token = await storage.read(key: 'KEY_TOKEN');
+  runApp(MainApp(initialRoute: token == null ? '/splashscreen' : '/'));
 }
 
-class MyApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
   final String initialRoute;
 
-  const MyApp({Key? key, required this.initialRoute}) : super(key: key);
+  MainApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +99,7 @@ class MyApp extends StatelessWidget {
         // Protected routes
         '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
-        '/MutasiPage': (context) => const MutasiPage(
+        '/MutasiPage': (context) => MutasiPage(
               titleBar: 'Mutasi',
               background: Colors.white,
             ),

@@ -39,6 +39,8 @@ class AuthService {
     }
   }
 
+  
+
   Future<void> signOut() async {
     final token = await storage.read(key: KEY_TOKEN);
     if (token != null) {
