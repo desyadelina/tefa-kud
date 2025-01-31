@@ -138,7 +138,7 @@ class TransactionService {
       print('API Response: $data');
       if (data != null && data['data'] != null) {
         return {
-          'jumlah_pinjaman': data['data']['jumlah_pinjaman'].toDouble(),
+          'sisa_pinjaman': data['data']['sisa_pinjaman'].toDouble(),
           'tenor': data['data']['tenor']
         };
       } else {
@@ -148,5 +148,10 @@ class TransactionService {
       print('Error fetching total loan amount: $e');
       throw Exception('Failed to fetch total loan amount');
     }
+  }
+
+  Future<List<dynamic>> getCicilanList(String slug, String rekening) async {
+    final data = await _getRequest('/v1/pinjaman/$slug/$rekening/cicilan');
+    return data['data'];
   }
 }

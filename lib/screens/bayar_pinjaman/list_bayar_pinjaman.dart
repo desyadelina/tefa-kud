@@ -16,7 +16,7 @@ class ListBayarPinjaman extends StatefulWidget {
 
 class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
   TransactionService transactionService = TransactionService();
-  List<Map<String, dynamic>> _pinjamanList = [];
+  List<Map<String, dynamic>> _cicilanList = [];
 
   double totalTagihan = 0.0;
   double saldo = 0.0;
@@ -53,7 +53,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
       return;
     }
 
-    noRekPengguna = rekeningData[0]['no_rek'];
+    noRekPengguna = rekeningData[0]['no_rek'] ?? '';
 
     try {
       var rekeningData = await transactionService.getRekeningPengguna(
@@ -105,19 +105,17 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
     noRekPengguna = rekeningData[0]['no_rek'];
 
     try {
-      final pinjamanData =
-          await transactionService.getTotalPinjaman(userSlug!, noRekPengguna!);
+      final pinjamanData = await transactionService.getTotalPinjaman(
+          userSlug!, noRekPengguna ?? '');
+      final cicilanList = await _generateCicilanList(userSlug!, noRekPengguna!);
       setState(() {
-        totalTagihan = pinjamanData['jumlah_pinjaman'];
+        totalTagihan = pinjamanData['sisa_pinjaman'];
         formattedTotalTagihan = NumberFormat.currency(
           locale: 'id',
           symbol: 'Rp',
           decimalDigits: 0,
         ).format(totalTagihan);
-        _pinjamanList = _generatePinjamanList(
-          totalTagihan,
-          pinjamanData['tenor'],
-        );
+        _cicilanList = cicilanList;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,18 +124,23 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
     }
   }
 
-  List<Map<String, dynamic>> _generatePinjamanList(double total, String tenor) {
-    int months = int.parse(tenor.split(' ')[0]);
-    double monthlyPayment = total / months;
+  Future<List<Map<String, dynamic>>> _generateCicilanList(
+      String slug, String rekening) async {
+    final cicilanData =
+        await transactionService.getCicilanList(slug, rekening ?? '');
     List<Map<String, dynamic>> list = [];
-    for (int i = 0; i < months; i++) {
-      list.add({
-        'id': i + 1,
-        'amount': monthlyPayment,
-        'dueDate': DateFormat('dd MMMM yyyy').format(
-          DateTime.now().add(Duration(days: 30 * (i + 1))),
-        ),
-      });
+    for (var cicilan in cicilanData) {
+      if (cicilan['status'] == 'Belum Lunas' ||
+          cicilan['status'] == 'Diproses') {
+        list.add({
+          'id': cicilan['id'],
+          'amount': cicilan['jumlah_cicilan'],
+          'dueDate': DateFormat('dd MMMM yyyy').format(
+            DateTime.parse(cicilan['tanggal_jatuh_tempo']),
+          ),
+          'status': cicilan['status'],
+        });
+      }
     }
     return list;
   }
@@ -292,7 +295,9 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                           Row(
                             children: [
                               Text(
-                                formattedTotalTagihan,
+                                totalTagihan > 0
+                                    ? formattedTotalTagihan
+                                    : 'Rp 0',
                                 style: const TextStyle(
                                   fontSize: 24,
                                   color: Colors.black,
@@ -317,59 +322,65 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _pinjamanList.length,
-                    itemBuilder: (context, index) {
-                      final item = _pinjamanList[index];
-                      return _buildTransactionItem(
-                        amount: NumberFormat.currency(
-                          locale: 'id',
-                          symbol: 'Rp',
-                          decimalDigits: 0,
-                        ).format(item['amount']),
-                        date: item['dueDate'],
-                        icon: FontAwesomeIcons.moneyBill,
-                        onPressed: () {
-                          DateTime dueDate =
-                              DateFormat('dd MMMM yyyy').parse(item['dueDate']);
-                          if (DateTime.now().isBefore(dueDate)) {
-                            if (userSlug != null && noRekPengguna != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailBayarPinjaman(
-                                    id: item['id'],
-                                    amount: NumberFormat.currency(
-                                      locale: 'id',
-                                      symbol: 'Rp',
-                                      decimalDigits: 0,
-                                    ).format(item['amount']),
-                                    dueDate: item['dueDate'],
-                                    userSlug: userSlug!,
-                                    noRekPengguna: noRekPengguna!,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Data pengguna tidak lengkap')),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Pembayaran belum jatuh tempo')),
+                _cicilanList.isNotEmpty
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: _cicilanList.length,
+                          itemBuilder: (context, index) {
+                            final item = _cicilanList[index];
+                            return _buildTransactionItem(
+                              amount: NumberFormat.currency(
+                                locale: 'id',
+                                symbol: 'Rp',
+                                decimalDigits: 0,
+                              ).format(item['amount']),
+                              date: item['dueDate'],
+                              icon: FontAwesomeIcons.moneyBill,
+                              status: item['status'],
+                              onPressed: item['status'] == 'Belum Lunas'
+                                  ? () {
+                                      DateTime dueDate =
+                                          DateFormat('dd MMMM yyyy')
+                                              .parse(item['dueDate']);
+                                      if (DateTime.now().isBefore(dueDate)) {
+                                        if (userSlug != null &&
+                                            noRekPengguna != null) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DetailBayarPinjaman(
+                                                id: item['id'],
+                                                amount: NumberFormat.currency(
+                                                  locale: 'id',
+                                                  symbol: 'Rp',
+                                                  decimalDigits: 0,
+                                                ).format(item['amount']),
+                                                dueDate: item['dueDate'],
+                                                userSlug: userSlug!,
+                                                noRekPengguna: noRekPengguna!,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Data pengguna tidak lengkap')),
+                                          );
+                                        }
+                                      }
+                                    }
+                                  : null,
                             );
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
+                          },
+                        ),
+                      )
+                    : const Center(
+                        child: Text(
+                            'Anda tidak memiliki pinjaman yang harus dibayarkan'),
+                      ),
               ],
             ),
           ),
@@ -382,7 +393,8 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
     required String amount,
     required String date,
     IconData? icon,
-    required VoidCallback onPressed, // Fungsi untuk navigasi
+    required String status,
+    VoidCallback? onPressed, // Fungsi untuk navigasi
   }) {
     return GestureDetector(
       onTap: onPressed, // Panggil fungsi navigasi saat item diklik
@@ -390,7 +402,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: status == 'Diproses' ? Colors.grey[300] : Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -410,7 +422,9 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                     padding: const EdgeInsets.only(right: 12),
                     child: FaIcon(
                       icon,
-                      color: Colors.green, // Sesuaikan warna dengan desain
+                      color: status == 'Diproses'
+                          ? Colors.grey
+                          : Colors.green, // Sesuaikan warna dengan desain
                       size: 24,
                     ),
                   ),
@@ -419,26 +433,29 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                   children: [
                     Text(
                       amount,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color:
+                            status == 'Diproses' ? Colors.grey : Colors.black,
                       ),
                     ),
                     Text(
                       date,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey,
+                        color: status == 'Diproses' ? Colors.grey : Colors.grey,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.green, // Warna ikon kanan
-            ),
+            if (status != 'Diproses')
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.green, // Warna ikon kanan
+              ),
           ],
         ),
       ),
