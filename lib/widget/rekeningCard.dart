@@ -23,7 +23,10 @@ class rekeningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 0, horizontal:MediaQuery.of(context).size.width <= 412
+                        ? (MediaQuery.of(context).size.width / 412 * 18)
+                            .clamp(8, 32)
+                        : 32,),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
