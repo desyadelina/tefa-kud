@@ -39,8 +39,6 @@ class AuthService {
     }
   }
 
-  
-
   Future<void> signOut() async {
     final token = await storage.read(key: KEY_TOKEN);
     if (token != null) {
@@ -104,5 +102,50 @@ class AuthService {
 
   Future<void> markGuideAsShown() async {
     await storage.write(key: KEY_GUIDE_SHOWN, value: 'true');
+  }
+
+  Future<bool> konfirmasiPengguna(String userSlug, String pin) async {
+    final token = await storage.read(key: KEY_TOKEN);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/v1/pengguna/$userSlug/konfirmasi-pengguna'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'pin': pin}),
+    );
+
+    final responseBody = jsonDecode(response.body);
+    return responseBody != null &&
+        responseBody['message'] == 'Pengguna berhasil dikonfirmasi';
+  }
+
+  Future<bool> updatePin(String userSlug, String newPin) async {
+    if (userSlug.isEmpty) {
+      print('Error: userSlug is empty');
+      return false;
+    }
+
+    final token = await storage.read(key: KEY_TOKEN);
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/v1/pengguna/$userSlug/update-keamanan'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'pin': newPin}),
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      await storage.write(key: KEY_PIN, value: newPin);
+      return true;
+    } else {
+      return false;
+    }
   }
 }

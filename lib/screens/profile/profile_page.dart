@@ -8,6 +8,7 @@ import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/services/auth_service.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,8 +25,10 @@ class ProfilePage extends StatefulWidget {
 class _ProfileState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   final authService = AuthService();
+  final transactionService = TransactionService();
 
   late Future<Map<String, String>> _userDataFuture;
+  late Future<String?> _userSlugFuture;
 
   late TabController tabController;
   final List<Color> colors = [Colors.blue, Colors.red, Colors.green];
@@ -54,6 +57,7 @@ class _ProfileState extends State<ProfilePage>
     });
 
     _userDataFuture = _getUserData();
+    _userSlugFuture = transactionService.getUserSlug();
   }
 
   Future<Map<String, String>> _getUserData() async {
@@ -341,12 +345,34 @@ class _ProfileState extends State<ProfilePage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListButtonMenuProfile(
-                text: "Ganti Pin",
-                iconPath: 'assets/icon/Dialing Number.svg',
-                onPressed: () {
-                  NavigatorManager.navigatorKey.currentState
-                      ?.pushNamed('/PreviousPinPage');
+              FutureBuilder<String?>(
+                future: _userSlugFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.hasData) {
+                    final userSlug = snapshot.data ?? '';
+                    return ListButtonMenuProfile(
+                      text: "Ganti Pin",
+                      iconPath: 'assets/icon/Dialing Number.svg',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PreviousPinPage(
+                              title: 'Previous Pin',
+                              userSlug: userSlug,
+                              noRekPengguna: '',
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(child: Text('User slug not found'));
+                  }
                 },
               ),
               const SizedBox(height: 8),

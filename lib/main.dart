@@ -393,6 +393,34 @@ class MainApp extends StatelessWidget {
             ),
           );
         },
+        '/PreviousPinPage': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Color(0xFFF9F9F9),
+            content: PreviousPinPage(
+              title: args?['title'] ?? '',
+              userSlug: args?['userSlug'] ?? '',
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+            ),
+          );
+        },
+        '/NewPinPage': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Color(0xFFF9F9F9),
+            content: NewPinPage(
+              title: args?['title'] ?? '',
+              userSlug: args?['userSlug'] ?? '',
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+            ),
+          );
+        },
         '/home': (context) => const HomePage(),
       },
 
