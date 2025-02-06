@@ -267,76 +267,67 @@ class _HomePageState extends State<HomePage>
                                             // Menu buttons
                                             SizedBox(
                                               height: 120,
-                                              child: Wrap(
-                                                spacing: 16.0,
-                                                runSpacing: 16.0,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
-                                                  iconMenuButton(
-                                                    'Transfer',
-                                                    'assets/images/Transfer.png',
-                                                    () {
-                                                      NavigatorManager
-                                                          .navigatorKey
-                                                          .currentState
-                                                          ?.pushNamed(
-                                                              '/transfer');
-                                                    },
+                                                  Expanded(
+                                                    child: iconMenuButton(
+                                                      'Transfer',
+                                                      'assets/images/Transfer.png',
+                                                      () {
+                                                        NavigatorManager
+                                                            .navigatorKey
+                                                            .currentState
+                                                            ?.pushNamed(
+                                                                '/transfer');
+                                                      },
+                                                    ),
                                                   ),
-                                                  iconMenuButton(
-                                                    'Isi saldo',
-                                                    'assets/images/Isi Saldo.png',
-                                                    () {
-                                                      NavigatorManager
-                                                          .navigatorKey
-                                                          .currentState
-                                                          ?.pushNamed(
-                                                              '/isiSaldo');
-                                                    },
+                                                  Expanded(
+                                                    child: iconMenuButton(
+                                                      'Isi saldo',
+                                                      'assets/images/Isi Saldo.png',
+                                                      () {
+                                                        NavigatorManager
+                                                            .navigatorKey
+                                                            .currentState
+                                                            ?.pushNamed(
+                                                                '/isiSaldo');
+                                                      },
+                                                    ),
                                                   ),
-                                                  iconMenuButton(
-                                                    'Tarik tunai',
-                                                    'assets/images/Tarik Tunai.png',
-                                                    () {
-                                                      NavigatorManager
-                                                          .navigatorKey
-                                                          .currentState
-                                                          ?.pushNamed(
-                                                              '/tarikTunai');
-                                                    },
+                                                  Expanded(
+                                                    child: iconMenuButton(
+                                                      'Tarik tunai',
+                                                      'assets/images/Tarik Tunai.png',
+                                                      () {
+                                                        NavigatorManager
+                                                            .navigatorKey
+                                                            .currentState
+                                                            ?.pushNamed(
+                                                                '/tarikTunai');
+                                                      },
+                                                    ),
                                                   ),
-                                                  iconMenuButton(
-                                                    'Pinjaman',
-                                                    'assets/images/Pinjaman.png',
-                                                    () {
-                                                      NavigatorManager
-                                                          .navigatorKey
-                                                          .currentState
-                                                          ?.pushNamed(
-                                                              '/pinjaman');
-                                                    },
-                                                  ),
-                                                  iconMenuButton(
-                                                    'Bayar\nPinjaman',
-                                                    'assets/images/Pinjaman.png',
-                                                    () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ListBayarPinjaman(
-                                                            title:
-                                                                'Bayar Pinjaman',
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
+                                                  Expanded(
+                                                    child: iconMenuButton(
+                                                      'Pinjaman',
+                                                      'assets/images/Pinjaman.png',
+                                                      () {
+                                                        NavigatorManager
+                                                            .navigatorKey
+                                                            .currentState
+                                                            ?.pushNamed(
+                                                                '/pinjaman');
+                                                      },
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(
-                                              height: 100.0,
-                                            ),
+
                                             Container(
                                               height: 150,
                                               decoration: const BoxDecoration(
