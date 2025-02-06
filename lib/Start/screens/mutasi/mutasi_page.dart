@@ -151,8 +151,6 @@ class _MutasiPageState extends State<MutasiPage> {
                                   vertical: 16, horizontal: 36),
                               child: Column(
                                 children: [
-                                  buildFilterButtons(),
-                                  const SizedBox(height: 20),
                                   Column(
                                     children: [
                                       Container(
@@ -304,29 +302,6 @@ String formatTransactionType(String jenisTransaksi) {
   return transactionTypes[jenisTransaksi.toLowerCase()] ??
       toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ??
       jenisTransaksi;
-}
-
-Widget buildFilterButtons() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      Expanded(
-        child: buildFilterButton("Semua"),
-      ),
-      SizedBox(
-        width: 6,
-      ),
-      Expanded(
-        child: buildFilterButton("7 hari terakhir"),
-      ),
-      SizedBox(
-        width: 6,
-      ),
-      Expanded(
-        child: buildFilterButton("1 bulan terakhir"),
-      ),
-    ],
-  );
 }
 
 Widget buildFilterButton(String label) {

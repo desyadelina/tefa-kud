@@ -83,8 +83,6 @@ class _ProfileState extends State<ProfilePage>
     print('Edit profile pressed');
   }
 
-  
-
   Future<void> _logout() async {
     await authService.signOut();
     if (mounted) {
@@ -237,15 +235,43 @@ class _ProfileState extends State<ProfilePage>
                             ),
                             SizedBox(height: 16.0),
                             ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TarikTunaiPage(
-                                                title: '',
-                                              )));
-                                },
-                                child: Text("Edit Akun"))
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TarikTunaiPage(
+                                      title: '',
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("Edit Akun"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileEditScreen(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF43964F),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                minimumSize: const Size(220, 50),
+                              ),
+                              child: const Text(
+                                "Edit Akun",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ],
                         );
                       }
@@ -271,22 +297,20 @@ class _ProfileState extends State<ProfilePage>
                 thickness: 1,
                 height: 1,
               ),
-              // ListButtonMenuProfile(
-              //   text: "Bayar Pinjaman",
-              //   iconPath: 'assets/icon/Logout.svg',
-              //   onPressed: () {},
-              // ),
-              // const SizedBox(height: 8),
-              // const Divider(
-              //   color: Color(0xFFd9d9d9),
-              //   thickness: 1,
-              //   height: 1,
-              // ),
+              ListButtonMenuProfile(
+                text: "Bayar Pinjaman",
+                iconPath: 'assets/icon/Logout.svg',
+                onPressed: () {},
+              ),
+              const SizedBox(height: 8),
+              const Divider(
+                color: Color(0xFFd9d9d9),
+                thickness: 1,
+                height: 1,
+              ),
             ],
           ),
-          Column(
-            
-          )
+          Column()
         ],
       ),
     );
@@ -341,76 +365,6 @@ class ListButtonMenuProfile extends StatelessWidget {
             size: 18,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class ListButtonMenuProfile extends StatelessWidget {
-  final String text;
-  final String iconPath;
-  final VoidCallback onPressed;
-
-  const ListButtonMenuProfile({
-    super.key,
-    required this.text,
-    required this.iconPath,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SvgPicture.asset(
-            iconPath,
-            width: 30,
-            height: 30,
-            color: Color(0xFF43964F),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Color(0xFF616161),
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const Icon(
-            Icons.arrow_forward_ios,
-            color: Color(0xFF616161),
-            size: 18,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NewPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pin berhasil diganti'),
-      ),
-      body: const Center(
-        child: Text(
-          'Welcome to the new page!',
-          style: TextStyle(fontSize: 24),
-        ),
       ),
     );
   }
