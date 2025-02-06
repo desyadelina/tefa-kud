@@ -10,6 +10,8 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../widget/layout/auth_layout.dart';
+import '../intro/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
@@ -79,6 +81,41 @@ class _ProfileState extends State<ProfilePage>
 
   void _editProfile() {
     print('Edit profile pressed');
+  }
+
+  
+
+  Future<void> _logout() async {
+    await authService.signOut();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Apakah anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _logout();
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -246,6 +283,62 @@ class _ProfileState extends State<ProfilePage>
               //   height: 1,
               // ),
             ],
+          ),
+          Column(
+            
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ListButtonMenuProfile extends StatelessWidget {
+  final String text;
+  final String iconPath;
+  final VoidCallback onPressed;
+
+  const ListButtonMenuProfile({
+    super.key,
+    required this.text,
+    required this.iconPath,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SvgPicture.asset(
+            iconPath,
+            width: 30,
+            height: 30,
+            color: Color(0xFF43964F),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF616161),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Icon(
+            Icons.arrow_forward_ios,
+            color: Color(0xFF616161),
+            size: 18,
           ),
         ],
       ),

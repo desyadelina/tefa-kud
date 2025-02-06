@@ -10,7 +10,8 @@ import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
-import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/widget/rekeningCard.dart';
+import 'package:tefa_kud/services/getUserAccount.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +22,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  //Mengambil widget dari halaman lain yang diimpor
+  final UserAccountService _userAccountService = UserAccountService();
+  bool _isLoading = true;
+
   double saldo = 0.0;
   String nomorRekening = '';
   String namaPengguna = '';
@@ -36,108 +41,66 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _getUserAccount() async {
-    TransactionService transactionService = TransactionService();
-
-    String? userSlug = await transactionService.getUserSlug();
-
-    if (userSlug == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
-      );
-      return;
-    }
-
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
-      );
-      return;
-    }
-
-    String noRekPengguna = rekeningData[0]['no_rek'];
-
     try {
-      var rekeningData =
-          await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
-      var riwayatTransaksiData = await transactionService.getTransactionHistory(
-          userSlug, noRekPengguna);
+      if (!mounted) return;
+      setState(() => _isLoading = true);
 
-      if (rekeningData != null && rekeningData.isNotEmpty) {
-        var rekening = rekeningData[0];
+      final result = await _userAccountService.getUserAccount(context);
+
+      if (mounted) {
         setState(() {
-          saldo = (rekening['saldo'] is int)
-              ? (rekening['saldo'] as int).toDouble()
-              : rekening['saldo'];
-          nomorRekening = rekening['no_rek'];
-          formattedCurrency = NumberFormat.currency(
-            locale: 'id',
-            symbol: 'Rp ',
-            decimalDigits: 0,
-          ).format(saldo);
+          saldo = result['saldo'];
+          nomorRekening = result['nomorRekening'];
+          namaPengguna = result['namaPengguna'];
+          riwayatTransaksi = result['riwayatTransaksi'];
+          formattedCurrency = result['formattedCurrency'];
+          _isLoading = false;
         });
-        if (riwayatTransaksiData != null && riwayatTransaksiData.isNotEmpty) {
-          var pengguna = await transactionService
-              .getNamaPenggunaByIdRekening(rekening['id']);
-          namaPengguna = pengguna?['pengguna'];
-          riwayatTransaksi = riwayatTransaksiData
-              .where((transaction) =>
-                  transaction['status_transaksi'].toString().toLowerCase() !=
-                  'pending')
-              .toList();
-          if (riwayatTransaksi.length > 5) {
-            riwayatTransaksi = riwayatTransaksi
-                .where((transaction) =>
-                    transaction['status_transaksi'].toString().toLowerCase() !=
-                    'pending')
-                .take(5)
-                .toList();
-            setState(() {
-              this.riwayatTransaksi = riwayatTransaksi;
-            });
-          }
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rekening tidak ditemukan.')),
-        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
-      );
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
+  }
+
+  Future<void> _onRefresh() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      riwayatTransaksi = []; // Clear existing transactions
+    });
+
+    await _getUserAccount();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification scrollInfo) {
-          if (scrollInfo.metrics.axis == Axis.vertical) {
-            double offset = scrollInfo.metrics.pixels;
-            setState(() {
-              _appBarOpacity =
-                  offset <= 1 ? 1.0 : (1 - (offset / 100)).clamp(1.0, 1.0);
-            });
-          }
-          return true;
-        },
+      backgroundColor: const Color(0xFFFFFFF),
+      extendBodyBehindAppBar: true,
+      body: RefreshIndicator(
+        backgroundColor: const Color.fromARGB(223, 255, 255, 255),
+        color: const Color(0xFF43964F),
+        onRefresh: _onRefresh,
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
               backgroundColor: const Color(0xFF43964F),
               expandedHeight: 78.0,
-              toolbarHeight: 55,
+              toolbarHeight: 60,
               floating: true,
               pinned: true,
               snap: false,
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 1,
                 titlePadding:
-                    const EdgeInsetsDirectional.only(start: 16, top: 24),
+                    const EdgeInsetsDirectional.only(start: 16, top: 44),
                 title: Opacity(
                   opacity: _appBarOpacity,
                   child: const Padding(
@@ -198,264 +161,299 @@ class _HomePageState extends State<HomePage>
                 [
                   Stack(
                     children: [
-                      Column(
-                        children: [
-                          Container(
-                            height: 100,
-                            color: const Color(0xFF43964F),
-                          ),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 32, vertical: 0),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 120,
-                                  child: Wrap(
-                                    spacing:
-                                        16.0, // Space between the buttons horizontally
-                                    runSpacing:
-                                        16.0, // Space between the rows vertically
-                                    children: [
-                                      iconMenuButton(
-                                        'Transfer',
-                                        'assets/images/Transfer.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/transfer');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Isi saldo',
-                                        'assets/images/Isi Saldo.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/isiSaldo');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Tarik tunai',
-                                        'assets/images/Tarik Tunai.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/tarikTunai');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Pinjaman',
-                                        'assets/images/Pinjaman.png',
-                                        () {
-                                          NavigatorManager
-                                              .navigatorKey.currentState
-                                              ?.pushNamed('/pinjaman');
-                                        },
-                                      ),
-                                      iconMenuButton(
-                                        'Bayar Pinjaman',
-                                        'assets/images/Pinjaman.png',
-                                        () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ListBayarPinjaman(
-                                                title: '',
-                                                totalTagihan: 0,
-                                                noRekPengguna: 0,
+                      Container(
+                        height: 250,
+                        color: const Color(0xFF43964F),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 100),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              )),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32, vertical: 56),
+                                child: Column(
+                                  children: [
+                                    if (_isLoading) ...[
+                                      // Menu buttons skeleton
+                                      SizedBox(
+                                        height: 120,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: List.generate(
+                                            4,
+                                            (index) => Container(
+                                              width: 70,
+                                              height: 70,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
                                               ),
                                             ),
-                                          );
-                                        },
+                                          ),
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 80.0),
-                                Container(
-                                  height: 150,
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/banner/Banner-1.png'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 25.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Transaksi terkini',
-                                      style: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const Text('Hari ini',
-                                        style: TextStyle(color: Colors.grey)),
-                                    const SizedBox(height: 16.0),
-                                    Card(
-                                      color: Colors.white.withOpacity(0.9),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
+                                      // Banner skeleton
+                                      Container(
+                                        height: 150,
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[300],
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
                                       ),
-                                      elevation: 4.0,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10),
+                                      // Transactions skeleton
+                                      Column(
+                                        children: List.generate(
+                                          5,
+                                          (index) => Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 24,
+                                                  height: 24,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 16),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: 120,
+                                                      height: 16,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Container(
+                                                      width: 80,
+                                                      height: 14,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                  ],
+                                                ),
+                                                const Spacer(),
+                                                Container(
+                                                  width: 100,
+                                                  height: 16,
+                                                  color: Colors.grey[300],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ] else
+                                      Visibility(
+                                        visible: !_isLoading,
                                         child: Column(
-                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            ...riwayatTransaksi
-                                                .map((transaction) {
-                                              return _buildTransactionItem(
-                                                namaPengguna,
-                                                formatTransactionType(
-                                                    transaction[
-                                                        'jenis_transaksi']),
-                                                transaction[
-                                                    'nominal_transaksi'],
-                                                transaction[
-                                                                'jenis_transaksi'] ==
-                                                            'kirim_uang' ||
-                                                        transaction[
-                                                                'jenis_transaksi'] ==
-                                                            'tarik_uang' ||
-                                                        transaction[
-                                                                'jenis_transaksi'] ==
-                                                            'pembayaran'
-                                                    ? true
-                                                    : false,
-                                              );
-                                            })
+                                            // Menu buttons
+                                            SizedBox(
+                                              height: 120,
+                                              child: Wrap(
+                                                spacing: 16.0,
+                                                runSpacing: 16.0,
+                                                children: [
+                                                  iconMenuButton(
+                                                    'Transfer',
+                                                    'assets/images/Transfer.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/transfer');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Isi saldo',
+                                                    'assets/images/Isi Saldo.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/isiSaldo');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Tarik tunai',
+                                                    'assets/images/Tarik Tunai.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/tarikTunai');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Pinjaman',
+                                                    'assets/images/Pinjaman.png',
+                                                    () {
+                                                      NavigatorManager
+                                                          .navigatorKey
+                                                          .currentState
+                                                          ?.pushNamed(
+                                                              '/pinjaman');
+                                                    },
+                                                  ),
+                                                  iconMenuButton(
+                                                    'Bayar\nPinjaman',
+                                                    'assets/images/Pinjaman.png',
+                                                    () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ListBayarPinjaman(
+                                                            title:
+                                                                'Bayar Pinjaman',
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 100.0,
+                                            ),
+                                            Container(
+                                              height: 150,
+                                              decoration: const BoxDecoration(
+                                                image: DecorationImage(
+                                                  image: AssetImage(
+                                                      'assets/images/banner/Banner-1.png'),
+                                                  fit: BoxFit.fill,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 25.0),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Transaksi terkini',
+                                                  style: TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                const Text('Hari ini',
+                                                    style: TextStyle(
+                                                        color: Colors.grey)),
+                                                const SizedBox(height: 16.0),
+                                                Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    if (_isLoading)
+                                                      Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 40),
+                                                        width: double.infinity,
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            CircularProgressIndicator(
+                                                              color: Color(
+                                                                  0xFF43964F),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 18,
+                                                            ),
+                                                            Text(
+                                                              "Memuat data transaksi..",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )
+                                                    else
+                                                      ...riwayatTransaksi
+                                                          .map((transaction) {
+                                                        return _buildTransactionItem(
+                                                          namaPengguna,
+                                                          formatTransactionType(
+                                                              transaction[
+                                                                  'jenis_transaksi']),
+                                                          transaction[
+                                                              'nominal_transaksi'],
+                                                          transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'kirim_uang' ||
+                                                                  transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'tarik_uang' ||
+                                                                  transaction[
+                                                                          'jenis_transaksi'] ==
+                                                                      'pembayaran'
+                                                              ? true
+                                                              : false,
+                                                        );
+                                                      })
+                                                  ],
+                                                ),
+                                                Container(
+                                                  height: 80,
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      height: 80,
-                                    ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          )
-                        ],
+                              )
+                            ],
+                          ),
+                        ),
                       ),
                       Positioned(
                         top: 10,
                         left: 0,
                         right: 0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 20),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 16),
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              height: 130,
-                              color: const Color(0xFFF9F9F9),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Saldo sekarang',
-                                    style: TextStyle(color: Color(0xFF8D8D8D)),
-                                  ),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            isSaldoVisible
-                                                ? formattedCurrency
-                                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RedRose',
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 6,
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                isSaldoVisible =
-                                                    !isSaldoVisible;
-                                              });
-                                            },
-                                            child: SvgPicture.asset(
-                                              "assets/icon/View.svg",
-                                              color: const Color(0xFF8D8D8D),
-                                              width: 20,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4, horizontal: 8),
-                                        width: 36,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                          color: const Color(0xFF43964F),
-                                        ),
-                                        child: Align(
-                                            alignment: Alignment.center,
-                                            child: SvgPicture.asset(
-                                              "assets/icon/Down Arrow.svg",
-                                              color: Colors.white,
-                                              width: 24,
-                                            )),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 12,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(nomorRekening),
-                                      const SizedBox(
-                                        width: 12,
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Clipboard.setData(ClipboardData(
-                                              text: nomorRekening));
-                                          _showFloatingPopup(context,
-                                              "Nomor Rekening Disalin");
-                                        },
-                                        child: SvgPicture.asset(
-                                          "assets/icon/Copy.svg",
-                                          color: const Color(0xFF8D8D8D),
-                                          width: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Row()
-                                ],
-                              ),
-                            ),
-                          ),
+                        child: rekeningCard(
+                          isLoading: _isLoading,
+                          formattedCurrency: formattedCurrency,
+                          nomorRekening: nomorRekening,
+                          isSaldoVisible: isSaldoVisible,
+                          onVisibilityToggle: () {
+                            setState(() {
+                              isSaldoVisible = !isSaldoVisible;
+                            });
+                          },
+                          showFloatingPopup: _showFloatingPopup,
                         ),
                       ),
                     ],
@@ -511,6 +509,7 @@ String formatTransactionType(String jenisTransaksi) {
     'top_up': 'Isi Saldo',
     'tarik_uang': 'Tarik Tunai',
     'pinjaman': 'Pinjaman',
+    'pembayaran': 'Bayar Pinjaman',
   };
 
   return transactionTypes[jenisTransaksi.toLowerCase()] ??

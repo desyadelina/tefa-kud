@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/receipt_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
@@ -33,6 +34,7 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tefa_kud/screens/home_page.dart';
 
 class NavigatorManager {
@@ -45,9 +47,12 @@ class NavigatorManager {
       case '/profile':
         return ProfilePage();
       case '/MutasiPage':
-        return const MutasiPage(
-          titleBar: 'Mutasi',
-          background: Colors.white,
+        return DetailedPage(
+          titleBar: 'Mutasi Page',
+          content: MutasiPage(
+            titleBar: 'Mutasi',
+            background: Colors.white,
+          ),
         );
       case '/transfer':
         return ListTransfer();
@@ -62,8 +67,6 @@ class NavigatorManager {
       case '/ListBayarPinjaman':
         return ListBayarPinjaman(
           title: 'Bayar Pinjaman',
-          totalTagihan: 0,
-          noRekPengguna: 0,
         );
       case '/PreviousPinPage':
         return PreviousPinPage(
@@ -90,14 +93,13 @@ void main() async {
   final AuthService authService = AuthService();
   final bool isLoggedIn = await authService.isLoggedIn();
   final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
-
-  runApp(MyApp(initialRoute: initialRoute));
+  runApp(MainApp(initialRoute: initialRoute));
 }
 
-class MyApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
   final String initialRoute;
 
-  const MyApp({Key? key, required this.initialRoute}) : super(key: key);
+  MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +114,7 @@ class MyApp extends StatelessWidget {
         // Protected routes
         '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
-        '/MutasiPage': (context) => const MutasiPage(
+        '/MutasiPage': (context) => MutasiPage(
               titleBar: 'Mutasi',
               background: Colors.white,
             ),
@@ -369,33 +371,28 @@ class MyApp extends StatelessWidget {
             ),
         '/ListBayarPinjaman': (context) => DetailedPage(
               content: ListBayarPinjaman(
-                title: 'title',
-                totalTagihan: 0,
-                noRekPengguna: 0,
+                title: 'Bayar Pinjaman',
               ),
               background: Colors.white,
               titleBar: "Bayar Pinjaman",
             ),
+        '/ReceiptBayarPinjaman': (context) {
+          // Add the ReceiptBayarPinjaman route
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
 
-        '/PreviousPinPage': (context) => DetailedPage(
-              content: PreviousPinPage(
-                title: '',
-                userSlug: '',
-                noRekPengguna: '',
-              ),
-              background: Colors.white,
-              titleBar: "Ganti PIN",
+          return DetailedPage(
+            titleBar: "Bayar Pinjaman",
+            background: Color(0xFF43964F),
+            content: ReceiptBayarPinjaman(
+              title: args['title'] ?? '',
+              nominal: args['nominal'] ?? '',
+              date: args['date'] ?? '',
+              namaPengguna: args['namaPengguna'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
             ),
-
-        '/NewPinPage': (context) => DetailedPage(
-              content: NewPinPage(
-                title: '',
-                userSlug: '',
-                noRekPengguna: '',
-              ),
-              background: Colors.white,
-              titleBar: "Ganti PIN",
-            ),
+          );
+        },
         '/home': (context) => const HomePage(),
       },
 

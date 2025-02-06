@@ -66,21 +66,20 @@ class _InputPinBayarPinjamanState extends State<InputPinBayarPinjaman> {
         widget.userSlug, widget.noRekPengguna, _pin);
     if (response != null &&
         response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.pinjaman(
+      await transactionService.pembayaran(
         widget.userSlug,
         widget.noRekPengguna,
         widget.nominalBayarPinjaman,
-        widget.tenor,
       );
 
       NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/CodePinjaman',
+        '/ReceiptBayarPinjaman',
         arguments: {
           'title': 'Selesai',
           'nominal': widget.nominalBayarPinjaman.toString(),
           'date': DateTime.now().toString(),
           'noRekPengguna': widget.noRekPengguna,
-          'tenor': widget.tenor,
+          'userSlug': widget.userSlug,
         },
       );
     } else {
