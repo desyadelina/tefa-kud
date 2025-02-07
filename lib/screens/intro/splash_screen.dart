@@ -54,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(builder: (context) => const GuideMain()),
         );
       } else {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushNamed(context, '/login');
       }
     });
   }

@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:intl/intl.dart'; // Tambahkan ini untuk NumberFormat
+import 'package:tefa_kud/services/getUserAccount.dart';
+import 'package:tefa_kud/widget/rekeningCard.dart';
 
 class MutasiPage extends StatefulWidget {
   final String titleBar;
@@ -19,14 +22,21 @@ class MutasiPage extends StatefulWidget {
 }
 
 class _MutasiPageState extends State<MutasiPage> {
-  double saldo = 17500000;
-  final String nomorRekening = '1283 1234 1234';
+  final UserAccountService _userAccountService = UserAccountService();
+
+  bool _isLoading = true;
+
+  double saldo = 0.0;
+  String nomorRekening = '';
+  String namaPengguna = '';
+  List<dynamic> riwayatTransaksi = [];
   String formattedCurrency = '';
   bool isSaldoVisible = true;
 
   @override
   void initState() {
     super.initState();
+    _getUserAccount();
 
     // Format currency
     formattedCurrency = NumberFormat.currency(
@@ -36,137 +46,226 @@ class _MutasiPageState extends State<MutasiPage> {
     ).format(saldo);
   }
 
+  Future<void> _onRefresh() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      riwayatTransaksi = []; // Clear existing transactions
+    });
+
+    await _getUserAccount();
+  }
+
+  Future<void> _getUserAccount() async {
+    try {
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+
+      final result = await _userAccountService.getUserAccount(context);
+
+      if (mounted) {
+        setState(() {
+          saldo = result['saldo'];
+          nomorRekening = result['nomorRekening'];
+          namaPengguna = result['namaPengguna'];
+          riwayatTransaksi = result['riwayatTransaksi'];
+          formattedCurrency = result['formattedCurrency'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 30),
-          padding: const EdgeInsets.only(top: 100),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            color: Theme.of(context).scaffoldBackgroundColor,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                buildFilterButtons(),
-                const SizedBox(height: 20),
-                Column(
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth >= 412
+        ? 16
+        : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.white,
+      body: RefreshIndicator(
+        backgroundColor: const Color.fromARGB(223, 255, 255, 255),
+        color: const Color(0xFF43964F),
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Color(0xFF43964F),
+              expandedHeight: 78.0,
+              toolbarHeight: 0,
+              pinned: false,
+              flexibleSpace: FlexibleSpaceBar(
+                expandedTitleScale: 1,
+                titlePadding: const EdgeInsetsDirectional.only(bottom: 0),
+                title: Stack(
                   children: [
-                    buildTransactionHistory(),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          "Mutasi",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
-                )
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          top: -15,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Saldo Sekarang',
-                        style: TextStyle(color: Color(0xFF8D8D8D)),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                isSaldoVisible
-                                    ? formattedCurrency
-                                    : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    isSaldoVisible = !isSaldoVisible;
-                                  });
-                                },
-                                child: Icon(
-                                  isSaldoVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: const Color(0xFF8D8D8D),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: const Color(0xFF43964F),
-                            ),
-                            child: const Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Text(nomorRekening),
-                          const SizedBox(width: 12),
-                          GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: nomorRekening));
-                              _showFloatingPopup(
-                                  context, "Nomor Rekening Disalin");
-                            },
-                            child: const Icon(
-                              Icons.copy,
-                              color: Color(0xFF8D8D8D),
-                              size: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
-              ],
+              ),
             ),
-          ),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Stack(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.height,
+                        height: 200,
+                        color: Theme.of(context).appBarTheme.backgroundColor,
+                      ),
+                      Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 100),
+                            padding: const EdgeInsets.only(top: 60),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              ),
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal:
+                                    MediaQuery.of(context).size.width <= 412
+                                        ? (MediaQuery.of(context).size.width /
+                                                412 *
+                                                18)
+                                            .clamp(8, 32)
+                                        : 32,
+                              ),
+                              child: Column(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 8),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Riwayat Transaksi',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text('Hari Ini',
+                                                style: TextStyle(
+                                                    color: Colors.grey)),
+                                          ],
+                                        ),
+                                      ),
+                                      if (_isLoading)
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 40),
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(
+                                                color: Color(0xFF43964F),
+                                              ),
+                                              SizedBox(
+                                                height: 18,
+                                              ),
+                                              Text(
+                                                "Memuat data transaksi..",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        ...riwayatTransaksi.map((transaction) {
+                                          return _buildTransactionItem(
+                                            namaPengguna,
+                                            formatTransactionType(
+                                                transaction['jenis_transaksi']),
+                                            transaction['nominal_transaksi'],
+                                            transaction['jenis_transaksi'] ==
+                                                        'kirim_uang' ||
+                                                    transaction[
+                                                            'jenis_transaksi'] ==
+                                                        'tarik_uang' ||
+                                                    transaction[
+                                                            'jenis_transaksi'] ==
+                                                        'pembayaran'
+                                                ? true
+                                                : false,
+                                          );
+                                        }),
+                                      buildTransactionHistory(),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            left: 0,
+                            right: 0,
+                            child: rekeningCard(
+                              isLoading: _isLoading,
+                              formattedCurrency: formattedCurrency,
+                              nomorRekening: nomorRekening,
+                              isSaldoVisible: isSaldoVisible,
+                              onVisibilityToggle: () {
+                                setState(() {
+                                  isSaldoVisible = !isSaldoVisible;
+                                });
+                              },
+                              showFloatingPopup: _showFloatingPopup,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -201,23 +300,65 @@ class _MutasiPageState extends State<MutasiPage> {
       overlayEntry.remove();
     });
   }
+
+  Widget _buildTransactionItem(
+      String name, String type, int amount, bool isDebit) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    final int maxChars = screenWidth < 372 ? 24 : 30;
+    double fontSize = screenWidth >= 412 ? 16 : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
+            color: isDebit ? Colors.red : Colors.green,
+          ),
+          const SizedBox(width: 16.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.length > maxChars
+                    ? '${name.substring(0, maxChars)}...'
+                    : name,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(type, style: TextStyle(color: Colors.grey, fontSize: fontSize), ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
+            style: TextStyle(
+              color: isDebit ? Colors.red : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-Widget buildFilterButtons() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      Expanded(
-        child: buildFilterButton("Semua"),
-      ),
-      Expanded(
-        child: buildFilterButton("7 hari terakhir"),
-      ),
-      Expanded(
-        child: buildFilterButton("1 bulan terakhir"),
-      ),
-    ],
-  );
+// Add this helper function
+String formatTransactionType(String jenisTransaksi) {
+  final Map<String, String> transactionTypes = {
+    'kirim_uang': 'Transfer',
+    'top_up': 'Isi Saldo',
+    'tarik_uang': 'Tarik Tunai',
+    'pinjaman': 'Pinjaman',
+  };
+
+  return transactionTypes[jenisTransaksi.toLowerCase()] ??
+      toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ??
+      jenisTransaksi;
 }
 
 Widget buildFilterButton(String label) {
@@ -244,58 +385,23 @@ Widget buildFilterButton(String label) {
 }
 
 Widget buildTransactionHistory() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Riwayat Transaksi',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text('Hari ini', style: TextStyle(color: Colors.grey)),
-        _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-        _buildTransactionItem('Seila Salsabiela', 'Isi saldo', 10000000, false),
-        _buildTransactionItem('Selai Apel', 'Isi saldo', 30000000, false),
-        const SizedBox(height: 16),
-        Text('Kemarin', style: TextStyle(color: Colors.grey)),
-        _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-        const SizedBox(height: 16),
-        Text('1 Oktober 2024', style: TextStyle(color: Colors.grey)),
-        _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
-      ],
-    ),
-  );
-}
-
-Widget _buildTransactionItem(
-    String name, String type, int amount, bool isDebit) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      children: [
-        Icon(
-          isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
-          color: isDebit ? Colors.red : Colors.green,
-        ),
-        const SizedBox(width: 16.0),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(type, style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-        Spacer(),
-        Text(
-          '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
-          style: TextStyle(
-            color: isDebit ? Colors.red : Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Text(
+      //   'Riwayat Transaksi',
+      //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      // ),
+      // const SizedBox(height: 8),
+      // Text('Kemarin', style: TextStyle(color: Colors.grey)),
+      // const SizedBox(height: 16),
+      // Text('Minggu Kemarin', style: TextStyle(color: Colors.grey)),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // const SizedBox(height: 16),
+      // Text('1 Oktober 2024', style: TextStyle(color: Colors.grey)),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+      // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
+    ],
   );
 }

@@ -2,11 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
+import 'package:tefa_kud/screens/bayar_pinjaman/receipt_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/intro/login_page.dart';
 import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
+import 'package:tefa_kud/screens/profile/ganti_pin/new_pin_screen.dart';
+import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
-import 'package:tefa_kud/screens/profile/profile_screen.dart';
+import 'package:tefa_kud/screens/profile/profile_page.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
 import 'package:tefa_kud/screens/transfer/input_pin_transfer.dart';
@@ -30,6 +34,8 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:tefa_kud/screens/home_page.dart';
 
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -38,10 +44,15 @@ class NavigatorManager {
     switch (routeName) {
       case '/profileEdit':
         return const ProfileEditScreen();
+      case '/profile':
+        return ProfilePage();
       case '/MutasiPage':
-        return const MutasiPage(
-          titleBar: 'Mutasi',
-          background: Colors.white,
+        return DetailedPage(
+          titleBar: 'Mutasi Page',
+          content: MutasiPage(
+            titleBar: 'Mutasi',
+            background: Colors.white,
+          ),
         );
       case '/transfer':
         return ListTransfer();
@@ -53,6 +64,22 @@ class NavigatorManager {
         return PinjamanPage(
           title: '',
         );
+      case '/ListBayarPinjaman':
+        return ListBayarPinjaman(
+          title: 'Bayar Pinjaman',
+        );
+      case '/PreviousPinPage':
+        return PreviousPinPage(
+          title: '',
+          userSlug: '',
+          noRekPengguna: '',
+        );
+      case '/NewPinPage':
+        return NewPinPage(
+          title: '',
+          userSlug: '',
+          noRekPengguna: '',
+        );
       default:
         return MainLayout(
           title: '',
@@ -61,18 +88,24 @@ class NavigatorManager {
   }
 }
 
-void main() {
-  runApp(MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final AuthService authService = AuthService();
+  final bool isLoggedIn = await authService.isLoggedIn();
+  final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
+  runApp(MainApp(initialRoute: initialRoute));
 }
 
 class MainApp extends StatelessWidget {
-  MainApp({super.key});
+  final String initialRoute;
+
+  MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splashscreen',
+      initialRoute: initialRoute,
       navigatorKey: NavigatorManager.navigatorKey,
       routes: {
         // Add login route
@@ -81,7 +114,7 @@ class MainApp extends StatelessWidget {
         // Protected routes
         '/': (context) => const MainLayout(title: ''),
         '/splashscreen': (context) => const SplashScreen(),
-        '/MutasiPage': (context) => const MutasiPage(
+        '/MutasiPage': (context) => MutasiPage(
               titleBar: 'Mutasi',
               background: Colors.white,
             ),
@@ -336,10 +369,59 @@ class MainApp extends StatelessWidget {
               background: Color(0xFF43964F),
               titleBar: "Pinjaman",
             ),
-        '/profileEdit': (context) => const DetailedPage(
-              content: ProfileEditScreen(),
-              background: Color(0xFFF2F2F2),
+        '/ListBayarPinjaman': (context) => DetailedPage(
+              content: ListBayarPinjaman(
+                title: 'Bayar Pinjaman',
+              ),
+              background: Colors.white,
+              titleBar: "Bayar Pinjaman",
             ),
+        '/ReceiptBayarPinjaman': (context) {
+          // Add the ReceiptBayarPinjaman route
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
+
+          return DetailedPage(
+            titleBar: "Bayar Pinjaman",
+            background: Color(0xFF43964F),
+            content: ReceiptBayarPinjaman(
+              title: args['title'] ?? '',
+              nominal: args['nominal'] ?? '',
+              date: args['date'] ?? '',
+              namaPengguna: args['namaPengguna'] ?? '',
+              noRekPengguna: args['noRekPengguna'] ?? '',
+            ),
+          );
+        },
+        '/PreviousPinPage': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Color(0xFFF9F9F9),
+            content: PreviousPinPage(
+              title: args?['title'] ?? '',
+              userSlug: args?['userSlug'] ?? '',
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+            ),
+          );
+        },
+        '/NewPinPage': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+
+          return DetailedPage(
+            titleBar: "Pinjaman",
+            background: Color(0xFFF9F9F9),
+            content: NewPinPage(
+              title: args?['title'] ?? '',
+              userSlug: args?['userSlug'] ?? '',
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+            ),
+          );
+        },
+        '/home': (context) => const HomePage(),
       },
 
       // Add route guard
