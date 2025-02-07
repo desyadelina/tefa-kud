@@ -14,6 +14,8 @@ import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../widget/layout/auth_layout.dart';
 import '../intro/login_page.dart';
+import 'package:tefa_kud/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
@@ -63,16 +65,24 @@ class _ProfileState extends State<ProfilePage>
   Future<Map<String, String>> _getUserData() async {
     final prefs = await SharedPreferences.getInstance();
 
+    // Get user data from AuthService
+    final userData = await authService.getStoredUser();
+    final isLoggedIn = await authService.isLoggedIn();
+    final token = await authService.storage.read(key: AuthService.KEY_TOKEN);
+
     // Ambil data yang disimpan di SharedPreferences
     String namaPengguna =
         prefs.getString('nama_pengguna') ?? 'Nama tidak ditemukan';
     String alamat = prefs.getString('alamat') ?? 'Alamat tidak ditemukan';
 
     return {
-      'nama_pengguna': namaPengguna,
-      'alamat': alamat,
+      'nama_pengguna': userData?['nama_pengguna'] ?? namaPengguna,
+      'alamat': userData?['alamat'] ?? alamat,
+      'is_logged_in': isLoggedIn.toString(),
+      'token': token ?? 'Token tidak ditemukan',
     };
   }
+
 
   @override
   void dispose() {
