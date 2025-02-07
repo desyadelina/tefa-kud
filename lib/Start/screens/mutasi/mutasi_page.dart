@@ -86,6 +86,10 @@ class _MutasiPageState extends State<MutasiPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth >= 412
+        ? 16
+        : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
@@ -147,8 +151,16 @@ class _MutasiPageState extends State<MutasiPage> {
                               color: Theme.of(context).scaffoldBackgroundColor,
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 36),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal:
+                                    MediaQuery.of(context).size.width <= 412
+                                        ? (MediaQuery.of(context).size.width /
+                                                412 *
+                                                18)
+                                            .clamp(8, 32)
+                                        : 32,
+                              ),
                               child: Column(
                                 children: [
                                   Column(
@@ -288,6 +300,51 @@ class _MutasiPageState extends State<MutasiPage> {
       overlayEntry.remove();
     });
   }
+
+  Widget _buildTransactionItem(
+      String name, String type, int amount, bool isDebit) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    final int maxChars = screenWidth < 372 ? 24 : 30;
+    double fontSize = screenWidth >= 412 ? 16 : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
+            color: isDebit ? Colors.red : Colors.green,
+          ),
+          const SizedBox(width: 16.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.length > maxChars
+                    ? '${name.substring(0, maxChars)}...'
+                    : name,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(type, style: TextStyle(color: Colors.grey, fontSize: fontSize), ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
+            style: TextStyle(
+              color: isDebit ? Colors.red : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // Add this helper function
@@ -346,36 +403,5 @@ Widget buildTransactionHistory() {
       // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
       // _buildTransactionItem('Seila Salsabiela', 'Transfer', -10000000, true),
     ],
-  );
-}
-
-Widget _buildTransactionItem(
-    String name, String type, int amount, bool isDebit) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      children: [
-        Icon(
-          isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
-          color: isDebit ? Colors.red : Colors.green,
-        ),
-        const SizedBox(width: 16.0),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(type, style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-        Spacer(),
-        Text(
-          '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
-          style: TextStyle(
-            color: isDebit ? Colors.red : Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
   );
 }

@@ -180,9 +180,23 @@ class _ProfileState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth >= 412
+        ? 16
+        : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+    double fsName = screenWidth >= 412
+        ? 20
+        : (14 - ((412 - screenWidth) / 2)).clamp(16, 20);
     return Container(
-      // ignore: prefer_const_constructors
-      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 10),
+      padding: EdgeInsets.fromLTRB(
+          MediaQuery.of(context).size.width <= 412
+              ? (MediaQuery.of(context).size.width / 412 * 18).clamp(8, 32)
+              : 32,
+          32,
+          MediaQuery.of(context).size.width <= 412
+              ? (MediaQuery.of(context).size.width / 412 * 18).clamp(8, 32)
+              : 32,
+          86),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -220,7 +234,8 @@ class _ProfileState extends State<ProfilePage>
                             Text(
                               '${userData['nama_pengguna']}',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fsName),
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -236,7 +251,7 @@ class _ProfileState extends State<ProfilePage>
                                 Text(
                                   '${userData['alamat']}',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: fontSize,
                                     color: Colors.grey,
                                   ),
                                 ),
@@ -257,17 +272,18 @@ class _ProfileState extends State<ProfilePage>
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                minimumSize: const Size(220, 50),
+                                minimumSize: Size(
+                                    180, 40), // Set width to double.infinity
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Edit Akun",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: fontSize,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         );
                       } else {
@@ -291,7 +307,7 @@ class _ProfileState extends State<ProfilePage>
                                 Text(
                                   'Alamat: Tidak ada data',
                                   style: TextStyle(
-                                      fontSize: 16, color: Colors.grey),
+                                      fontSize: fontSize, color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -325,11 +341,11 @@ class _ProfileState extends State<ProfilePage>
                                 ),
                                 minimumSize: const Size(220, 50),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Edit Akun",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: fontSize,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -383,7 +399,7 @@ class _ProfileState extends State<ProfilePage>
               ),
               ListButtonMenuProfile(
                 text: "Bayar Pinjaman",
-                iconPath: 'assets/icon/Logout.svg',
+                iconPath: 'assets/icon/Pay.svg',
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -404,7 +420,9 @@ class _ProfileState extends State<ProfilePage>
             ],
           ),
           SizedBox(
-            height: 280,
+            height: screenWidth >= 412
+                ? 350
+                : (screenWidth / 412 * 290).clamp(150, 390),
           ),
           Column(
             children: [
@@ -428,11 +446,11 @@ class _ProfileState extends State<ProfilePage>
                       color: Colors.red,
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       "Keluar Akun",
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 16,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -461,6 +479,11 @@ class ListButtonMenuProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth >= 412
+        ? 14
+        : (14 - ((412 - screenWidth) / 2)).clamp(10, 14);
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
@@ -482,9 +505,9 @@ class ListButtonMenuProfile extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF616161),
-                fontSize: 16,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w500,
               ),
             ),

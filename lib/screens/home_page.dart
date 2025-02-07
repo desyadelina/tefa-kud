@@ -93,18 +93,24 @@ class _HomePageState extends State<HomePage>
             SliverAppBar(
               backgroundColor: const Color(0xFF43964F),
               expandedHeight: 78.0,
-              toolbarHeight: 60,
+              toolbarHeight: 70,
               floating: true,
               pinned: true,
               snap: false,
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 1,
                 titlePadding:
-                    const EdgeInsetsDirectional.only(start: 16, top: 44),
+                    const EdgeInsetsDirectional.only(start: 16, top: 30),
                 title: Opacity(
                   opacity: _appBarOpacity,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: MediaQuery.of(context).size.width <= 412
+                          ? (MediaQuery.of(context).size.width / 412 * 16)
+                              .clamp(8, 16)
+                          : 18,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -177,8 +183,17 @@ class _HomePageState extends State<HomePage>
                           child: Column(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 32, vertical: 56),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal:
+                                        MediaQuery.of(context).size.width <= 412
+                                            ? (MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    412 *
+                                                    18)
+                                                .clamp(8, 32)
+                                            : 32,
+                                    vertical: 56),
                                 child: Column(
                                   children: [
                                     if (_isLoading) ...[
@@ -458,6 +473,51 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  Widget _buildTransactionItem(
+      String name, String type, int amount, bool isDebit) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    final int maxChars = screenWidth < 372 ? 24 : 30;
+    double fontSize = screenWidth >= 412 ? 16 : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
+            color: isDebit ? Colors.red : Colors.green,
+          ),
+          const SizedBox(width: 16.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.length > maxChars
+                    ? '${name.substring(0, maxChars)}...'
+                    : name,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(type, style: TextStyle(color: Colors.grey, fontSize: fontSize)),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
+            style: TextStyle(
+              color: isDebit ? Colors.red : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showFloatingPopup(BuildContext context, String message) {
     // Membuat overlay
     final overlay = Overlay.of(context);
@@ -506,35 +566,4 @@ String formatTransactionType(String jenisTransaksi) {
   return transactionTypes[jenisTransaksi.toLowerCase()] ??
       toBeginningOfSentenceCase(jenisTransaksi.replaceAll('_', ' ')) ??
       jenisTransaksi;
-}
-
-Widget _buildTransactionItem(
-    String name, String type, int amount, bool isDebit) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      children: [
-        Icon(
-          isDebit ? Icons.arrow_upward : Icons.account_balance_wallet,
-          color: isDebit ? Colors.red : Colors.green,
-        ),
-        const SizedBox(width: 16.0),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(type, style: const TextStyle(color: Colors.grey)),
-          ],
-        ),
-        const Spacer(),
-        Text(
-          '${isDebit ? '-' : '+'} Rp ${amount.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
-          style: TextStyle(
-            color: isDebit ? Colors.red : Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-  );
 }
