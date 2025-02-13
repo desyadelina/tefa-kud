@@ -62,31 +62,38 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
     print(
         'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
 
-    var response = await transactionService.konfirmasiRekening(
-        widget.userSlug, widget.noRekPengguna, _pin);
-    if (response != null &&
-        response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.pinjaman(
-        widget.userSlug,
-        widget.noRekPengguna,
-        widget.nominalPinjaman,
-        widget.tenor,
-      );
+    try {
+      var response = await transactionService.konfirmasiRekening(
+          widget.userSlug, widget.noRekPengguna, _pin);
+      if (response != null &&
+          response['message'] == 'Rekening berhasil dikonfirmasi') {
+        await transactionService.pinjaman(
+          widget.userSlug,
+          widget.noRekPengguna,
+          widget.nominalPinjaman,
+          widget.tenor,
+        );
 
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/CodePinjaman',
-        arguments: {
-          'title': 'Selesai',
-          'nominal': widget.nominalPinjaman.toString(),
-          'date': DateTime.now().toString(),
-          'noRekPengguna': widget.noRekPengguna,
-          'tenor': widget.tenor,
-        },
-      );
-    } else {
+        NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/CodePinjaman',
+          arguments: {
+            'title': 'Selesai',
+            'nominal': widget.nominalPinjaman.toString(),
+            'date': DateTime.now().toString(),
+            'noRekPengguna': widget.noRekPengguna,
+            'tenor': widget.tenor,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        SnackBar(content: Text('Pin yang anda masukkan salah')),
       );
     }
   }
@@ -146,9 +153,11 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
                   height: 40,
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6, // Adjust width as needed
+                  width: MediaQuery.of(context).size.width *
+                      0.6, // Adjust width as needed
                   child: GestureDetector(
-                    onTap: () => FocusScope.of(context).requestFocus(_pinFocusNode),
+                    onTap: () =>
+                        FocusScope.of(context).requestFocus(_pinFocusNode),
                     behavior: HitTestBehavior.opaque,
                     child: Stack(
                       alignment: Alignment.center,
@@ -159,9 +168,7 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
                             pinLength,
                             (index) => Container(
                               margin: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 12.0
-                              ),
+                                  horizontal: 8.0, vertical: 12.0),
                               width: 16,
                               height: 16,
                               decoration: BoxDecoration(

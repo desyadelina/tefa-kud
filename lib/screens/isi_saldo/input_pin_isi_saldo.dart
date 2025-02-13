@@ -64,30 +64,37 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
     print(
         'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
 
-    var response = await transactionService.konfirmasiRekening(
-        widget.userSlug, widget.noRekPengguna, _pin);
-    if (response != null &&
-        response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.topUp(
-        widget.userSlug,
-        widget.noRekPengguna,
-        widget.nominalIsiSaldo,
-      );
+    try {
+      var response = await transactionService.konfirmasiRekening(
+          widget.userSlug, widget.noRekPengguna, _pin);
+      if (response != null &&
+          response['message'] == 'Rekening berhasil dikonfirmasi') {
+        await transactionService.topUp(
+          widget.userSlug,
+          widget.noRekPengguna,
+          widget.nominalIsiSaldo,
+        );
 
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/CodeIsiSaldo',
-        arguments: {
-          'title': 'Selesai',
-          'nominal': widget.nominalIsiSaldo.toString(),
-          'date': DateTime.now().toString(),
-          'namaPengguna': widget.namaPengguna,
-          'noRekPengguna': widget.noRekPengguna,
-        },
-      );
-    } else {
+        NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/CodeIsiSaldo',
+          arguments: {
+            'title': 'Selesai',
+            'nominal': widget.nominalIsiSaldo.toString(),
+            'date': DateTime.now().toString(),
+            'namaPengguna': widget.namaPengguna,
+            'noRekPengguna': widget.noRekPengguna,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        SnackBar(content: Text('Pin yang anda masukkan salah')),
       );
     }
   }
