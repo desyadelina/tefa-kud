@@ -1,7 +1,9 @@
 // ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
@@ -12,7 +14,8 @@ import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../widget/layout/auth_layout.dart';
+import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
+import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import '../intro/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -88,15 +91,17 @@ class _ProfileState extends State<ProfilePage>
     print('Edit profile pressed');
   }
 
-  Future<void> _logout() async {
-    await authService.signOut();
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-        (route) => false,
-      );
-    }
+  void _logout() async {
+  final AuthService authService = AuthService();
+  await authService.signOut(context);
+
+  if (mounted) {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (route) => false,
+    );
   }
+}
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(

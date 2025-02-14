@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:tefa_kud/config/api_config.dart';
+import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
 
 class AuthService {
   final String baseUrl = ApiConfig.baseUrl;
@@ -13,7 +16,7 @@ class AuthService {
   static const String KEY_PIN = 'pin';
   static const String KEY_GUIDE_SHOWN = 'guide_shown';
 
-  Future<Map<String, dynamic>?> login(String noTelepon, String password) async {
+  Future<Map<String, dynamic>?> login(String noTelepon, String password, BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/signin'),
@@ -31,6 +34,7 @@ class AuthService {
           storage.write(key: KEY_USER, value: jsonEncode(data['pengguna'])),
           storage.write(key: KEY_PIN, value: data['pengguna']['pin']),
         ]);
+        Provider.of<BottomBarVisibilityProvider>(context, listen: false).reset();
         return data;
       }
       return jsonDecode(response.body);
@@ -39,7 +43,7 @@ class AuthService {
     }
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
     final token = await storage.read(key: KEY_TOKEN);
     if (token != null) {
       try {
@@ -57,13 +61,13 @@ class AuthService {
         await storage.deleteAll();
       }
     }
+    Provider.of<BottomBarVisibilityProvider>(context, listen: false).hide();
   }
 
   // Optimized login check
   Future<bool> isLoggedIn() async {
     final hasToken = await storage.read(key: KEY_TOKEN) != null;
-    if (!hasToken) return false;
-    return await validateToken();
+    return hasToken;
   }
 
   // Improved user data retrieval
