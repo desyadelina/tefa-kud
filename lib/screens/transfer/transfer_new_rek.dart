@@ -102,7 +102,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
         },
       );
     } catch (e) {
-      String errorMessage = 'Nomor rekening yang dituju tidak ditemukan';
+      String errorMessage = 'Nomor rekening yang dituju tidak terdaftar';
       if (e is Exception) {
         try {
           final errorData =
