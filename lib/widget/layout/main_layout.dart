@@ -12,7 +12,8 @@ import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key, required String title});
+  final bool showWelcomeSnackbar;
+  const MainLayout({super.key, required String title, this.showWelcomeSnackbar = false});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -40,6 +41,14 @@ class _MainLayoutState extends State<MainLayout>
   void initState() {
     super.initState();
     _tabController = TabController(length: _widgetOptions.length, vsync: this);
+
+    if (widget.showWelcomeSnackbar) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Selamat datang!')),
+        );
+      });
+    }
   }
 
   void _onTabTapped(int index) {

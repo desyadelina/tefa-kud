@@ -63,7 +63,7 @@ class _LoginFormState extends State<LoginScreen> {
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => 
-                const MainLayout(title: ''),
+                const MainLayout(title: '', showWelcomeSnackbar: true),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
           ),
