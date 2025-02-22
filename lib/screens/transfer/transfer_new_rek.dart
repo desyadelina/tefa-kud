@@ -1,5 +1,7 @@
 // ignore_for_file: use_super_parameters, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/main.dart';
@@ -66,26 +68,52 @@ class _TransferNewRekState extends State<TransferNewRek> {
       return;
     }
 
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
+    try {
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, '');
+      if (rekeningData == null || rekeningData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rekening tidak ditemukan')),
+        );
+        return;
+      }
+
+      var rekeningTujuanData =
+          await transactionService.getSlugByRekening(rekeningTujuan);
+      if (!mounted) return;
+      if (rekeningTujuanData == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Nomor rekening yang dituju tidak ditemukan'),
+          ),
+        );
+        return;
+      }
+
+      String noRekPengguna = rekeningData[0]['no_rek'];
+
+      NavigatorManager.navigatorKey.currentState?.pushNamed(
+        '/InputNominalTransfer',
+        arguments: {
+          'title': 'Input Nominal',
+          'rekeningTujuan': rekeningTujuan,
+          'userSlug': userSlug,
+          'noRekPengguna': noRekPengguna,
+        },
       );
-      return;
+    } catch (e) {
+      String errorMessage = 'Nomor rekening yang dituju tidak ditemukan';
+      if (e is Exception) {
+        try {
+          final errorData =
+              jsonDecode(e.toString().replaceAll('Exception: ', ''));
+          errorMessage = errorData['message'] ?? errorMessage;
+        } catch (_) {}
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
     }
-
-    String noRekPengguna = rekeningData[0]['no_rek'];
-
-    NavigatorManager.navigatorKey.currentState?.pushNamed(
-      '/InputNominalTransfer',
-      arguments: {
-        'title': 'Input Nominal',
-        'rekeningTujuan': rekeningTujuan,
-        'userSlug': userSlug,
-        'noRekPengguna': noRekPengguna,
-      },
-    );
   }
   // end
 
