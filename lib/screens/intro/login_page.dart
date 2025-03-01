@@ -53,7 +53,8 @@ class _LoginFormState extends State<LoginScreen> {
     });
 
     try {
-      String noTelepon = _selectedCountryCode.replaceFirst('+', '') + _teleponController.text;
+      String noTelepon =
+          _selectedCountryCode.replaceFirst('+', '') + _teleponController.text;
       String password = _passwordController.text;
 
       var response = await _authService.login(noTelepon, password, context);
@@ -62,7 +63,7 @@ class _LoginFormState extends State<LoginScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => 
+            pageBuilder: (context, animation, secondaryAnimation) =>
                 const MainLayout(title: '', showWelcomeSnackbar: true),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,
@@ -73,7 +74,8 @@ class _LoginFormState extends State<LoginScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response?['error'] ?? 'Login gagal, silakan coba lagi.'),
+            content:
+                Text(response?['error'] ?? 'Login gagal, silakan coba lagi.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -323,16 +325,44 @@ class _LoginFormState extends State<LoginScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24.0),
-                              button(
-                                onPressed: _isLoading ? null : _login,
-                                text: _isLoading ? "Loading..." : "Masuk",
-                                child: _isLoading 
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(color: Colors.white),
-                                    )
-                                  : null,
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : _login,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    backgroundColor: const Color(0xFF43964F),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    // Add this to keep border color when disabled
+                                    disabledForegroundColor: Colors.white,
+                                    side: BorderSide(
+                                      color: const Color(0xFF43964F),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Masuk',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                ),
                               ),
                             ],
                           ),
