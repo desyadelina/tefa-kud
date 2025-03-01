@@ -50,9 +50,8 @@ flutter_launcher_icons:
   fonts:
     - family: RedRose
       fonts:
-        - asset: fonts/RedRose-Bold.ttf
-        - weight: 700
         - asset: fonts/RedRose-Regular.ttf
-        - weight: 400
+        - asset: fonts/RedRose-Bold.ttf
+          weight: 700
         - asset: fonts/RedRose-Light.ttf
-        - weight: 300
+          weight: 300
