@@ -24,7 +24,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? noRekPengguna;
 
   @override
@@ -119,44 +119,67 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = true; // Reset loading state when returning to this page
+      });
+    }
+  }
+
   Future<void> _proceedToConfirm() async {
-    double nominalTransaksi = double.tryParse(
-            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0.0;
-    TransactionService transactionService = TransactionService();
+    setState(() {
+      _isLoading = true;
+    });
 
-    String? userSlug = await transactionService.getUserSlug();
+    try {
+      double nominalTransaksi = double.tryParse(
+              _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0.0;
+      TransactionService transactionService = TransactionService();
 
-    if (userSlug == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
-      );
-      return;
-    }
+      String? userSlug = await transactionService.getUserSlug();
 
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
-      );
-      return;
-    }
+      if (userSlug == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        );
+        return;
+      }
 
-    if (nominalTransaksi > 0) {
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/ConfirmIsiSaldo',
-        arguments: {
-          'title': 'Konfirmasi Transfer',
-          'nominalIsiSaldo': nominalTransaksi,
-          'noRekPengguna': nomorRekening,
-          'userSlug': userSlug,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal tidak valid')),
-      );
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, '');
+      if (rekeningData == null || rekeningData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rekening tidak ditemukan')),
+        );
+        return;
+      }
+
+      if (nominalTransaksi > 0) {
+        await NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/ConfirmIsiSaldo',
+          arguments: {
+            'title': 'Konfirmasi Transfer',
+            'nominalIsiSaldo': nominalTransaksi,
+            'noRekPengguna': nomorRekening,
+            'userSlug': userSlug,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nominal tidak valid')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Reset loading state
+        });
+      }
     }
   }
 
@@ -258,7 +281,9 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    onPressed: (_isLoading || isButtonEnabled)
+                        ? _proceedToConfirm
+                        : null,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor:
@@ -267,14 +292,24 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Lanjut',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],

@@ -36,7 +36,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -48,6 +48,10 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
 
   // jangan otak-atik kode di bawah ini
   Future<void> _getUserAccount() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     TransactionService transactionService = TransactionService();
     try {
       var rekeningData = await transactionService.getRekeningPengguna(
@@ -96,6 +100,18 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Reset loading state when returning to this page
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _nominalController.removeListener(_onNominalChanged);
     _nominalController.dispose();
@@ -103,27 +119,40 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   }
 
   // jangan otak-atik kode di bawah ini
-  void _proceedToConfirm() {
-    double nominalTransaksi = double.tryParse(
-            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0.0;
+  void _proceedToConfirm() async {
+    // Make this async
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/ConfirmTransfer',
-        arguments: {
-          'title': 'Konfirmasi Transfer',
-          'nominalTransfer': nominalTransaksi,
-          'noRekPengguna': nomorRekening,
-          'noRekTujuan': widget.rekeningTujuan,
-          'userSlug': widget.userSlug,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Nominal tidak valid atau melebihi saldo')),
-      );
+    try {
+      double nominalTransaksi = double.tryParse(
+              _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0.0;
+
+      if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
+        await NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/ConfirmTransfer',
+          arguments: {
+            'title': 'Konfirmasi Transfer',
+            'nominalTransfer': nominalTransaksi,
+            'noRekPengguna': nomorRekening,
+            'noRekTujuan': widget.rekeningTujuan,
+            'userSlug': widget.userSlug,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Nominal tidak valid atau melebihi saldo')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Reset loading state
+        });
+      }
     }
   }
   // end
@@ -226,7 +255,9 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     // jangan otak-atik kode di bawah ini
-                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    onPressed: (_isLoading || isButtonEnabled)
+                        ? _proceedToConfirm
+                        : null,
                     // end
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -236,14 +267,24 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Lanjut',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],

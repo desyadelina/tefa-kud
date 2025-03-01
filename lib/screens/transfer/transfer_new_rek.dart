@@ -20,6 +20,7 @@ class _TransferNewRekState extends State<TransferNewRek> {
   final TextEditingController _rekeningTujuanController =
       TextEditingController();
   bool isButtonEnabled = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -54,6 +55,10 @@ class _TransferNewRekState extends State<TransferNewRek> {
 
   // jangan otak-atik kode di bawah ini
   Future<void> _prosesKirimUang() async {
+    setState(() {
+      _isLoading = true;
+    });
+    
     String rekeningTujuan = _rekeningTujuanController.text.replaceAll(' ', '');
     TransactionService transactionService = TransactionService();
 
@@ -113,6 +118,12 @@ class _TransferNewRekState extends State<TransferNewRek> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
   // end
@@ -202,17 +213,25 @@ class _TransferNewRekState extends State<TransferNewRek> {
                 ),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              // jangan otak-atik kode di bawah ini
-              onPressed: isButtonEnabled ? _prosesKirimUang : null,
-              // end
-              child: const Text(
-                "Lanjut",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              onPressed:
+                  (_isLoading || !isButtonEnabled) ? null : _prosesKirimUang,
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      "Lanjut",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ],
         ),

@@ -24,7 +24,7 @@ class _PinjamanPageState extends State<PinjamanPage>
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
   String? noRekPengguna;
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   String? _selectedMonth;
   OverlayEntry? _overlayEntry;
@@ -146,6 +146,7 @@ class _PinjamanPageState extends State<PinjamanPage>
     );
   }
 
+  @override
   void dispose() {
     _removeOverlay();
     _routeObserver.unsubscribe(this);
@@ -230,53 +231,78 @@ class _PinjamanPageState extends State<PinjamanPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Cek apakah halaman ini masih menggunakan rute '/pinjaman'
-    final currentRoute = ModalRoute.of(context)?.settings.name;
+    // Reset loading state when returning to this page
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
 
+    // Check if still on pinjaman route
+    final currentRoute = ModalRoute.of(context)?.settings.name;
     if (currentRoute != '/pinjaman' && _overlayEntry != null) {
       _removeOverlay();
     }
   }
 
   Future<void> _proceedToConfirm() async {
-    double nominalPinjaman = double.tryParse(
-            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0.0;
-    TransactionService transactionService = TransactionService();
-
-    String? userSlug = await transactionService.getUserSlug();
-
-    if (userSlug == null) {
+    if (_selectedMonth == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        const SnackBar(content: Text('Pilih tenor terlebih dahulu')),
       );
       return;
     }
+    
+    setState(() {
+      _isLoading = true; // Start loading
+    });
 
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
-      );
-      return;
-    }
+    try {
+      double nominalPinjaman = double.tryParse(
+              _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0.0;
+      TransactionService transactionService = TransactionService();
 
-    if (nominalPinjaman > 0) {
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/InputPinPinjaman',
-        arguments: {
-          'title': 'Konfirmasi Pinjaman',
-          'nominalPinjaman': nominalPinjaman,
-          'noRekPengguna': nomorRekening,
-          'userSlug': userSlug,
-          'tenor': _selectedMonth,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal tidak valid')),
-      );
+      String? userSlug = await transactionService.getUserSlug();
+
+      if (userSlug == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        );
+        return;
+      }
+
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, '');
+      if (rekeningData == null || rekeningData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rekening tidak ditemukan')),
+        );
+        return;
+      }
+
+      if (nominalPinjaman > 0) {
+        await NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/InputPinPinjaman',
+          arguments: {
+            'title': 'Konfirmasi Pinjaman',
+            'nominalPinjaman': nominalPinjaman,
+            'noRekPengguna': nomorRekening,
+            'userSlug': userSlug,
+            'tenor': _selectedMonth,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nominal tidak valid')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // End loading
+        });
+      }
     }
   }
 
@@ -451,7 +477,9 @@ class _PinjamanPageState extends State<PinjamanPage>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                      onPressed: (_isLoading || isButtonEnabled)
+                          ? _proceedToConfirm
+                          : null,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor:
@@ -460,14 +488,24 @@ class _PinjamanPageState extends State<PinjamanPage>
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Lanjut',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                     ),
                   ),
                 ],
