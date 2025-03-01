@@ -23,10 +23,12 @@ class rekeningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal:MediaQuery.of(context).size.width <= 412
-                        ? (MediaQuery.of(context).size.width / 412 * 18)
-                            .clamp(8, 32)
-                        : 32,),
+      padding: EdgeInsets.symmetric(
+        vertical: 0,
+        horizontal: MediaQuery.of(context).size.width <= 412
+            ? (MediaQuery.of(context).size.width / 412 * 18).clamp(8, 32)
+            : 32,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -38,10 +40,13 @@ class rekeningCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Saldo sekarang',
-                style: TextStyle(color: Color(0xFF8D8D8D)),
-              ),
+              if (isLoading)
+                Container()
+              else
+                const Text(
+                  'Saldo sekarang',
+                  style: TextStyle(color: Color(0xFF8D8D8D)),
+                ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,9 +64,7 @@ class rekeningCard extends StatelessWidget {
                         )
                       else
                         Text(
-                          isSaldoVisible
-                              ? formattedCurrency
-                              : 'Rp ${'*' * (formattedCurrency.length - 3)}',
+                          isSaldoVisible ? formattedCurrency : 'Rp ${'•••'}',
                           style: const TextStyle(
                             fontSize: 24,
                             color: Colors.black,
@@ -80,22 +83,6 @@ class rekeningCard extends StatelessWidget {
                           ),
                         ),
                     ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    width: 36,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: const Color(0xFF43964F),
-                    ),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: SvgPicture.asset(
-                        "assets/icon/Down Arrow.svg",
-                        color: Colors.white,
-                        width: 24,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -118,8 +105,10 @@ class rekeningCard extends StatelessWidget {
                         const SizedBox(width: 12),
                         GestureDetector(
                           onTap: () {
-                            Clipboard.setData(ClipboardData(text: nomorRekening));
-                            showFloatingPopup(context, "Nomor Rekening Disalin");
+                            Clipboard.setData(
+                                ClipboardData(text: nomorRekening));
+                            showFloatingPopup(
+                                context, "Nomor Rekening Disalin");
                           },
                           child: SvgPicture.asset(
                             "assets/icon/Copy.svg",
