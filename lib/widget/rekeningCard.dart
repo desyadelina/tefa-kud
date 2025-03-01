@@ -64,7 +64,7 @@ class rekeningCard extends StatelessWidget {
                         )
                       else
                         Text(
-                          isSaldoVisible ? formattedCurrency : 'Rp ${'•••'}',
+                          isSaldoVisible ? formattedCurrency : 'Rp •••',
                           style: const TextStyle(
                             fontSize: 24,
                             color: Colors.black,
@@ -76,10 +76,12 @@ class rekeningCard extends StatelessWidget {
                       if (!isLoading)
                         GestureDetector(
                           onTap: onVisibilityToggle,
-                          child: SvgPicture.asset(
-                            "assets/icon/View.svg",
-                            color: const Color(0xFF8D8D8D),
-                            width: 20,
+                          child: Icon(
+                            isSaldoVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Color(0xFF8D8D8D),
+                            size: 20,
                           ),
                         ),
                     ],
