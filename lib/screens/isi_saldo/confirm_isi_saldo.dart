@@ -135,7 +135,7 @@ class _ConfirmIsiSaldoState extends State<ConfirmIsiSaldo>with WidgetsBindingObs
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Saldo Anda Akan Menjadi',
+                        'Saldo Akhir',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

@@ -135,7 +135,7 @@ class _ConfirmTarikTunaiState extends State<ConfirmTarikTunai>
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Saldo Anda Akan Menjadi',
+                        'Saldo Akhir',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

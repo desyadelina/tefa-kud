@@ -260,7 +260,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
                       FaIcon(FontAwesomeIcons.wallet, color: Color(0xFFD02727)),
                       const SizedBox(width: 8),
                       const Text(
-                        'Saldo anda akan menjadi',
+                        'Saldo Akhir',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
