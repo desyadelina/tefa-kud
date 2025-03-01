@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
@@ -9,7 +7,6 @@ import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
 import 'package:tefa_kud/widget/rekeningCard.dart';
 import 'package:tefa_kud/services/getUserAccount.dart';
 
@@ -31,7 +28,7 @@ class _HomePageState extends State<HomePage>
   String namaPengguna = '';
   List<dynamic> riwayatTransaksi = [];
   String formattedCurrency = '';
-  bool isSaldoVisible = true;
+  bool isSaldoVisible = false;
   double _appBarOpacity = 1.0;
 
   @override
