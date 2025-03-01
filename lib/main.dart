@@ -107,12 +107,14 @@ void main() async {
 
 class MainApp extends StatelessWidget {
   final String initialRoute;
+  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
   MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
       navigatorKey: NavigatorManager.navigatorKey,

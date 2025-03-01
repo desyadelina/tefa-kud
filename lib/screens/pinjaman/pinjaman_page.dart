@@ -13,8 +13,7 @@ class PinjamanPage extends StatefulWidget {
   State<PinjamanPage> createState() => _PinjamanPageState();
 }
 
-class _PinjamanPageState extends State<PinjamanPage>
-    with SingleTickerProviderStateMixin {
+class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderStateMixin, RouteAware {
   double nominal = 0.0;
   String nomorRekening = '';
   String formattedCurrency = '';
@@ -29,6 +28,7 @@ class _PinjamanPageState extends State<PinjamanPage>
   final LayerLink _layerLink = LayerLink();
   bool _isDropdownOpened = false;
   late AnimationController _arrowController;
+  final RouteObserver<PageRoute> _routeObserver = RouteObserver<PageRoute>();
 
   @override
   void initState() {
@@ -40,8 +40,12 @@ class _PinjamanPageState extends State<PinjamanPage>
 
     _getUserAccount();
     _nominalController.addListener(_onNominalChanged);
+    
+    // Add listener for back button/gesture
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+    });
   }
-
   Future<void> _getUserAccount() async {
     TransactionService transactionService = TransactionService();
 
@@ -109,14 +113,6 @@ class _PinjamanPageState extends State<PinjamanPage>
     });
   }
 
-  @override
-  void dispose() {
-    _arrowController.dispose();
-    _nominalController.removeListener(_onNominalChanged);
-    _nominalController.dispose();
-    super.dispose();
-  }
-
   Widget _buildDropdownItem(String item) {
     return GestureDetector(
       onTap: () {
@@ -145,44 +141,84 @@ class _PinjamanPageState extends State<PinjamanPage>
     );
   }
 
+  void dispose() {
+    _removeOverlay();
+    _routeObserver.unsubscribe(this);
+    _arrowController.dispose();
+    _nominalController.removeListener(_onNominalChanged);
+    _nominalController.dispose();
+    super.dispose();
+  }
+
+  // Add these route awareness methods
+  @override
+  void didPushNext() {
+    _removeOverlay();
+    super.didPushNext();
+  }
+
+  @override
+  void didPopNext() {
+    _removeOverlay();
+    super.didPopNext();
+  }
+
+  void _removeOverlay() {
+    _arrowController.reverse();
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+      if (mounted) {
+        setState(() {
+          _isDropdownOpened = false;
+        });
+      }
+    }
+  }
+
+  // Update the _showOverlay method
   void _showOverlay() {
+    _removeOverlay(); // Remove any existing overlay first
     final overlay = Overlay.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) {
-        return Positioned(
-          width: MediaQuery.of(context).size.width - 32,
-          child: CompositedTransformFollower(
-            link: _layerLink,
-            offset: const Offset(0, 50),
-            child: Material(
-              elevation: 4,
-              child: Container(
-                height: 200,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: List.generate(12, (index) {
-                    final month = '${index + 1} Bulan';
-                    return _buildDropdownItem(month);
-                  }),
+        return GestureDetector(
+          onTap: _removeOverlay,
+          behavior: HitTestBehavior.translucent,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  color: Colors.transparent,
                 ),
               ),
-            ),
+              Positioned(
+                width: MediaQuery.of(context).size.width - 32,
+                child: CompositedTransformFollower(
+                  link: _layerLink,
+                  offset: const Offset(0, 50),
+                  child: Material(
+                    elevation: 4,
+                    child: Container(
+                      height: 200,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: List.generate(12, (index) {
+                          final month = '${index + 1} Bulan';
+                          return _buildDropdownItem(month);
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
     );
 
     overlay.insert(_overlayEntry!);
-  }
-
-  void _removeOverlay() {
-    if (_overlayEntry != null) {
-      _overlayEntry!.remove();
-      _overlayEntry = null;
-      setState(() {
-        _isDropdownOpened = false;
-      });
-    }
   }
 
   @override
