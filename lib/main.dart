@@ -470,6 +470,12 @@ class MainApp extends StatelessWidget {
 
       theme: ThemeData(
         fontFamily: 'RedRose',
+        textTheme: const TextTheme( 
+          bodyLarge: TextStyle(fontFamily: 'RedRose'),
+          bodyMedium: TextStyle(fontFamily: 'RedRose'),
+          titleLarge: TextStyle(fontFamily: 'RedRose'),
+          titleMedium: TextStyle(fontFamily: 'RedRose'),
+        ),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF43964F),
