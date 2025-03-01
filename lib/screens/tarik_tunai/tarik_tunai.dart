@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:tefa_kud/screens/tarik_tunai/confirm_tarik_tunai.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/widget/SaldoCard.dart';
 
 class TarikTunaiPage extends StatefulWidget {
   const TarikTunaiPage({
@@ -26,6 +27,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
+  bool _isLoading = true;
   String? noRekPengguna;
 
   @override
@@ -75,6 +77,7 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
             symbol: 'Rp',
             decimalDigits: 0,
           ).format(tariktunai);
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +88,12 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -155,201 +164,143 @@ class _TarikTunaiPageState extends State<TarikTunaiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
+    return Stack(
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 30),
+          padding: EdgeInsets.only(top: 100),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Saldo Sekarang',
-                    style: TextStyle(color: Color(0xFF8D8D8D)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            isSaldoVisible
-                                ? formattedCurrency
-                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Icon(
+                            FontAwesomeIcons.moneyBillTransfer,
+                            color: Color(0xFF43964F),
+                            size: 20,
                           ),
-                          const SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isSaldoVisible = !isSaldoVisible;
-                              });
-                            },
-                            child: Icon(
-                              isSaldoVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Color(0xFF8D8D8D),
+                          const SizedBox(width: 10),
+                          const Text(
+                            'Nominal Tarik Tunai',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF43964F),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: const Color(0xFF43964F),
-                        ),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(nomorRekening),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: nomorRekening));
-                          _showFloatingPopup(context, "Nomor Rekening Disalin");
-                        },
-                        child: Icon(
-                          Icons.copy,
-                          color: const Color(0xFF8D8D8D),
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        FontAwesomeIcons.moneyBillTransfer,
-                        color: Color(0xFF43964F),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Nominal Tarik Tunai',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF43964F),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text(
-                        'Rp',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _nominalController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: '0',
-                            hintStyle: TextStyle(
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Text(
+                            'Rp',
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.grey,
                             ),
-                            border: InputBorder.none,
                           ),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter
-                                .digitsOnly, // Only digits allowed
-                            LengthLimitingTextInputFormatter(
-                                12), // Limit to 12 characters
-                          ],
-                        ),
-                      )
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _nominalController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: '0',
+                                hintStyle: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(12),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isButtonEnabled ? _proceedToConfirm : null,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: isButtonEnabled ? Colors.black : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor:
+                          isButtonEnabled ? Colors.black : Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lanjut',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Lanjut',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: saldoCard(
+            isLoading: _isLoading,
+            formattedCurrency: formattedCurrency,
+            nomorRekening: nomorRekening,
+            isSaldoVisible: isSaldoVisible,
+            onVisibilityToggle: () {
+              setState(() {
+                isSaldoVisible = !isSaldoVisible;
+              });
+            },
+            showFloatingPopup: _showFloatingPopup,
+          ),
+        ),
+      ],
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/widget/saldoCard.dart';
 
 class PinjamanPage extends StatefulWidget {
   const PinjamanPage({super.key, required String title});
@@ -13,7 +14,8 @@ class PinjamanPage extends StatefulWidget {
   State<PinjamanPage> createState() => _PinjamanPageState();
 }
 
-class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderStateMixin, RouteAware {
+class _PinjamanPageState extends State<PinjamanPage>
+    with SingleTickerProviderStateMixin, RouteAware {
   double nominal = 0.0;
   String nomorRekening = '';
   String formattedCurrency = '';
@@ -22,6 +24,7 @@ class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderSt
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
   String? noRekPengguna;
+  bool _isLoading = true;
 
   String? _selectedMonth;
   OverlayEntry? _overlayEntry;
@@ -40,12 +43,13 @@ class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderSt
 
     _getUserAccount();
     _nominalController.addListener(_onNominalChanged);
-    
+
     // Add listener for back button/gesture
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
     });
   }
+
   Future<void> _getUserAccount() async {
     TransactionService transactionService = TransactionService();
 
@@ -84,6 +88,7 @@ class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderSt
             symbol: 'Rp',
             decimalDigits: 0,
           ).format(nominal);
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -473,96 +478,17 @@ class _PinjamanPageState extends State<PinjamanPage> with SingleTickerProviderSt
             top: 0,
             left: 0,
             right: 0,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Saldo Sekarang',
-                      style: TextStyle(color: Color(0xFF8D8D8D)),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              isSaldoVisible
-                                  ? formattedCurrency
-                                  : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isSaldoVisible = !isSaldoVisible;
-                                });
-                              },
-                              child: Icon(
-                                isSaldoVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color(0xFF43964F),
-                          ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Text(nomorRekening),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: nomorRekening));
-                            _showFloatingPopup(
-                                context, "Nomor Rekening Disalin");
-                          },
-                          child: Icon(
-                            Icons.copy,
-                            color: const Color(0xFF8D8D8D),
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            child: saldoCard(
+              isLoading: _isLoading,
+              formattedCurrency: formattedCurrency,
+              nomorRekening: nomorRekening,
+              isSaldoVisible: isSaldoVisible,
+              onVisibilityToggle: () {
+                setState(() {
+                  isSaldoVisible = !isSaldoVisible;
+                });
+              },
+              showFloatingPopup: _showFloatingPopup,
             ),
           ),
         ],

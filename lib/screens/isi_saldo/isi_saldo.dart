@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/confirm_isi_saldo.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/widget/saldoCard.dart';
 
 class IsiSaldoPage extends StatefulWidget {
   const IsiSaldoPage({super.key, required String title});
@@ -23,45 +24,48 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
+  bool _isLoading = true;
   String? noRekPengguna;
 
   @override
   void initState() {
     super.initState();
-
     _getUserAccount();
-    // Tambahkan listener pada controller
     _nominalController.addListener(_onNominalChanged);
   }
 
   Future<void> _getUserAccount() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     TransactionService transactionService = TransactionService();
 
-    String? userSlug = await transactionService.getUserSlug();
-
-    if (userSlug == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
-      );
-      return;
-    }
-
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
-      );
-      return;
-    }
-
-    String noRekPengguna = rekeningData[0]['no_rek'];
-
     try {
+      String? userSlug = await transactionService.getUserSlug();
+
+      if (userSlug == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        );
+        return;
+      }
+
       var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, '');
+      if (rekeningData == null || rekeningData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rekening tidak ditemukan')),
+        );
+        return;
+      }
+
+      String noRekPengguna = rekeningData[0]['no_rek'];
+      var detailRekening =
           await transactionService.getRekeningPengguna(userSlug, noRekPengguna);
-      if (rekeningData != null && rekeningData.isNotEmpty) {
-        var rekening = rekeningData[0];
+
+      if (detailRekening != null && detailRekening.isNotEmpty) {
+        var rekening = detailRekening[0];
         setState(() {
           isisaldo = (rekening['saldo'] is int)
               ? (rekening['saldo'] as int).toDouble()
@@ -72,16 +76,23 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
             symbol: 'Rp',
             decimalDigits: 0,
           ).format(isisaldo);
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rekening tidak ditemukan.')),
+          const SnackBar(content: Text('Rekening tidak ditemukan.')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data rekening: ${e.toString()}')),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -134,18 +145,17 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
 
     if (nominalTransaksi > 0) {
       NavigatorManager.navigatorKey.currentState?.pushNamed(
-      '/ConfirmIsiSaldo',
-      arguments: {
-            'title': 'Konfirmasi Transfer',
-            'nominalIsiSaldo': nominalTransaksi,
-            'noRekPengguna': nomorRekening,
-            'userSlug': userSlug,
+        '/ConfirmIsiSaldo',
+        arguments: {
+          'title': 'Konfirmasi Transfer',
+          'nominalIsiSaldo': nominalTransaksi,
+          'noRekPengguna': nomorRekening,
+          'userSlug': userSlug,
         },
-    );
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Nominal tidak valid')),
+        const SnackBar(content: Text('Nominal tidak valid')),
       );
     }
   }
@@ -275,94 +285,17 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
           top: 0,
           left: 0,
           right: 0,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Saldo Sekarang',
-                    style: TextStyle(color: Color(0xFF8D8D8D)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isSaldoVisible
-                                ? formattedCurrency
-                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isSaldoVisible = !isSaldoVisible;
-                              });
-                            },
-                            child: Icon(
-                              isSaldoVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Color(0xFF8D8D8D),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: const Color(0xFF43964F),
-                        ),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(nomorRekening),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: nomorRekening));
-                          _showFloatingPopup(context, "Nomor Rekening Disalin");
-                        },
-                        child: Icon(
-                          Icons.copy,
-                          color: const Color(0xFF8D8D8D),
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          child: saldoCard(
+            isLoading: _isLoading,
+            formattedCurrency: formattedCurrency,
+            nomorRekening: nomorRekening,
+            isSaldoVisible: isSaldoVisible,
+            onVisibilityToggle: () {
+              setState(() {
+                isSaldoVisible = !isSaldoVisible;
+              });
+            },
+            showFloatingPopup: _showFloatingPopup,
           ),
         ),
       ],
