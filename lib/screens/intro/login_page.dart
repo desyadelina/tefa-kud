@@ -75,7 +75,7 @@ class _LoginFormState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-                Text(response?['error'] ?? 'Login gagal, silakan coba lagi.'),
+                Text(response?['error'] ?? 'No Telepon atau Password Salah!'),
             backgroundColor: Colors.red,
           ),
         );

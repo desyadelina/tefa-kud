@@ -13,7 +13,8 @@ import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
 
 class MainLayout extends StatefulWidget {
   final bool showWelcomeSnackbar;
-  const MainLayout({super.key, required String title, this.showWelcomeSnackbar = false});
+  const MainLayout(
+      {super.key, required String title, this.showWelcomeSnackbar = false});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -45,7 +46,10 @@ class _MainLayoutState extends State<MainLayout>
     if (widget.showWelcomeSnackbar) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Selamat datang!')),
+          const SnackBar(
+            content: Text('Selamat datang! Senang bertemu dengan Anda.'),
+            backgroundColor: Colors.green,
+          ),
         );
       });
     }
@@ -133,9 +137,15 @@ class _MainLayoutState extends State<MainLayout>
                             unselectedLabelColor: Colors.grey,
                             indicator: const BoxDecoration(),
                             tabs: const [
-                              Tab(icon: FaIcon(FontAwesomeIcons.house, size: 20)),
-                              Tab(icon: FaIcon(FontAwesomeIcons.scroll, size: 20)),
-                              Tab(icon: FaIcon(FontAwesomeIcons.solidUser, size: 20)),
+                              Tab(
+                                  icon:
+                                      FaIcon(FontAwesomeIcons.house, size: 20)),
+                              Tab(
+                                  icon: FaIcon(FontAwesomeIcons.scroll,
+                                      size: 20)),
+                              Tab(
+                                  icon: FaIcon(FontAwesomeIcons.solidUser,
+                                      size: 20)),
                             ],
                           )
                         : SizedBox.shrink(),
