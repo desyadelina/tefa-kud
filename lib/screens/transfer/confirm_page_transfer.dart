@@ -34,7 +34,7 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
   double saldoAkhir = 0.0;
   final NumberFormat currencyFormat =
       NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
-
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -44,29 +44,45 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
 
   // jangan otak-atik kode di bawah ini
   Future<void> _getUserDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     TransactionService transactionService = TransactionService();
 
     var currentUser = await transactionService.getCurrentUser();
-    if (currentUser != null) {
-      namaPengirim = currentUser['nama_pengguna'];
-      String slug = currentUser['slug'];
+    try {
+      if (currentUser != null) {
+        namaPengirim = currentUser['nama_pengguna'];
+        String slug = currentUser['slug'];
 
-      var rekeningData = await transactionService.getRekeningPengguna(
-          slug, widget.noRekPengguna);
-      if (rekeningData != null && rekeningData.isNotEmpty) {
-        var rekening = rekeningData[0];
-        saldoAkhir = (rekening['saldo'] is int)
-            ? (rekening['saldo'] as int).toDouble() - widget.nominalTransfer
-            : rekening['saldo'] - widget.nominalTransfer;
+        var rekeningData = await transactionService.getRekeningPengguna(
+            slug, widget.noRekPengguna);
+        if (rekeningData != null && rekeningData.isNotEmpty) {
+          var rekening = rekeningData[0];
+          saldoAkhir = (rekening['saldo'] is int)
+              ? (rekening['saldo'] as int).toDouble() - widget.nominalTransfer
+              : rekening['saldo'] - widget.nominalTransfer;
 
-        noRekPengguna = rekening['no_rek'];
-      } else {
-        print('Rekening pengguna tidak ditemukan');
+          noRekPengguna = rekening['no_rek'];
+        } else {
+          print('Rekening pengguna tidak ditemukan');
+        }
       }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _getPenerimaDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     TransactionService transactionService = TransactionService();
     try {
       var slugData =
@@ -89,6 +105,10 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
       }
     } catch (e) {
       print('Error: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
   // end
@@ -133,35 +153,39 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
                           color: Color(0xFFF9F9F9),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Color(0xFF43964F),
-                              radius: 20,
-                              child: FaIcon(
-                                FontAwesomeIcons.solidUser,
-                                color: Colors.white,
-                                size: 15,
+                        child: _isLoading
+                            ? _buildSkeleton()
+                            : Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Color(0xFF43964F),
+                                    radius: 20,
+                                    child: FaIcon(
+                                      FontAwesomeIcons.solidUser,
+                                      color: Colors.white,
+                                      size: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        namaPengirim ?? 'Loading...',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                      Text(
+                                        widget.noRekPengguna,
+                                        style:
+                                            const TextStyle(color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  namaPengirim ?? 'Loading...',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                                Text(
-                                  widget.noRekPengguna,
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
                       const SizedBox(height: 20),
                       Container(
@@ -170,35 +194,39 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
                           color: Color(0xFFF9F9F9),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Color(0xFF43964F),
-                              radius: 20,
-                              child: FaIcon(
-                                FontAwesomeIcons.solidUser,
-                                color: Colors.white,
-                                size: 15,
+                        child: _isLoading
+                            ? _buildSkeleton()
+                            : Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Color(0xFF43964F),
+                                    radius: 20,
+                                    child: FaIcon(
+                                      FontAwesomeIcons.solidUser,
+                                      color: Colors.white,
+                                      size: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        namaPengirim ?? 'Loading...',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                      Text(
+                                        widget.noRekPengguna,
+                                        style:
+                                            const TextStyle(color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  namaPenerima ?? 'Loading...',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                                Text(
-                                  widget.noRekTujuan,
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
@@ -252,68 +280,143 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
                 color: Color(0xFFF9F9F9),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      FaIcon(FontAwesomeIcons.wallet, color: Color(0xFFD02727)),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Saldo Akhir',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    currencyFormat.format(saldoAkhir),
-                    style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  ),
-                ],
-              ),
+              child: _isLoading
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 150,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 200,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            FaIcon(FontAwesomeIcons.wallet,
+                                color: Color(0xFFD02727)),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Saldo Akhir',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          currencyFormat.format(saldoAkhir),
+                          style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ],
+                    ),
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                // jangan otak-atik kode di bawah ini
-                onPressed: () {
-                  NavigatorManager.navigatorKey.currentState?.pushNamed(
-                    '/ConfirmationPinTransfer',
-                    arguments: {
-                      'userSlug': widget.userSlug,
-                      'noRekPengguna': widget.noRekPengguna,
-                      'noRekTujuan': widget.noRekTujuan,
-                      'nominalTransfer': widget.nominalTransfer,
-                      'namaPenerima': namaPenerima ?? 'Unknown',
-                      'title': '',
-                    },
-                  );
-                },
-                // end
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        NavigatorManager.navigatorKey.currentState?.pushNamed(
+                          '/ConfirmationPinTransfer',
+                          arguments: {
+                            'userSlug': widget.userSlug,
+                            'noRekPengguna': widget.noRekPengguna,
+                            'noRekTujuan': widget.noRekTujuan,
+                            'nominalTransfer': widget.nominalTransfer,
+                            'namaPenerima': namaPenerima ?? 'Unknown',
+                            'title': '',
+                          },
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  // Add disabled button styles
+                  disabledBackgroundColor: Colors.grey,
+                  disabledForegroundColor: Colors.white,
                 ),
-                child: const Text(
-                  'Lanjut',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Lanjut',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSkeleton() {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 120,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              width: 80,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
