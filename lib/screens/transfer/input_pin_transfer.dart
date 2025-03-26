@@ -68,6 +68,7 @@ class _InputPinTransferState extends State<InputPinTransfer> {
     try {
       var response = await transactionService.konfirmasiRekening(
           widget.userSlug, widget.noRekPengguna, _pin);
+
       if (response != null &&
           response['message'] == 'Rekening berhasil dikonfirmasi') {
         await transactionService.kirimUang(
@@ -95,11 +96,23 @@ class _InputPinTransferState extends State<InputPinTransfer> {
         );
       }
     } catch (e) {
+      print('Error dari BE: $e'); // Debugging
+
+      String errorMessage = 'Pin yang anda masukkan salah.';
+
+      if (e.toString().contains('Transaksi sebelumnya belum selesai')) {
+        errorMessage =
+            'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.';
+      } else if (e.toString().contains('Pin yang anda masukkan salah')) {
+        errorMessage = 'Pin yang anda masukkan salah';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pin yang anda masukkan salah')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
+
   // end
 
   @override

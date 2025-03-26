@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage>
                                                             .navigatorKey
                                                             .currentState
                                                             ?.pushNamed(
-                                                                '/transfer');
+                                                                '/TransferNewRek');
                                                       },
                                                     ),
                                                   ),
@@ -416,7 +416,6 @@ class _HomePageState extends State<HomePage>
                                                               riwayatTransaksi
                                                                   .where(
                                                                       (transaction) {
-                                                            // Add null checks
                                                             if (transaction ==
                                                                     null ||
                                                                 transaction[

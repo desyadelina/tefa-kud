@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
+import 'package:intl/intl.dart'; // Gunakan intl bawaan Flutter
 
 class ReceiptBayarPinjaman extends StatefulWidget {
   final String title;
@@ -10,6 +11,7 @@ class ReceiptBayarPinjaman extends StatefulWidget {
   final String date;
   final String namaPengguna;
   final String noRekPengguna;
+
   const ReceiptBayarPinjaman({
     super.key,
     required this.title,
@@ -52,13 +54,13 @@ class _ReceiptBayarPinjamanState extends State<ReceiptBayarPinjaman> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.check_circle,
-                  color: Color(0xFF43AA4F),
+                  Icons.info_rounded,
+                  color: Colors.orange,
                   size: 50,
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Pembayaran Pinjaman berhasil',
+                  'Menunggu Konfirmasi Admin',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -66,9 +68,8 @@ class _ReceiptBayarPinjamanState extends State<ReceiptBayarPinjaman> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text("18/11/2024 18:50"),
                 Text(
-                  widget.date,
+                  _formatDate(widget.date), // Perbaiki format tanggal
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -149,5 +150,25 @@ class _ReceiptBayarPinjamanState extends State<ReceiptBayarPinjaman> {
         ),
       ),
     );
+  }
+
+  String _formatDate(String date) {
+    try {
+      print("Mencoba parsing tanggal: $date");
+      DateTime parsedDate;
+
+      if (date.contains("-")) {
+        parsedDate =
+            DateFormat("yyyy-MM-dd").parse(date); // Jika format `2025-03-27`
+      } else {
+        parsedDate = DateFormat("dd MMMM yyyy", "id_ID")
+            .parse(date); // Jika format `27 Maret 2025`
+      }
+
+      return DateFormat("dd-MM-yyyy").format(parsedDate);
+    } catch (e) {
+      print("Error parsing tanggal: $e");
+      return 'Format tanggal tidak valid';
+    }
   }
 }

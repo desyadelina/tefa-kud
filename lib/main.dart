@@ -10,7 +10,6 @@ import 'package:tefa_kud/screens/intro/splash_screen.dart';
 import 'package:tefa_kud/screens/isi_saldo/isi_saldo.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/new_pin_screen.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
-import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/profile/profile_page.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
@@ -44,8 +43,6 @@ class NavigatorManager {
 
   static Widget getRouteWidget(String routeName) {
     switch (routeName) {
-      case '/profileEdit':
-        return const ProfileEditScreen();
       case '/profile':
         return ProfilePage();
       case '/MutasiPage':
@@ -409,7 +406,7 @@ class MainApp extends StatelessWidget {
               as Map<String, dynamic>?;
 
           return DetailedPage(
-            titleBar: "Pinjaman",
+            titleBar: "Masukkan PIN Saat Ini",
             background: Color(0xFFF9F9F9),
             content: PreviousPinPage(
               title: args?['title'] ?? '',
@@ -421,9 +418,21 @@ class MainApp extends StatelessWidget {
         '/NewPinPage': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
               as Map<String, dynamic>?;
-
           return DetailedPage(
-            titleBar: "Pinjaman",
+            titleBar: "Masukkan PIN Baru",
+            background: Color(0xFFF9F9F9),
+            content: NewPinPage(
+              title: args?['title'] ?? '',
+              userSlug: args?['userSlug'] ?? '',
+              noRekPengguna: args?['noRekPengguna'] ?? '',
+            ),
+          );
+        },
+        '/ListBayarPinjaman': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          return DetailedPage(
+            titleBar: "Masukkan PIN Baru",
             background: Color(0xFFF9F9F9),
             content: NewPinPage(
               title: args?['title'] ?? '',
@@ -470,7 +479,7 @@ class MainApp extends StatelessWidget {
 
       theme: ThemeData(
         fontFamily: 'RedRose',
-        textTheme: const TextTheme( 
+        textTheme: const TextTheme(
           bodyLarge: TextStyle(fontFamily: 'RedRose'),
           bodyMedium: TextStyle(fontFamily: 'RedRose'),
           titleLarge: TextStyle(fontFamily: 'RedRose'),

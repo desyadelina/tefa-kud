@@ -1,5 +1,7 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/code_isi_saldo.dart';
@@ -67,13 +69,27 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
     try {
       var response = await transactionService.konfirmasiRekening(
           widget.userSlug, widget.noRekPengguna, _pin);
+      print('Response dari BE konfirmasiRekening: $response'); // DEBUG
+
       if (response != null &&
           response['message'] == 'Rekening berhasil dikonfirmasi') {
-        await transactionService.topUp(
+        var topUpResponse = await transactionService.topUp(
           widget.userSlug,
           widget.noRekPengguna,
           widget.nominalIsiSaldo,
         );
+
+        print('Response dari BE topUp: $topUpResponse'); // DEBUG
+
+        if (topUpResponse != null &&
+            topUpResponse['message'] == 'Transaksi sebelumnya belum selesai') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.')),
+          );
+          return;
+        }
 
         NavigatorManager.navigatorKey.currentState?.pushNamed(
           '/CodeIsiSaldo',
@@ -93,11 +109,23 @@ class _InputPinIsiSaldoState extends State<InputPinIsiSaldo> {
         );
       }
     } catch (e) {
+      print('Error dari BE: $e'); // Debugging
+
+      String errorMessage = 'Pin yang anda masukkan salah.';
+
+      if (e.toString().contains('Transaksi sebelumnya belum selesai')) {
+        errorMessage =
+            'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.';
+      } else if (e.toString().contains('Pin yang anda masukkan salah')) {
+        errorMessage = 'Pin yang anda masukkan salah';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pin yang anda masukkan salah')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
+
   // end
 
   @override

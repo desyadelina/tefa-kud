@@ -213,15 +213,10 @@ class _ConfirmTransferState extends State<ConfirmTransfer>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        namaPengirim ?? 'Loading...',
+                                        namaPenerima ?? 'Loading...',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16),
-                                      ),
-                                      Text(
-                                        widget.noRekPengguna,
-                                        style:
-                                            const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),

@@ -135,32 +135,6 @@ class _CodeTarikTunaiState extends State<CodeTarikTunai> {
                       color: Color.fromARGB(255, 67, 150, 79),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  TextButton.icon(
-                    onPressed: () {
-                      // Copy kodePinjaman to clipboard
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(
-                          25, 67, 150, 79), // Hijau dengan opacity 10%
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.copy,
-                      color: Color.fromARGB(255, 67, 150, 79),
-                    ),
-                    label: const Text(
-                      'Salin Kode',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 67, 150, 79),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),

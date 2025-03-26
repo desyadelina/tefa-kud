@@ -132,29 +132,6 @@ class _CodeIsiSaldoState extends State<CodeIsiSaldo> {
                     color: Color.fromARGB(255, 67, 150, 79),
                   ),
                 ),
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(25, 67, 150, 79),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                  ),
-                  icon: const Icon(
-                    Icons.copy,
-                    color: Color.fromARGB(255, 67, 150, 79),
-                  ),
-                  label: const Text(
-                    'Salin Kode',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 67, 150, 79),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
               ],
             ),
           ),

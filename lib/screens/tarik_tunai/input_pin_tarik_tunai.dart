@@ -1,5 +1,7 @@
 // ignore_for_file: use_super_parameters, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/isi_saldo/receipt_isi_saldo.dart';
@@ -67,13 +69,28 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
     try {
       var response = await transactionService.konfirmasiRekening(
           widget.userSlug, widget.noRekPengguna, _pin);
+      print('Response dari BE konfirmasiRekening: $response'); // DEBUG
+
       if (response != null &&
           response['message'] == 'Rekening berhasil dikonfirmasi') {
-        await transactionService.tarikUang(
+        var tarikTunaiResponse = await transactionService.tarikUang(
           widget.userSlug,
           widget.noRekPengguna,
           widget.nominalTarikTunai,
         );
+
+        print('Response dari BE tarikUang: $tarikTunaiResponse'); // DEBUG
+
+        if (tarikTunaiResponse != null &&
+            tarikTunaiResponse['message'] ==
+                'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.')),
+          );
+          return;
+        }
 
         NavigatorManager.navigatorKey.currentState?.pushNamed(
           '/CodeTarikTunai',
@@ -93,8 +110,19 @@ class _InputPinTarikTunaiState extends State<InputPinTarikTunai> {
         );
       }
     } catch (e) {
+      print('Error dari BE: $e'); // Debugging
+
+      String errorMessage = 'Pin yang anda masukkan salah.';
+
+      if (e.toString().contains('Transaksi sebelumnya belum selesai')) {
+        errorMessage =
+            'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.';
+      } else if (e.toString().contains('Pin yang anda masukkan salah')) {
+        errorMessage = 'Pin yang anda masukkan salah';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pin yang anda masukkan salah')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }

@@ -16,6 +16,7 @@ class DetailBayarPinjaman extends StatefulWidget {
     required this.dueDate,
     required this.userSlug,
     required this.noRekPengguna,
+    required String title,
   });
 
   @override
@@ -31,17 +32,6 @@ class _DetailBayarPinjamanState extends State<DetailBayarPinjaman> {
       ),
       body: Stack(
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 30),
-            padding: const EdgeInsets.only(top: 100),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-          ),
           Positioned(
             top: 0,
             left: 0,

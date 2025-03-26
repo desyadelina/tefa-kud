@@ -1,5 +1,7 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/services/auth_service.dart';
@@ -65,14 +67,29 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
     try {
       var response = await transactionService.konfirmasiRekening(
           widget.userSlug, widget.noRekPengguna, _pin);
+      print('Response dari BE konfirmasiRekening: $response'); // DEBUG
+
       if (response != null &&
           response['message'] == 'Rekening berhasil dikonfirmasi') {
-        await transactionService.pinjaman(
+        var pinjamanResponse = await transactionService.pinjaman(
           widget.userSlug,
           widget.noRekPengguna,
           widget.nominalPinjaman,
           widget.tenor,
         );
+
+        print('Response dari BE pinjaman: $pinjamanResponse'); // DEBUG
+
+        if (pinjamanResponse != null &&
+            pinjamanResponse['message'] ==
+                'Transaksi sebelumnya belum selesai') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.')),
+          );
+          return;
+        }
 
         NavigatorManager.navigatorKey.currentState?.pushNamed(
           '/CodePinjaman',
@@ -92,8 +109,19 @@ class _InputPinPinjamanState extends State<InputPinPinjaman> {
         );
       }
     } catch (e) {
+      print('Error dari BE: $e'); // Debugging
+
+      String errorMessage = 'Pin yang anda masukkan salah.';
+
+      if (e.toString().contains('Transaksi sebelumnya belum selesai')) {
+        errorMessage =
+            'Transaksi sebelumnya belum selesai. Harap menunggu konfirmasi admin.';
+      } else if (e.toString().contains('Pin yang anda masukkan salah')) {
+        errorMessage = 'Pin yang anda masukkan salah';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pin yang anda masukkan salah')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }

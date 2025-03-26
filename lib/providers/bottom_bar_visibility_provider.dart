@@ -19,4 +19,6 @@ class BottomBarVisibilityProvider with ChangeNotifier {
     _isVisible = true;
     notifyListeners();
   }
+
+  void setVisibility(bool bool) {}
 }

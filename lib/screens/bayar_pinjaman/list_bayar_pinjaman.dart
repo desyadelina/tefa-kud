@@ -90,7 +90,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
       );
-      return; 
+      return;
     }
 
     var rekeningData =
@@ -153,115 +153,8 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
       ),
       body: Stack(
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 30),
-            padding: const EdgeInsets.only(top: 100),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Saldo Sekarang',
-                      style: TextStyle(color: Color(0xFF8D8D8D)),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              isSaldoVisible
-                                  ? formattedSaldo
-                                  : 'Rp ${'*' * (formattedSaldo.length - 3)}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isSaldoVisible = !isSaldoVisible;
-                                });
-                              },
-                              child: Icon(
-                                isSaldoVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: const Color(0xFF8D8D8D),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color(0xFF43964F),
-                          ),
-                          child: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Text(nomorRekening),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: nomorRekening));
-                            _showFloatingPopup(
-                                context, "Nomor Rekening Disalin");
-                          },
-                          child: const Icon(
-                            Icons.copy,
-                            color: Color(0xFF8D8D8D),
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.only(top: 140, left: 16, right: 16),
+            padding: const EdgeInsets.only(top: 10, left: 16, right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -359,6 +252,7 @@ class _ListBayarPinjamanState extends State<ListBayarPinjaman> {
                                                 dueDate: item['dueDate'],
                                                 userSlug: userSlug!,
                                                 noRekPengguna: noRekPengguna!,
+                                                title: '',
                                               ),
                                             ),
                                           );

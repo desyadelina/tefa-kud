@@ -53,13 +53,13 @@ class _ReceiptIsiSaldoState extends State<ReceiptIsiSaldo> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.check_circle,
-                  color: Color(0xFF43AA4F),
+                  Icons.info_rounded,
+                  color: Colors.orange,
                   size: 50,
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Isi Saldo berhasil',
+                  'Saldo Menunggu Konfirmasi Admin',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

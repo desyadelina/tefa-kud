@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
-import 'package:tefa_kud/screens/profile/profile_edit_screen.dart';
 import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
@@ -251,44 +250,6 @@ class _ProfileState extends State<ProfilePage>
                           ),
                         ],
                       ),
-                    const SizedBox(height: 8),
-                    if (_isLoading)
-                      Container(
-                        width: 180,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      )
-                    else
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileEditScreen(),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: Color(0xFF43964F), width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          minimumSize: Size(180, 40),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: Text(
-                          "Edit Akun",
-                          style: TextStyle(
-                            color: Color(0xFF43964F),
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               )
@@ -324,16 +285,8 @@ class _ProfileState extends State<ProfilePage>
                         text: "Ganti Pin",
                         iconPath: 'assets/icon/Dialing Number.svg',
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PreviousPinPage(
-                                title: 'Previous Pin',
-                                userSlug: userSlug,
-                                noRekPengguna: '',
-                              ),
-                            ),
-                          );
+                          NavigatorManager.navigatorKey.currentState
+                              ?.pushNamed('/PreviousPinPage');
                         },
                       );
                     } else {
@@ -388,9 +341,10 @@ class _ProfileState extends State<ProfilePage>
             ],
           ),
           SizedBox(
-            height: screenWidth >= 412
-                ? 350
-                : (screenWidth / 412 * 290).clamp(150, 390),
+            height: (screenWidth >= 412
+                    ? 350
+                    : (screenWidth / 412 * 290).clamp(150, 390)) +
+                20,
           ),
           Column(
             children: [

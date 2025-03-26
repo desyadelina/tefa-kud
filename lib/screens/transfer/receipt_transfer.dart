@@ -59,13 +59,13 @@ class _ReceiptTransferState extends State<ReceiptTransfer> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.check_circle,
-                  color: Color(0xFF43AA4F),
+                  Icons.info_rounded,
+                  color: Colors.orange,
                   size: 50,
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Transfer berhasil',
+                  ' Menunggu Konfirmasi Admin',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
