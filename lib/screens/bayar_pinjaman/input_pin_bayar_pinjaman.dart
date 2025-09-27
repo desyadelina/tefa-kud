@@ -62,30 +62,37 @@ class _InputPinBayarPinjamanState extends State<InputPinBayarPinjaman> {
     print(
         'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
 
-    var response = await transactionService.konfirmasiRekening(
-        widget.userSlug, widget.noRekPengguna, _pin);
-    if (response != null &&
-        response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.pembayaran(
-        widget.userSlug,
-        widget.noRekPengguna,
-        widget.nominalBayarPinjaman,
-      );
+    try {
+      var response = await transactionService.konfirmasiRekening(
+          widget.userSlug, widget.noRekPengguna, _pin);
+      if (response != null &&
+          response['message'] == 'Rekening berhasil dikonfirmasi') {
+        await transactionService.pembayaran(
+          widget.userSlug,
+          widget.noRekPengguna,
+          widget.nominalBayarPinjaman,
+        );
 
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/ReceiptBayarPinjaman',
-        arguments: {
-          'title': 'Selesai',
-          'nominal': widget.nominalBayarPinjaman.toString(),
-          'date': DateTime.now().toString(),
-          'noRekPengguna': widget.noRekPengguna,
-          'userSlug': widget.userSlug,
-        },
-      );
-    } else {
+        NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/ReceiptBayarPinjaman',
+          arguments: {
+            'title': 'Selesai',
+            'nominal': widget.nominalBayarPinjaman.toString(),
+            'date': DateTime.now().toString(),
+            'noRekPengguna': widget.noRekPengguna,
+            'userSlug': widget.userSlug,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        SnackBar(content: Text('Pin yang anda masukkan salah')),
       );
     }
   }

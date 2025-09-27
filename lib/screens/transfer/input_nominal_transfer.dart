@@ -9,6 +9,7 @@ import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:tefa_kud/screens/transfer/confirm_page_transfer.dart';
 import 'package:tefa_kud/main.dart';
+import 'package:tefa_kud/widget/saldoCard.dart';
 
 class InputNominalTransfer extends StatefulWidget {
   final String title;
@@ -35,18 +36,22 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   bool isSaldoVisible = true;
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
     _getUserAccount();
-    // Tambahkan listener pada controller
     _nominalController.addListener(_onNominalChanged);
   }
 
   // jangan otak-atik kode di bawah ini
   Future<void> _getUserAccount() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     TransactionService transactionService = TransactionService();
     try {
       var rekeningData = await transactionService.getRekeningPengguna(
@@ -63,6 +68,7 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
             symbol: 'Rp',
             decimalDigits: 0,
           ).format(saldo);
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,6 +100,18 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Reset loading state when returning to this page
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _nominalController.removeListener(_onNominalChanged);
     _nominalController.dispose();
@@ -101,27 +119,40 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
   }
 
   // jangan otak-atik kode di bawah ini
-  void _proceedToConfirm() {
-    double nominalTransaksi = double.tryParse(
-            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0.0;
+  void _proceedToConfirm() async {
+    // Make this async
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/ConfirmTransfer',
-        arguments: {
-          'title': 'Konfirmasi Transfer',
-          'nominalTransfer': nominalTransaksi,
-          'noRekPengguna': nomorRekening,
-          'noRekTujuan': widget.rekeningTujuan,
-          'userSlug': widget.userSlug,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Nominal tidak valid atau melebihi saldo')),
-      );
+    try {
+      double nominalTransaksi = double.tryParse(
+              _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0.0;
+
+      if (nominalTransaksi > 0 && nominalTransaksi <= saldo) {
+        await NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/ConfirmTransfer',
+          arguments: {
+            'title': 'Konfirmasi Transfer',
+            'nominalTransfer': nominalTransaksi,
+            'noRekPengguna': nomorRekening,
+            'noRekTujuan': widget.rekeningTujuan,
+            'userSlug': widget.userSlug,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Nominal tidak valid atau melebihi saldo')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Reset loading state
+        });
+      }
     }
   }
   // end
@@ -224,7 +255,9 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     // jangan otak-atik kode di bawah ini
-                    onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                    onPressed: (_isLoading || isButtonEnabled)
+                        ? _proceedToConfirm
+                        : null,
                     // end
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -234,14 +267,24 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Lanjut',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -252,94 +295,17 @@ class _InputNominalTransferState extends State<InputNominalTransfer> {
           top: 0,
           left: 0,
           right: 0,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Saldo Sekarang',
-                    style: TextStyle(color: Color(0xFF8D8D8D)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isSaldoVisible
-                                ? formattedCurrency
-                                : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isSaldoVisible = !isSaldoVisible;
-                              });
-                            },
-                            child: Icon(
-                              isSaldoVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Color(0xFF8D8D8D),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: const Color(0xFF43964F),
-                        ),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(nomorRekening),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: nomorRekening));
-                          _showFloatingPopup(context, "Nomor Rekening Disalin");
-                        },
-                        child: Icon(
-                          Icons.copy,
-                          color: const Color(0xFF8D8D8D),
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          child: saldoCard(
+            isLoading: _isLoading,
+            formattedCurrency: formattedCurrency,
+            nomorRekening: nomorRekening,
+            isSaldoVisible: isSaldoVisible,
+            onVisibilityToggle: () {
+              setState(() {
+                isSaldoVisible = !isSaldoVisible;
+              });
+            },
+            showFloatingPopup: _showFloatingPopup,
           ),
         ),
       ],

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
+import 'package:tefa_kud/widget/saldoCard.dart';
 
 class PinjamanPage extends StatefulWidget {
   const PinjamanPage({super.key, required String title});
@@ -14,7 +15,7 @@ class PinjamanPage extends StatefulWidget {
 }
 
 class _PinjamanPageState extends State<PinjamanPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   double nominal = 0.0;
   String nomorRekening = '';
   String formattedCurrency = '';
@@ -23,12 +24,14 @@ class _PinjamanPageState extends State<PinjamanPage>
   final TextEditingController _nominalController = TextEditingController();
   bool isButtonEnabled = false;
   String? noRekPengguna;
+  bool _isLoading = false;
 
   String? _selectedMonth;
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
   bool _isDropdownOpened = false;
   late AnimationController _arrowController;
+  final RouteObserver<PageRoute> _routeObserver = RouteObserver<PageRoute>();
 
   @override
   void initState() {
@@ -40,6 +43,11 @@ class _PinjamanPageState extends State<PinjamanPage>
 
     _getUserAccount();
     _nominalController.addListener(_onNominalChanged);
+
+    // Add listener for back button/gesture
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+    });
   }
 
   Future<void> _getUserAccount() async {
@@ -80,6 +88,7 @@ class _PinjamanPageState extends State<PinjamanPage>
             symbol: 'Rp',
             decimalDigits: 0,
           ).format(nominal);
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,14 +116,6 @@ class _PinjamanPageState extends State<PinjamanPage>
     setState(() {
       isButtonEnabled = text.isNotEmpty;
     });
-  }
-
-  @override
-  void dispose() {
-    _arrowController.dispose();
-    _nominalController.removeListener(_onNominalChanged);
-    _nominalController.dispose();
-    super.dispose();
   }
 
   Widget _buildDropdownItem(String item) {
@@ -145,28 +146,79 @@ class _PinjamanPageState extends State<PinjamanPage>
     );
   }
 
+  @override
+  void dispose() {
+    _removeOverlay();
+    _routeObserver.unsubscribe(this);
+    _arrowController.dispose();
+    _nominalController.removeListener(_onNominalChanged);
+    _nominalController.dispose();
+    super.dispose();
+  }
+
+  // Add these route awareness methods
+  @override
+  void didPushNext() {
+    _removeOverlay();
+    super.didPushNext();
+  }
+
+  @override
+  void didPopNext() {
+    _removeOverlay();
+    super.didPopNext();
+  }
+
+  void _removeOverlay() {
+    _arrowController.reverse();
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+      if (mounted) {
+        setState(() {
+          _isDropdownOpened = false;
+        });
+      }
+    }
+  }
+
+  // Update the _showOverlay method
   void _showOverlay() {
+    _removeOverlay(); // Remove any existing overlay first
     final overlay = Overlay.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) {
-        return Positioned(
-          width: MediaQuery.of(context).size.width - 32,
-          child: CompositedTransformFollower(
-            link: _layerLink,
-            offset: const Offset(0, 50),
-            child: Material(
-              elevation: 4,
-              child: Container(
-                height: 200,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: List.generate(12, (index) {
-                    final month = '${index + 1} Bulan';
-                    return _buildDropdownItem(month);
-                  }),
+        return GestureDetector(
+          onTap: _removeOverlay,
+          behavior: HitTestBehavior.translucent,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  color: Colors.transparent,
                 ),
               ),
-            ),
+              Positioned(
+                width: MediaQuery.of(context).size.width - 32,
+                child: CompositedTransformFollower(
+                  link: _layerLink,
+                  offset: const Offset(0, 50),
+                  child: Material(
+                    elevation: 4,
+                    child: Container(
+                      height: 200,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: List.generate(12, (index) {
+                          final month = '${index + 1} Bulan';
+                          return _buildDropdownItem(month);
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -175,67 +227,82 @@ class _PinjamanPageState extends State<PinjamanPage>
     overlay.insert(_overlayEntry!);
   }
 
-  void _removeOverlay() {
-    if (_overlayEntry != null) {
-      _overlayEntry!.remove();
-      _overlayEntry = null;
-      setState(() {
-        _isDropdownOpened = false;
-      });
-    }
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Cek apakah halaman ini masih menggunakan rute '/pinjaman'
-    final currentRoute = ModalRoute.of(context)?.settings.name;
+    // Reset loading state when returning to this page
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
 
+    // Check if still on pinjaman route
+    final currentRoute = ModalRoute.of(context)?.settings.name;
     if (currentRoute != '/pinjaman' && _overlayEntry != null) {
       _removeOverlay();
     }
   }
 
   Future<void> _proceedToConfirm() async {
-    double nominalPinjaman = double.tryParse(
-            _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0.0;
-    TransactionService transactionService = TransactionService();
-
-    String? userSlug = await transactionService.getUserSlug();
-
-    if (userSlug == null) {
+    if (_selectedMonth == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        const SnackBar(content: Text('Pilih tenor terlebih dahulu')),
       );
       return;
     }
+    
+    setState(() {
+      _isLoading = true; // Start loading
+    });
 
-    var rekeningData =
-        await transactionService.getRekeningPengguna(userSlug, '');
-    if (rekeningData == null || rekeningData.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rekening tidak ditemukan')),
-      );
-      return;
-    }
+    try {
+      double nominalPinjaman = double.tryParse(
+              _nominalController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+          0.0;
+      TransactionService transactionService = TransactionService();
 
-    if (nominalPinjaman > 0) {
-      NavigatorManager.navigatorKey.currentState?.pushNamed(
-        '/InputPinPinjaman',
-        arguments: {
-          'title': 'Konfirmasi Pinjaman',
-          'nominalPinjaman': nominalPinjaman,
-          'noRekPengguna': nomorRekening,
-          'userSlug': userSlug,
-          'tenor': _selectedMonth,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal tidak valid')),
-      );
+      String? userSlug = await transactionService.getUserSlug();
+
+      if (userSlug == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Silahkan sign in terlebih dahulu')),
+        );
+        return;
+      }
+
+      var rekeningData =
+          await transactionService.getRekeningPengguna(userSlug, '');
+      if (rekeningData == null || rekeningData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rekening tidak ditemukan')),
+        );
+        return;
+      }
+
+      if (nominalPinjaman > 0) {
+        await NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/InputPinPinjaman',
+          arguments: {
+            'title': 'Konfirmasi Pinjaman',
+            'nominalPinjaman': nominalPinjaman,
+            'noRekPengguna': nomorRekening,
+            'userSlug': userSlug,
+            'tenor': _selectedMonth,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nominal tidak valid')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // End loading
+        });
+      }
     }
   }
 
@@ -410,7 +477,9 @@ class _PinjamanPageState extends State<PinjamanPage>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: isButtonEnabled ? _proceedToConfirm : null,
+                      onPressed: (_isLoading || isButtonEnabled)
+                          ? _proceedToConfirm
+                          : null,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor:
@@ -419,14 +488,24 @@ class _PinjamanPageState extends State<PinjamanPage>
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Lanjut',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -437,96 +516,17 @@ class _PinjamanPageState extends State<PinjamanPage>
             top: 0,
             left: 0,
             right: 0,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Saldo Sekarang',
-                      style: TextStyle(color: Color(0xFF8D8D8D)),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              isSaldoVisible
-                                  ? formattedCurrency
-                                  : 'Rp ${'*' * (formattedCurrency.length - 3)}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isSaldoVisible = !isSaldoVisible;
-                                });
-                              },
-                              child: Icon(
-                                isSaldoVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color(0xFF43964F),
-                          ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Text(nomorRekening),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: nomorRekening));
-                            _showFloatingPopup(
-                                context, "Nomor Rekening Disalin");
-                          },
-                          child: Icon(
-                            Icons.copy,
-                            color: const Color(0xFF8D8D8D),
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            child: saldoCard(
+              isLoading: _isLoading,
+              formattedCurrency: formattedCurrency,
+              nomorRekening: nomorRekening,
+              isSaldoVisible: isSaldoVisible,
+              onVisibilityToggle: () {
+                setState(() {
+                  isSaldoVisible = !isSaldoVisible;
+                });
+              },
+              showFloatingPopup: _showFloatingPopup,
             ),
           ),
         ],

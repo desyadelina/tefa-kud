@@ -1,7 +1,7 @@
-// ignore_for_file: non_constant_identifier_names, unused_field, deprecated_member_use, use_key_in_widget_constructors, prefer_const_constructors
-
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/profile/ganti_pin/prev_pin_screen.dart';
@@ -12,8 +12,10 @@ import 'package:tefa_kud/services/transaksi_service.dart';
 import 'package:tefa_kud/widget/button.dart';
 import 'package:tefa_kud/main.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../widget/layout/auth_layout.dart';
+import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
+import 'package:tefa_kud/widget/layout/auth_layout.dart';
 import '../intro/login_page.dart';
+import 'package:tefa_kud/services/getUserAccount.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
@@ -27,69 +29,51 @@ class _ProfileState extends State<ProfilePage>
   final authService = AuthService();
   final transactionService = TransactionService();
 
-  late Future<Map<String, String>> _userDataFuture;
   late Future<String?> _userSlugFuture;
 
-  late TabController tabController;
-  final List<Color> colors = [Colors.blue, Colors.red, Colors.green];
   int currentPage = 0;
+  final UserAccountService _userAccountService = UserAccountService();
 
-  // Controllers for text fields
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  // Focus nodes
-  final FocusNode _usernameFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
-
-  // Dropdown selection
-  String _selectedCountryCode = '+62';
-  bool _isObscured = true;
+  String nomorRekening = '';
+  String namaPengguna = '';
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: colors.length, vsync: this);
-    tabController.addListener(() {
-      setState(() {
-        currentPage = tabController.index;
-      });
-    });
 
-    _userDataFuture = _getUserData();
     _userSlugFuture = transactionService.getUserSlug();
+    _getUserAccount();
   }
 
-  Future<Map<String, String>> _getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _getUserAccount() async {
+    try {
+      if (!mounted) return;
+      setState(() => _isLoading = true);
 
-    // Ambil data yang disimpan di SharedPreferences
-    String namaPengguna =
-        prefs.getString('nama_pengguna') ?? 'Nama tidak ditemukan';
-    String alamat = prefs.getString('alamat') ?? 'Alamat tidak ditemukan';
+      final result = await _userAccountService.getUserAccount(context);
 
-    return {
-      'nama_pengguna': namaPengguna,
-      'alamat': alamat,
-    };
+      if (mounted) {
+        setState(() {
+          nomorRekening = result['nomorRekening'];
+          namaPengguna = result['namaPengguna'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
-  @override
-  void dispose() {
-    tabController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _usernameFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    super.dispose();
-  }
+  void _logout() async {
+    final AuthService authService = AuthService();
+    await authService.signOut(context);
 
-  void _editProfile() {
-    print('Edit profile pressed');
-  }
-
-  Future<void> _logout() async {
-    await authService.signOut();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -103,7 +87,7 @@ class _ProfileState extends State<ProfilePage>
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16), // Border radius modern
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -210,150 +194,103 @@ class _ProfileState extends State<ProfilePage>
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundImage:
-                    AssetImage('assets/logo/koperasi-indonesia-seeklogo.png'),
-              ),
+              if (_isLoading)
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey,
+                )
+              else
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundImage:
+                      AssetImage('assets/logo/koperasi-indonesia-seeklogo.png'),
+                ),
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                child: FutureBuilder<Map<String, String>>(
-                    future: _userDataFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
-                        // Ambil data dari snapshot
-                        final userData = snapshot.data!;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${userData['nama_pengguna']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fsName),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_isLoading)
+                      Container(
+                        width: 150,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      )
+                    else
+                      Text(
+                        namaPengguna,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fsName,
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    if (_isLoading)
+                      Container(
+                        width: 120,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      )
+                    else
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            nomorRekening,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              color: Colors.grey,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Image(
-                                  image:
-                                      AssetImage('assets/images/Location.png'),
-                                  height: 20,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '${userData['alamat']}',
-                                  style: TextStyle(
-                                    fontSize: fontSize,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 8),
+                    if (_isLoading)
+                      Container(
+                        width: 180,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      )
+                    else
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileEditScreen(),
                             ),
-                            SizedBox(height: 16.0),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfileEditScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF43964F),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                minimumSize: Size(
-                                    180, 40), // Set width to double.infinity
-                              ),
-                              child: Text(
-                                "Edit Akun",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          ],
-                        );
-                      } else {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nama Pengguna: Tidak ada data',
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Image(
-                                  image: AssetImage(
-                                      'assets/images/Location-gray.png'),
-                                  height: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  'Alamat: Tidak ada data',
-                                  style: TextStyle(
-                                      fontSize: fontSize, color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 16.0),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TarikTunaiPage(
-                                      title: '',
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text("Edit Akun"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfileEditScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF43964F),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                minimumSize: const Size(220, 50),
-                              ),
-                              child: Text(
-                                "Edit Akun",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    }),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: Color(0xFF43964F), width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          minimumSize: Size(180, 40),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        child: Text(
+                          "Edit Akun",
+                          style: TextStyle(
+                            color: Color(0xFF43964F),
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               )
             ],
           ),
@@ -361,62 +298,93 @@ class _ProfileState extends State<ProfilePage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FutureBuilder<String?>(
-                future: _userSlugFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    final userSlug = snapshot.data ?? '';
-                    return ListButtonMenuProfile(
-                      text: "Ganti Pin",
-                      iconPath: 'assets/icon/Dialing Number.svg',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PreviousPinPage(
-                              title: 'Previous Pin',
-                              userSlug: userSlug,
-                              noRekPengguna: '',
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return Center(child: Text('User slug not found'));
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-              const Divider(
-                color: Color(0xFFd9d9d9),
-                thickness: 1,
-                height: 1,
-              ),
-              ListButtonMenuProfile(
-                text: "Bayar Pinjaman",
-                iconPath: 'assets/icon/Pay.svg',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ListBayarPinjaman(
-                        title: 'Bayar Pinjaman',
-                      ),
+              if (_isLoading)
+                // Skeleton for Ganti Pin
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  );
-                },
-              ),
+                  ),
+                )
+              else
+                FutureBuilder<String?>(
+                  future: _userSlugFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData) {
+                      final userSlug = snapshot.data ?? '';
+                      return ListButtonMenuProfile(
+                        text: "Ganti Pin",
+                        iconPath: 'assets/icon/Dialing Number.svg',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PreviousPinPage(
+                                title: 'Previous Pin',
+                                userSlug: userSlug,
+                                noRekPengguna: '',
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(child: Text('User slug not found'));
+                    }
+                  },
+                ),
               const SizedBox(height: 8),
-              const Divider(
-                color: Color(0xFFd9d9d9),
-                thickness: 1,
-                height: 1,
-              ),
+              if (_isLoading)
+                Container()
+              else
+                const Divider(
+                  color: Color(0xFFd9d9d9),
+                  thickness: 1,
+                  height: 1,
+                ),
+              if (_isLoading)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
+              else
+                ListButtonMenuProfile(
+                  text: "Bayar Pinjaman",
+                  iconPath: 'assets/icon/Pay.svg',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ListBayarPinjaman(
+                          title: 'Bayar Pinjaman',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(height: 8),
+              if (_isLoading)
+                Container()
+              else
+                const Divider(
+                  color: Color(0xFFd9d9d9),
+                  thickness: 1,
+                  height: 1,
+                ),
             ],
           ),
           SizedBox(
@@ -426,37 +394,49 @@ class _ProfileState extends State<ProfilePage>
           ),
           Column(
             children: [
-              OutlinedButton(
-                onPressed: () {
-                  _showLogoutConfirmationDialog(context);
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              if (_isLoading)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  minimumSize: Size(MediaQuery.of(context).size.width, 60),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.logout,
-                      color: Colors.red,
+                )
+              else
+                OutlinedButton(
+                  onPressed: () {
+                    _showLogoutConfirmationDialog(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.red, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Keluar Akun",
-                      style: TextStyle(
+                    minimumSize: Size(MediaQuery.of(context).size.width, 60),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.logout,
                         color: Colors.red,
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ],
-                ),
-              )
+                      const SizedBox(width: 8),
+                      Text(
+                        "Keluar Akun",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
             ],
           )
         ],

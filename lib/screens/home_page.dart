@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tefa_kud/main.dart';
@@ -9,7 +7,6 @@ import 'package:tefa_kud/screens/tarik_tunai/tarik_tunai.dart';
 import 'package:tefa_kud/screens/transfer/list_transfer.dart';
 import 'package:tefa_kud/widget/IconMenuButton.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
 import 'package:tefa_kud/widget/rekeningCard.dart';
 import 'package:tefa_kud/services/getUserAccount.dart';
 
@@ -31,7 +28,7 @@ class _HomePageState extends State<HomePage>
   String namaPengguna = '';
   List<dynamic> riwayatTransaksi = [];
   String formattedCurrency = '';
-  bool isSaldoVisible = true;
+  bool isSaldoVisible = false;
   double _appBarOpacity = 1.0;
 
   @override
@@ -76,6 +73,13 @@ class _HomePageState extends State<HomePage>
     });
 
     await _getUserAccount();
+  }
+
+  bool isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   @override
@@ -406,28 +410,103 @@ class _HomePageState extends State<HomePage>
                                                         ),
                                                       )
                                                     else
-                                                      ...riwayatTransaksi
-                                                          .map((transaction) {
-                                                        return _buildTransactionItem(
-                                                          namaPengguna,
-                                                          formatTransactionType(
-                                                              transaction[
-                                                                  'jenis_transaksi']),
-                                                          transaction[
-                                                              'nominal_transaksi'],
-                                                          transaction[
-                                                                          'jenis_transaksi'] ==
-                                                                      'kirim_uang' ||
+                                                      Builder(
+                                                        builder: (context) {
+                                                          final todayTransactions =
+                                                              riwayatTransaksi
+                                                                  .where(
+                                                                      (transaction) {
+                                                            // Add null checks
+                                                            if (transaction ==
+                                                                    null ||
+                                                                transaction[
+                                                                        'tanggal_transaksi'] ==
+                                                                    null) {
+                                                              return false;
+                                                            }
+                                                            try {
+                                                              final createdAt =
+                                                                  DateTime.parse(
+                                                                      transaction[
+                                                                          'tanggal_transaksi']);
+                                                              return isToday(
+                                                                  createdAt);
+                                                            } catch (e) {
+                                                              return false;
+                                                            }
+                                                          }).toList();
+
+                                                          if (todayTransactions
+                                                              .isEmpty) {
+                                                            return Container(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      vertical:
+                                                                          40),
+                                                              width: double
+                                                                  .infinity,
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Text(
+                                                                    "Tidak ada transaksi",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          return Column(
+                                                            children:
+                                                                todayTransactions
+                                                                    .map(
+                                                                        (transaction) {
+                                                              // Add null checks for transaction data
+                                                              final String
+                                                                  transactionType =
+                                                                  transaction['jenis_transaksi']
+                                                                          ?.toString() ??
+                                                                      '';
+                                                              final int
+                                                                  nominal =
                                                                   transaction[
-                                                                          'jenis_transaksi'] ==
-                                                                      'tarik_uang' ||
-                                                                  transaction[
-                                                                          'jenis_transaksi'] ==
-                                                                      'pembayaran'
-                                                              ? true
-                                                              : false,
-                                                        );
-                                                      })
+                                                                          'nominal_transaksi'] ??
+                                                                      0;
+                                                              final bool
+                                                                  isDebit =
+                                                                  transactionType == 'kirim_uang' ||
+                                                                      transactionType ==
+                                                                          'tarik_uang' ||
+                                                                      transactionType ==
+                                                                          'pembayaran';
+
+                                                              return _buildTransactionItem(
+                                                                namaPengguna ??
+                                                                    '',
+                                                                formatTransactionType(
+                                                                    transactionType),
+                                                                nominal,
+                                                                isDebit,
+                                                              );
+                                                            }).toList(),
+                                                          );
+                                                        },
+                                                      ),
                                                   ],
                                                 ),
                                                 Container(
@@ -477,7 +556,9 @@ class _HomePageState extends State<HomePage>
       String name, String type, int amount, bool isDebit) {
     double screenWidth = MediaQuery.of(context).size.width;
     final int maxChars = screenWidth < 372 ? 24 : 30;
-    double fontSize = screenWidth >= 412 ? 16 : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+    double fontSize = screenWidth >= 412
+        ? 16
+        : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -495,11 +576,13 @@ class _HomePageState extends State<HomePage>
                 name.length > maxChars
                     ? '${name.substring(0, maxChars)}...'
                     : name,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(type, style: TextStyle(color: Colors.grey, fontSize: fontSize)),
+              Text(type,
+                  style: TextStyle(color: Colors.grey, fontSize: fontSize)),
             ],
           ),
           const Spacer(),

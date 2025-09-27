@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:tefa_kud/main.dart';
 import 'package:tefa_kud/screens/transfer/receipt_transfer.dart';
 import 'package:tefa_kud/services/auth_service.dart';
 import 'package:tefa_kud/services/transaksi_service.dart';
@@ -64,33 +65,38 @@ class _InputPinTransferState extends State<InputPinTransfer> {
     print(
         'Slug: ${widget.userSlug}, Rekening: ${widget.noRekPengguna}, PIN: $_pin');
 
-    var response = await transactionService.konfirmasiRekening(
-        widget.userSlug, widget.noRekPengguna, _pin);
-    if (response != null &&
-        response['message'] == 'Rekening berhasil dikonfirmasi') {
-      await transactionService.kirimUang(
-        widget.userSlug,
-        widget.noRekPengguna,
-        widget.noRekTujuan,
-        widget.nominalTransfer,
-      );
+    try {
+      var response = await transactionService.konfirmasiRekening(
+          widget.userSlug, widget.noRekPengguna, _pin);
+      if (response != null &&
+          response['message'] == 'Rekening berhasil dikonfirmasi') {
+        await transactionService.kirimUang(
+          widget.userSlug,
+          widget.noRekPengguna,
+          widget.noRekTujuan,
+          widget.nominalTransfer,
+        );
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ReceiptTransfer(
-            title: 'Selesai',
-            nominal: widget.nominalTransfer.toString(),
-            date: DateTime.now().toString(),
-            namaPenerima: widget.namaPenerima,
-            rekeningTujuan: widget.noRekTujuan,
-          ),
-        ),
-      );
-    } else {
+        NavigatorManager.navigatorKey.currentState?.pushNamed(
+          '/ReceiptTransfer',
+          arguments: {
+            'title': 'Selesai',
+            'nominal': widget.nominalTransfer.toString(),
+            'date': DateTime.now().toString(),
+            'namaPenerima': widget.namaPenerima,
+            'rekeningTujuan': widget.noRekTujuan,
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Gagal mengkonfirmasi PIN: ${response?['message']}')),
+        SnackBar(content: Text('Pin yang anda masukkan salah')),
       );
     }
   }

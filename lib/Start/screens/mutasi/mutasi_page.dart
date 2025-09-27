@@ -169,69 +169,98 @@ class _MutasiPageState extends State<MutasiPage> {
                                         width: double.infinity,
                                         padding:
                                             EdgeInsets.symmetric(vertical: 8),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Riwayat Transaksi',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text('Hari Ini',
-                                                style: TextStyle(
-                                                    color: Colors.grey)),
-                                          ],
-                                        ),
-                                      ),
-                                      if (_isLoading)
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 40),
-                                          width: double.infinity,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              CircularProgressIndicator(
-                                                color: Color(0xFF43964F),
-                                              ),
-                                              SizedBox(
-                                                height: 18,
-                                              ),
-                                              Text(
-                                                "Memuat data transaksi..",
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                        child: _isLoading
+                                            ? Column(
+                                                children: List.generate(
+                                                  5,
+                                                  (index) => Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 24,
+                                                          height: 24,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors
+                                                                .grey[300],
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 16),
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width: 120,
+                                                              height: 16,
+                                                              color: Colors
+                                                                  .grey[300],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 4),
+                                                            Container(
+                                                              width: 80,
+                                                              height: 14,
+                                                              color: Colors
+                                                                  .grey[300],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const Spacer(),
+                                                        Container(
+                                                          width: 100,
+                                                          height: 16,
+                                                          color:
+                                                              Colors.grey[300],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
                                               )
-                                            ],
-                                          ),
-                                        )
-                                      else
-                                        ...riwayatTransaksi.map((transaction) {
-                                          return _buildTransactionItem(
-                                            namaPengguna,
-                                            formatTransactionType(
-                                                transaction['jenis_transaksi']),
-                                            transaction['nominal_transaksi'],
-                                            transaction['jenis_transaksi'] ==
-                                                        'kirim_uang' ||
-                                                    transaction[
-                                                            'jenis_transaksi'] ==
-                                                        'tarik_uang' ||
-                                                    transaction[
-                                                            'jenis_transaksi'] ==
-                                                        'pembayaran'
-                                                ? true
-                                                : false,
-                                          );
-                                        }),
+                                            : Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Riwayat Transaksi',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text('Hari Ini',
+                                                      style: TextStyle(
+                                                          color: Colors.grey)),
+                                                ],
+                                              ),
+                                      ),
+                                      ...riwayatTransaksi.map((transaction) {
+                                        return _buildTransactionItem(
+                                          namaPengguna,
+                                          formatTransactionType(
+                                              transaction['jenis_transaksi']),
+                                          transaction['nominal_transaksi'],
+                                          transaction['jenis_transaksi'] ==
+                                                      'kirim_uang' ||
+                                                  transaction[
+                                                          'jenis_transaksi'] ==
+                                                      'tarik_uang' ||
+                                                  transaction[
+                                                          'jenis_transaksi'] ==
+                                                      'pembayaran'
+                                              ? true
+                                              : false,
+                                        );
+                                      }),
                                       buildTransactionHistory(),
                                     ],
                                   )
@@ -305,7 +334,9 @@ class _MutasiPageState extends State<MutasiPage> {
       String name, String type, int amount, bool isDebit) {
     double screenWidth = MediaQuery.of(context).size.width;
     final int maxChars = screenWidth < 372 ? 24 : 30;
-    double fontSize = screenWidth >= 412 ? 16 : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
+    double fontSize = screenWidth >= 412
+        ? 16
+        : (14 - ((412 - screenWidth) / 2)).clamp(12, 16);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -323,11 +354,15 @@ class _MutasiPageState extends State<MutasiPage> {
                 name.length > maxChars
                     ? '${name.substring(0, maxChars)}...'
                     : name,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(type, style: TextStyle(color: Colors.grey, fontSize: fontSize), ),
+              Text(
+                type,
+                style: TextStyle(color: Colors.grey, fontSize: fontSize),
+              ),
             ],
           ),
           const Spacer(),

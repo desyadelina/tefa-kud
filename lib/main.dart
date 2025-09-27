@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tefa_kud/Start/screens/mutasi/mutasi_page.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/list_bayar_pinjaman.dart';
 import 'package:tefa_kud/screens/bayar_pinjaman/receipt_bayar_pinjaman.dart';
@@ -36,6 +37,7 @@ import 'package:tefa_kud/widget/layout/detailed_layout.dart';
 import 'package:tefa_kud/widget/layout/main_layout.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tefa_kud/screens/home_page.dart';
+import 'package:tefa_kud/providers/bottom_bar_visibility_provider.dart';
 
 class NavigatorManager {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -93,17 +95,26 @@ void main() async {
   final AuthService authService = AuthService();
   final bool isLoggedIn = await authService.isLoggedIn();
   final String initialRoute = isLoggedIn ? '/home' : '/splashscreen';
-  runApp(MainApp(initialRoute: initialRoute));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BottomBarVisibilityProvider()),
+      ],
+      child: MainApp(initialRoute: initialRoute),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
   final String initialRoute;
+  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
   MainApp({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
       navigatorKey: NavigatorManager.navigatorKey,
@@ -459,6 +470,12 @@ class MainApp extends StatelessWidget {
 
       theme: ThemeData(
         fontFamily: 'RedRose',
+        textTheme: const TextTheme( 
+          bodyLarge: TextStyle(fontFamily: 'RedRose'),
+          bodyMedium: TextStyle(fontFamily: 'RedRose'),
+          titleLarge: TextStyle(fontFamily: 'RedRose'),
+          titleMedium: TextStyle(fontFamily: 'RedRose'),
+        ),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF43964F),
